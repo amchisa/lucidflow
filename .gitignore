@@ -1,8 +1,8 @@
 # Build Exclusions
-backend/HELP.md
-backend/target/
-backend/src/main/resources/static/
-backend/.mvn/wrapper/maven-wrapper.jar
+lucidflow-backend/HELP.md
+lucidflow-backend/target/
+lucidflow-backend/src/main/resources/static/
+lucidflow-backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -13,16 +13,16 @@ backend/.mvn/wrapper/maven-wrapper.jar
 *.ipr
 
 # Logs & Frontend Exclusions
-frontend/logs
+lucidflow-frontend/logs
 *.log
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
-frontend/pnpm-debug.log*
-frontend/lerna-debug.log*
-frontend/node_modules
-frontend/dist
-frontend/dist-ssr
+lucidflow-frontend/npm-debug.log*
+lucidflow-frontend/yarn-debug.log*
+lucidflow-frontend/yarn-error.log*
+lucidflow-frontend/pnpm-debug.log*
+lucidflow-frontend/lerna-debug.log*
+lucidflow-frontend/node_modules
+lucidflow-frontend/dist
+lucidflow-frontend/dist-ssr
 *.local
 
 # VSCode & OS Specific Exclusions

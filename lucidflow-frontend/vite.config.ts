@@ -5,7 +5,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: './',
   build: {
-    outDir: '../backend/src/main/resources/static',
+    outDir: '../lucidflow-backend/src/main/resources/static',
+    emptyOutDir: true,
   },
   plugins: [
     react(),
