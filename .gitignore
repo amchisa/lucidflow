@@ -1,0 +1,36 @@
+# Build Exclusions
+backend/HELP.md
+backend/target/
+backend/src/main/resources/static/
+backend/.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IntelliJ IDEA Exclusions
+.idea
+*.iws
+*.iml
+*.ipr
+
+# Logs & Frontend Exclusions
+frontend/logs
+*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
+*.local
+
+# VSCode & OS Specific Exclusions
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
