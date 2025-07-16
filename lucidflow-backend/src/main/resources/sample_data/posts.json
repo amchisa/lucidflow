@@ -1,0 +1,14 @@
+[
+  {
+    "title": "First Post",
+    "body": "This is the body of the first post. It contains some interesting content."
+  },
+  {
+    "title": "Second Post",
+    "body": "This is the body of the second post. It contains more interesting content, perhaps with images."
+  },
+  {
+    "title": "Third Post",
+    "body": "This is the body of the third post. This post might have images too, with some extra content."
+  }
+]
