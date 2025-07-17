@@ -13,4 +13,3 @@ CREATE TABLE IF NOT EXISTS images (
     display_index INT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
-
