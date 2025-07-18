@@ -1,7 +1,7 @@
 # Build Exclusions
 lucidflow-backend/HELP.md
 lucidflow-backend/target/
-lucidflow-backend/src/main/resources/static/
+# lucidflow-backend/src/main/resources/static/
 lucidflow-backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/

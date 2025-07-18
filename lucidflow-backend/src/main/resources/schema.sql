@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS posts (
 CREATE TABLE IF NOT EXISTS images (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     post_id BIGINT NOT NULL,
-    image BLOB NOT NULL, -- Stores the image directly in the database (might want to change this later)
+    image_data BLOB NOT NULL, -- Stores the image directly in the database (might change this later)
     display_index INT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );

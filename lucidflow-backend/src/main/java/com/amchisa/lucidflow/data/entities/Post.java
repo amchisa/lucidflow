@@ -1,19 +1,17 @@
-package com.amchisa.lucidflow.entities;
+package com.amchisa.lucidflow.data.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Table(name = "posts")
 public class Post {
     @Id
@@ -21,13 +19,10 @@ public class Post {
     private Long id;
 
     @Column(nullable = false)
-    @NotBlank(message = "Title is mandatory and cannot be blank")
-    @Size(max = 255, message = "Title cannot exceed 255 characters")
     private String title;
 
     @Lob
     @Column(nullable = false)
-    @NotBlank(message = "Body is mandatory and cannot be blank")
     private String body;
 
     @OneToMany(
@@ -42,12 +37,23 @@ public class Post {
 
     @Column(
         name = "time_created",
-        nullable = false,
+        nullable = false, // Redundant (kept for readability)
         insertable = false,
         updatable = false
     )
+    @CreationTimestamp
     private LocalDateTime timeCreated;
 
     @Column(name = "time_modified")
+    @UpdateTimestamp
     private LocalDateTime timeModified;
+
+    public void addImage(Image image) {
+        this.images.add(image);
+        image.setPost(this);
+    }
+
+    public void removeImage(Image image) {
+        this.images.remove(image);
+    }
 }
