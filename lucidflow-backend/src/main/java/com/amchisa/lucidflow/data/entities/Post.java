@@ -3,8 +3,6 @@ package com.amchisa.lucidflow.data.entities;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +31,7 @@ public class Post {
     )
     @OrderBy("displayIndex ASC")
     @JsonManagedReference // This field will be serialized when expressed as JSON
-    private List<Image> images;
+    private List<Image> images = new ArrayList<>();
 
     @Column(
         name = "time_created",
@@ -41,19 +39,12 @@ public class Post {
         insertable = false,
         updatable = false
     )
-    @CreationTimestamp
     private LocalDateTime timeCreated;
 
-    @Column(name = "time_modified")
-    @UpdateTimestamp
+    @Column(
+        name = "time_modified",
+        nullable = false,
+        insertable = false
+    )
     private LocalDateTime timeModified;
-
-    public void addImage(Image image) {
-        this.images.add(image);
-        image.setPost(this);
-    }
-
-    public void removeImage(Image image) {
-        this.images.remove(image);
-    }
 }

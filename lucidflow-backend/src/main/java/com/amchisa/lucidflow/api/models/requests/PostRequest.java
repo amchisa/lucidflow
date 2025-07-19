@@ -1,6 +1,7 @@
-package com.amchisa.lucidflow.api.payloads.requests;
+package com.amchisa.lucidflow.api.models.requests;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -15,5 +16,6 @@ public class PostRequest {
     @NotBlank(message = "Body is mandatory and cannot be blank")
     private String body;
 
+    @NotNull(message = "List of images must be provided, even if empty")
     private List<ImageRequest> images;
 }

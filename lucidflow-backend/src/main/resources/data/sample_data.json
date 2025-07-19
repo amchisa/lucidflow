@@ -1,0 +1,48 @@
+[
+  {
+    "id": 1,
+    "title": "First Post - Updated Title",
+    "body": "This is the updated body of the first post. Now it also has an image!",
+    "images": [
+      {
+        "imageUrl": "https://example.com/images/first_post_image_1.jpg",
+        "displayIndex": 0
+      },
+      {
+        "imageUrl": "https://example.com/images/first_post_image_2.png",
+        "displayIndex": 1
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Second Post - With Existing Image Update",
+    "body": "The second post body remains the same, but its image might be updated or reordered.",
+    "images": [
+      {
+        "id": 101,
+        "imageUrl": "https://example.com/images/existing_image_updated.gif",
+        "displayIndex": 0
+      },
+      {
+        "imageUrl": "https://example.com/images/second_post_new_image.jpeg",
+        "displayIndex": 1
+      }
+    ]
+  },
+  {
+    "title": "Third Post",
+    "body": "This is the body of the third post. This post might have images too, with some extra content.",
+    "images": []
+  },
+  {
+    "title": "Fourth Post - A Brand New Entry",
+    "body": "This post is entirely new and comes with its own set of fresh images!",
+    "images": [
+      {
+        "imageUrl": "https://example.com/images/fourth_post_image_1.jpg",
+        "displayIndex": 0
+      }
+    ]
+  }
+]

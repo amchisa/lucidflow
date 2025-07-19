@@ -1,6 +1,6 @@
 package com.amchisa.lucidflow.api.controllers;
 
-import com.amchisa.lucidflow.api.payloads.requests.PostRequest;
+import com.amchisa.lucidflow.api.models.requests.PostRequest;
 import com.amchisa.lucidflow.data.entities.Post;
 import com.amchisa.lucidflow.services.PostService;
 import jakarta.validation.Valid;
@@ -22,13 +22,14 @@ public class PostController {
         this.postService = postService;
     }
 
+    /**
+     * Retrieves all posts sorted by newest first by default.
+     * Allows for custom sorting using a pageable. To sort, add ?sort=field,order to the end
+     * of the API request. Multiple sorts can be performed if necessary.
+     */
     @GetMapping("")
-    public List<Post> getPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
-        /*
-         * Allows for custom sorting using a pageable. To sort, add ?sort=field,order to the end
-         * of the API request. Multiple sorts can be performed if necessary.
-         */
-        return postService.getPosts(pageable).getContent();
+    public List<Post> getAllPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
+        return postService.getAllPosts(pageable).getContent();
     }
 
     @GetMapping("/{id}")

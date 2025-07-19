@@ -1,15 +1,16 @@
 package com.amchisa.lucidflow.services;
 
-import com.amchisa.lucidflow.api.payloads.requests.PostRequest;
+import com.amchisa.lucidflow.api.models.requests.PostRequest;
 import com.amchisa.lucidflow.data.entities.Post;
 import com.amchisa.lucidflow.data.repositories.PostRepository;
 import com.amchisa.lucidflow.mappers.PostMapper;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
 public class PostService {
@@ -21,7 +22,11 @@ public class PostService {
         this.postMapper = postMapper;
     }
 
-    public Page<Post> getPosts(Pageable pageable) {
+    public long postCount() {
+        return postRepository.count();
+    }
+
+    public Page<Post> getAllPosts(Pageable pageable) {
         return postRepository.findAll(pageable);
     }
 
@@ -31,15 +36,33 @@ public class PostService {
         );
     }
 
-    public void createPost(@Valid PostRequest postRequest) {
+    public void createPost(PostRequest postRequest) {
         postRepository.save(postMapper.mapRequestToEntity(postRequest, new Post()));
     }
 
-    public void updatePost(Long id, @Valid PostRequest postRequest) {
+    /**
+     * Creates posts in bulk from a list of postRequests.
+     * This method will create new posts without overwriting existing ones,
+     * which could lead to duplicates. Use with caution!
+     */
+    public void createPosts(List<PostRequest> postRequests) {
+        List<Post> posts = postRequests
+            .stream()
+            .map(postRequest -> postMapper.mapRequestToEntity(postRequest, new Post()))
+            .toList();
+
+        postRepository.saveAll(posts);
+    }
+
+    public void updatePost(Long id, PostRequest postRequest) {
         postRepository.save(postMapper.mapRequestToEntity(postRequest, getPostById(id)));
     }
 
     public void deletePost(Long id) {
         postRepository.delete(getPostById(id));
+    }
+
+    public void deletePosts(List<Long> ids) {
+        postRepository.deleteAllById(ids);
     }
 }
