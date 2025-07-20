@@ -1,9 +1,9 @@
 package com.amchisa.lucidflow.mappers;
 
-import com.amchisa.lucidflow.api.models.requests.ImageRequest;
-import com.amchisa.lucidflow.api.models.requests.PostRequest;
-import com.amchisa.lucidflow.data.entities.Image;
-import com.amchisa.lucidflow.data.entities.Post;
+import com.amchisa.lucidflow.dtos.ImageRequest;
+import com.amchisa.lucidflow.dtos.PostRequest;
+import com.amchisa.lucidflow.entities.Image;
+import com.amchisa.lucidflow.entities.Post;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

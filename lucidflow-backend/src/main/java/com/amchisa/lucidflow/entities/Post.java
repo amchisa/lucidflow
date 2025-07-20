@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.data.entities;
+package com.amchisa.lucidflow.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;

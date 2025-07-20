@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.api.models.requests;
+package com.amchisa.lucidflow.dtos;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.util;
+package com.amchisa.lucidflow.utils;
 
 import com.amchisa.lucidflow.services.PostService;
 import com.fasterxml.jackson.core.type.TypeReference;

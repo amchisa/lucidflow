@@ -1,7 +1,7 @@
 package com.amchisa.lucidflow.mappers;
 
-import com.amchisa.lucidflow.api.models.requests.ImageRequest;
-import com.amchisa.lucidflow.data.entities.Image;
+import com.amchisa.lucidflow.dtos.ImageRequest;
+import com.amchisa.lucidflow.entities.Image;
 import org.springframework.stereotype.Component;
 
 @Component

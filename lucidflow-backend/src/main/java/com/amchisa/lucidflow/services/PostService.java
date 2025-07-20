@@ -1,8 +1,8 @@
 package com.amchisa.lucidflow.services;
 
-import com.amchisa.lucidflow.api.models.requests.PostRequest;
-import com.amchisa.lucidflow.data.entities.Post;
-import com.amchisa.lucidflow.data.repositories.PostRepository;
+import com.amchisa.lucidflow.dtos.PostRequest;
+import com.amchisa.lucidflow.entities.Post;
+import com.amchisa.lucidflow.repositories.PostRepository;
 import com.amchisa.lucidflow.mappers.PostMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
