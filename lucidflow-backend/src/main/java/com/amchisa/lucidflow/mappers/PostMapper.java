@@ -29,7 +29,7 @@ public class PostMapper {
             .map(image -> new Image(
                 image.getId(),
                 image.getPost(),
-                image.getImageUrl(),
+                image.getUrl(),
                 image.getDisplayIndex()
             ))
             .toList();

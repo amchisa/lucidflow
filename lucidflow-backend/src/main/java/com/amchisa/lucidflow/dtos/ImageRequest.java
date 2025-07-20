@@ -9,7 +9,7 @@ public class ImageRequest {
 
     @NotBlank(message = "Image url cannot be blank")
     @Size(max = 2048, message = "Url cannot be longer than 2048 characters")
-    private String imageUrl;
+    private String url;
 
     @NotNull
     @Min(value = 0, message = "Display index must be at least 0")

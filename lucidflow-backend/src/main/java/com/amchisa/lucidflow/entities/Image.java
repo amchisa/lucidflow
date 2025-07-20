@@ -19,8 +19,8 @@ public class Image {
     @JsonBackReference // This field will not be serialized when expressed as JSON
     private Post post;
 
-    @Column(name = "image_url", nullable = false)
-    private String imageUrl;
+    @Column(name = "url", nullable = false)
+    private String url;
 
     @Column(name = "display_index", nullable = false)
     private Integer displayIndex;

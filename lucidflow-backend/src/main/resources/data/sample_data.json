@@ -1,46 +1,107 @@
 [
   {
-    "id": 1,
-    "title": "First Post - Updated Title",
-    "body": "This is the updated body of the first post. Now it also has an image!",
+    "title": "A Walk Through Autumn",
+    "body": "The trees have turned a fiery orange and red, and the crisp air makes every walk feel refreshing. Captured a few moments along the trail.",
     "images": [
       {
-        "imageUrl": "https://example.com/images/first_post_image_1.jpg",
+        "id": 1,
+        "url": "https://example.com/images/autumn_walk_1.jpg",
         "displayIndex": 0
       },
       {
-        "imageUrl": "https://example.com/images/first_post_image_2.png",
+        "id": 2,
+        "url": "https://example.com/images/autumn_walk_2.jpg",
         "displayIndex": 1
       }
     ]
   },
   {
-    "id": 2,
-    "title": "Second Post - With Existing Image Update",
-    "body": "The second post body remains the same, but its image might be updated or reordered.",
+    "title": "Why I Switched to Manual Photography",
+    "body": "Auto mode served me well for years, but taking full control of the settings has been a game-changer. Here are some early results.",
     "images": [
       {
-        "id": 101,
-        "imageUrl": "https://example.com/images/existing_image_updated.gif",
+        "id": 3,
+        "url": "https://example.com/images/manual_photo_1.jpg",
         "displayIndex": 0
-      },
-      {
-        "imageUrl": "https://example.com/images/second_post_new_image.jpeg",
-        "displayIndex": 1
       }
     ]
   },
   {
-    "title": "Third Post",
-    "body": "This is the body of the third post. This post might have images too, with some extra content.",
+    "title": "No More Coffee After 3PM",
+    "body": "Cutting back on late afternoon caffeine has done wonders for my sleep. Still love my morning brew though.",
     "images": []
   },
   {
-    "title": "Fourth Post - A Brand New Entry",
-    "body": "This post is entirely new and comes with its own set of fresh images!",
+    "title": "Quick Weekend Getaway",
+    "body": "We packed light and hit the road without much of a plan. It turned out to be one of the best weekends we've had in a while.",
     "images": [
       {
-        "imageUrl": "https://example.com/images/fourth_post_image_1.jpg",
+        "id": 4,
+        "url": "https://example.com/images/weekend_getaway_1.jpeg",
+        "displayIndex": 0
+      },
+      {
+        "id": 5,
+        "url": "https://example.com/images/weekend_getaway_2.jpeg",
+        "displayIndex": 1
+      }
+    ]
+  },
+  {
+    "title": "Morning Routine Revisited",
+    "body": "I've been experimenting with a new morning routine: stretching, journaling, and 15 minutes of reading. So far, so good.",
+    "images": []
+  },
+  {
+    "title": "First Snowfall of the Season",
+    "body": "Woke up to a soft white blanket covering everything. Took a few shots before it melted away by noon.",
+    "images": [
+      {
+        "id": 6,
+        "url": "https://example.com/images/first_snow_1.jpg",
+        "displayIndex": 0
+      }
+    ]
+  },
+  {
+    "title": "Trying Out a New Recipe",
+    "body": "Made a lentil curry last night from a friend's recommendation. Surprisingly easy and full of flavor.",
+    "images": [
+      {
+        "id": 7,
+        "url": "https://example.com/images/lentil_curry.jpg",
+        "displayIndex": 0
+      }
+    ]
+  },
+  {
+    "title": "What I'm Reading This Month",
+    "body": "Diving into a mix of fiction and non-fiction — a sci-fi novel, a biography, and a book on habit formation. Will share thoughts soon.",
+    "images": []
+  },
+  {
+    "title": "Sunset Over the Lake",
+    "body": "Sometimes all you need is a quiet spot, good company, and a view like this.",
+    "images": [
+      {
+        "id": 8,
+        "url": "https://example.com/images/sunset_lake_1.jpg",
+        "displayIndex": 0
+      },
+      {
+        "id": 9,
+        "url": "https://example.com/images/sunset_lake_2.jpg",
+        "displayIndex": 1
+      }
+    ]
+  },
+  {
+    "title": "Studio Setup Upgrade",
+    "body": "Finally got around to reorganizing my workspace. New lighting, a better chair, and a second monitor — total game changer.",
+    "images": [
+      {
+        "id": 10,
+        "url": "https://example.com/images/studio_setup.jpg",
         "displayIndex": 0
       }
     ]
