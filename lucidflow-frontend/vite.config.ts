@@ -1,15 +1,8 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  base: './',
-  // build: {
-  //   outDir: '../lucidflow-backend/src/main/resources/static',
-  //   emptyOutDir: true,
-  // },
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-})
+  base: "./", // Allows running build output without a web server
+  plugins: [react(), tailwindcss()],
+});
