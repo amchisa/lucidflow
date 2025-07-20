@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -53,5 +54,11 @@ public class PostController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePost(@PathVariable Long id) {
         postService.deletePost(id);
+    }
+
+    @DeleteMapping("")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePosts(@RequestBody List<Long> ids) {
+        postService.deletePosts(ids);
     }
 }

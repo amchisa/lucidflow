@@ -62,6 +62,9 @@ public class PostService {
         postRepository.delete(getPostById(id));
     }
 
+    /**
+     * Deletes posts in bulk from a list of ids.
+     */
     public void deletePosts(List<Long> ids) {
         postRepository.deleteAllById(ids);
     }

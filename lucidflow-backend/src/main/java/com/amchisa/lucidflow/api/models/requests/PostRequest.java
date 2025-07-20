@@ -1,5 +1,6 @@
 package com.amchisa.lucidflow.api.models.requests;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -17,5 +18,6 @@ public class PostRequest {
     private String body;
 
     @NotNull(message = "List of images must be provided, even if empty")
+    @Valid
     private List<ImageRequest> images;
 }
