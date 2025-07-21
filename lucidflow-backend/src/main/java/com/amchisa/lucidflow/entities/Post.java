@@ -3,6 +3,8 @@ package com.amchisa.lucidflow.entities;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ public class Post {
         insertable = false,
         updatable = false
     )
+    @CreationTimestamp
     private LocalDateTime timeCreated;
 
     @Column(
@@ -46,5 +49,6 @@ public class Post {
         nullable = false,
         insertable = false
     )
+    @UpdateTimestamp
     private LocalDateTime timeModified;
 }

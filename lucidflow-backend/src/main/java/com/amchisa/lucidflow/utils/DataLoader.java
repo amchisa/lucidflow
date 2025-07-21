@@ -20,7 +20,7 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (postService.postCount() == 0) { // Essential to avoid duplicate posts
+        if (postService.postCount() == 0) { // Avoids duplicate posts
             try (InputStream inputStream = TypeReference.class.getResourceAsStream("/data/sample_data.json")) {
                 if (inputStream == null) {
                     System.err.println("Data file not found at /data/sample_data.json. Skipping data load.");
