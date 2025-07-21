@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ImageMapper {
-    public Image mapRequestToEntity(ImageRequest imageRequest, Image image) {
+    public Image applyRequestToEntity(ImageRequest imageRequest, Image image) {
         image.setUrl(imageRequest.getUrl());
         image.setDisplayIndex(imageRequest.getDisplayIndex());
 

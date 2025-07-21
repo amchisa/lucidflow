@@ -1,44 +1,79 @@
 import { useState, useEffect } from "react";
-import { getPosts } from "../services/api.ts";
+
+interface PostResponse {
+  id: number;
+  title: string;
+  body: string;
+  timeCreated: string;
+  timeModified: string;
+}
+
+interface Post {
+  id: number;
+  title: string;
+  body: string;
+  timeCreated: Date;
+  timeModified: Date;
+}
 
 const Posts = () => {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const loadPosts = async () => {
-      setPosts(await getPosts());
+      const response = await fetch("/api/posts");
+      const parsedData = await response.json();
+      const fetchedPosts: Post[] = parsedData.content.map(
+        (rawPostData: PostResponse) => ({
+          ...rawPostData,
+          timeCreated: new Date(rawPostData.timeCreated),
+          timeModified: new Date(rawPostData.timeModified),
+        })
+      );
+
+      setPosts(fetchedPosts);
+      setLoading(false);
     };
 
     loadPosts();
   }, []);
 
+  if (loading) {
+    return <span>Loading posts...</span>;
+  }
+
   return (
-    <table className="mt-5 table-auto">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Body</th>
-          <th>Time Created</th>
-          <th>Time Modified</th>
-        </tr>
-      </thead>
-      <tbody>
-        {posts.map((post) => {
-          const { id, title, body, timeCreated, timeModified } = post; // Object destructuring to extract fields
+    <>
+      <div id="content">
+        {posts.map((post: Post) => {
+          const { id, title, body, timeCreated, timeModified } = post;
 
           return (
-            <tr key={id}>
-              <td>{id}</td>
-              <td>{title}</td>
-              <td>{body}</td>
-              <td>{timeCreated}</td>
-              <td>{timeModified}</td>
-            </tr>
+            <div key={id} className="my-5 p-2 border">
+              <h2 className="text-xl">{title}</h2>
+              <div>
+                <span>
+                  Created: {timeCreated.toLocaleDateString()} at{" "}
+                  {timeCreated.toLocaleTimeString()}
+                </span>
+                <span className="ml-2">
+                  Last Modified: {timeModified.toLocaleDateString()} at{" "}
+                  {timeModified.toLocaleTimeString()}
+                </span>
+              </div>
+              <p>{body}</p>
+              <button className="text-red-500 border px-2 py-0.5 hover:bg-red-500 hover:text-white mt-2">
+                Delete Post
+              </button>
+            </div>
           );
         })}
-      </tbody>
-    </table>
+      </div>
+      <button className="text-blue-500 border px-2 py-0.5 hover:bg-blue-500 hover:text-white">
+        Create Post
+      </button>
+    </>
   );
 };
 

@@ -4,6 +4,7 @@ import com.amchisa.lucidflow.dtos.PostRequest;
 import com.amchisa.lucidflow.entities.Post;
 import com.amchisa.lucidflow.services.PostService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -26,10 +27,12 @@ public class PostController {
      * Retrieves all posts sorted by newest first by default.
      * Allows for custom sorting using a pageable. To sort, add ?sort=field,order to the end
      * of the API request. Multiple sorts can be performed if necessary.
+     * @param pageable Contains pagination (page, size) and sorting (sort, direction) information.
+     * @return A Page object containing a list of posts and pagination metadata.
      */
     @GetMapping
-    public List<Post> getPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
-        return postService.getPosts(pageable).getContent();
+    public Page<Post> getPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
+        return postService.getPosts(pageable);
     }
 
     @GetMapping("/{id}")

@@ -19,7 +19,7 @@ public class PostMapper {
         this.imageMapper = imageMapper;
     }
 
-    public Post mapRequestToEntity(PostRequest postRequest, Post post) {
+    public Post applyRequestToEntity(PostRequest postRequest, Post post) {
         post.setTitle(postRequest.getTitle());
         post.setBody(postRequest.getBody());
 
@@ -56,10 +56,10 @@ public class PostMapper {
             Long imageRequestId = imageRequest.getId();
 
             if (imageRequestId != null && existingImages.containsKey(imageRequestId)) { // Update existing image
-                imageMapper.mapRequestToEntity(imageRequest, existingImages.get(imageRequestId));
+                imageMapper.applyRequestToEntity(imageRequest, existingImages.get(imageRequestId));
             }
             else { // Add new image
-                Image image = imageMapper.mapRequestToEntity(imageRequest, new Image());
+                Image image = imageMapper.applyRequestToEntity(imageRequest, new Image());
                 image.setPost(post);
                 images.add(image);
             }

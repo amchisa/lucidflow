@@ -37,7 +37,7 @@ public class PostService {
     }
 
     public void createPost(PostRequest postRequest) {
-        postRepository.save(postMapper.mapRequestToEntity(postRequest, new Post()));
+        postRepository.save(postMapper.applyRequestToEntity(postRequest, new Post()));
     }
 
     /**
@@ -48,14 +48,14 @@ public class PostService {
     public void createPosts(List<PostRequest> postRequests) {
         List<Post> posts = postRequests
             .stream()
-            .map(postRequest -> postMapper.mapRequestToEntity(postRequest, new Post()))
+            .map(postRequest -> postMapper.applyRequestToEntity(postRequest, new Post()))
             .toList();
 
         postRepository.saveAll(posts);
     }
 
     public void updatePost(Long id, PostRequest postRequest) {
-        postRepository.save(postMapper.mapRequestToEntity(postRequest, getPost(id)));
+        postRepository.save(postMapper.applyRequestToEntity(postRequest, getPost(id)));
     }
 
     public void deletePost(Long id) {
