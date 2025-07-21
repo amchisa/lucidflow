@@ -26,11 +26,11 @@ public class PostService {
         return postRepository.count();
     }
 
-    public Page<Post> getAllPosts(Pageable pageable) {
+    public Page<Post> getPosts(Pageable pageable) {
         return postRepository.findAll(pageable);
     }
 
-    public Post getPostById(Long id) {
+    public Post getPost(Long id) {
         return postRepository.findById(id).orElseThrow(() ->
             new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Post with id %d could not be found", id))
         );
@@ -55,11 +55,11 @@ public class PostService {
     }
 
     public void updatePost(Long id, PostRequest postRequest) {
-        postRepository.save(postMapper.mapRequestToEntity(postRequest, getPostById(id)));
+        postRepository.save(postMapper.mapRequestToEntity(postRequest, getPost(id)));
     }
 
     public void deletePost(Long id) {
-        postRepository.delete(getPostById(id));
+        postRepository.delete(getPost(id));
     }
 
     /**

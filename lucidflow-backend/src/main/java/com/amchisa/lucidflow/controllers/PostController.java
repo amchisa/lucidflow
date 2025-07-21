@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")
 @CrossOrigin
 public class PostController {
     private final PostService postService;
@@ -27,17 +27,17 @@ public class PostController {
      * Allows for custom sorting using a pageable. To sort, add ?sort=field,order to the end
      * of the API request. Multiple sorts can be performed if necessary.
      */
-    @GetMapping("")
-    public List<Post> getAllPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
-        return postService.getAllPosts(pageable).getContent();
+    @GetMapping
+    public List<Post> getPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
+        return postService.getPosts(pageable).getContent();
     }
 
     @GetMapping("/{id}")
-    public Post getPostById(@PathVariable Long id) {
-        return postService.getPostById(id);
+    public Post getPost(@PathVariable Long id) {
+        return postService.getPost(id);
     }
 
-    @PostMapping("")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createPost(@Valid @RequestBody PostRequest postRequest) {
         postService.createPost(postRequest);
@@ -55,7 +55,7 @@ public class PostController {
         postService.deletePost(id);
     }
 
-    @DeleteMapping("")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePosts(@RequestBody List<Long> ids) {
         postService.deletePosts(ids);
