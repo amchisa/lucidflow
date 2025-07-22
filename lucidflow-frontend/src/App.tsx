@@ -1,21 +1,27 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Layout from "./Layout";
+import { BrowserRouter, Outlet, Route, Routes, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import Posts from "./pages/Posts";
 
-const App = () => {
+export default function App() {
   return (
     <div id="App" className="p-4">
       <BrowserRouter>
-        <Routes>
-          <Route path={"/"} element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="posts" element={<Posts />} />
-          </Route>
-        </Routes>
+        <header>
+          <h1>LucidFlow</h1>
+          <nav>
+            <Link to="/">Home</Link>
+            <Link to="/posts">Posts</Link>
+          </nav>
+        </header>
+        <main>
+          <Routes>
+            <Route path={"/"} element={<Outlet />}>
+              <Route index element={<Home />} />
+              <Route path="posts" element={<Posts />} />
+            </Route>
+          </Routes>
+        </main>
       </BrowserRouter>
     </div>
   );
-};
-
-export default App;
+}

@@ -4,15 +4,19 @@ import com.amchisa.lucidflow.dtos.PostRequest;
 import com.amchisa.lucidflow.entities.Post;
 import com.amchisa.lucidflow.repositories.PostRepository;
 import com.amchisa.lucidflow.mappers.PostMapper;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
 @Service
+@Validated
 public class PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
@@ -32,12 +36,12 @@ public class PostService {
 
     public Post getPost(Long id) {
         return postRepository.findById(id).orElseThrow(() ->
-            new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Post with id %d could not be found", id))
+            new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Post with ID %d could not be found", id))
         );
     }
 
-    public void createPost(PostRequest postRequest) {
-        postRepository.save(postMapper.applyRequestToEntity(postRequest, new Post()));
+    public Post createPost(PostRequest postRequest) {
+        return postRepository.save(postMapper.applyRequestToEntity(postRequest, new Post()));
     }
 
     /**
@@ -45,7 +49,8 @@ public class PostService {
      * This method will create new posts without overwriting existing ones,
      * which could lead to duplicates. Use with caution!
      */
-    public void createPosts(List<PostRequest> postRequests) {
+    @Transactional
+    public void createPosts(@Valid List<PostRequest> postRequests) {
         List<Post> posts = postRequests
             .stream()
             .map(postRequest -> postMapper.applyRequestToEntity(postRequest, new Post()))
@@ -54,8 +59,8 @@ public class PostService {
         postRepository.saveAll(posts);
     }
 
-    public void updatePost(Long id, PostRequest postRequest) {
-        postRepository.save(postMapper.applyRequestToEntity(postRequest, getPost(id)));
+    public Post updatePost(Long id, PostRequest postRequest) {
+        return postRepository.save(postMapper.applyRequestToEntity(postRequest, getPost(id)));
     }
 
     public void deletePost(Long id) {
@@ -65,7 +70,12 @@ public class PostService {
     /**
      * Deletes posts in bulk from a list of ids.
      */
+    @Transactional
     public void deletePosts(List<Long> ids) {
-        postRepository.deleteAllById(ids);
+        if (ids.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "List of IDs cannot be empty.");
+        }
+
+        ids.forEach(this::deletePost);
     }
 }

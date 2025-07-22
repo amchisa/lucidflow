@@ -23,10 +23,13 @@ public class PostController {
         this.postService = postService;
     }
 
+    @GetMapping("/count")
+    public long postCount() {
+        return postService.postCount();
+    }
+
     /**
      * Retrieves all posts sorted by newest first by default.
-     * Allows for custom sorting using a pageable. To sort, add ?sort=field,order to the end
-     * of the API request. Multiple sorts can be performed if necessary.
      * @param pageable Contains pagination (page, size) and sorting (sort, direction) information.
      * @return A Page object containing a list of posts and pagination metadata.
      */
@@ -42,14 +45,14 @@ public class PostController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createPost(@Valid @RequestBody PostRequest postRequest) {
-        postService.createPost(postRequest);
+    public Post createPost(@Valid @RequestBody PostRequest postRequest) {
+        return postService.createPost(postRequest);
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest postRequest) {
-        postService.updatePost(id, postRequest);
+    @ResponseStatus(HttpStatus.OK)
+    public Post updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest postRequest) {
+        return postService.updatePost(id, postRequest);
     }
 
     @DeleteMapping("/{id}")
