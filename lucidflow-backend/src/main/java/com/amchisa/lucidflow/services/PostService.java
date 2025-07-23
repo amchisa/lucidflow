@@ -15,6 +15,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -71,7 +72,7 @@ public class PostService {
         boolean imagesModified = imageService.updateImages(post, postRequest.getImages());
 
         if (imagesModified) { // Update timeModified if images have been modified (DB doesn't handle this)
-            post.setTimeModified(LocalDateTime.now());
+            post.setTimeModified(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS)); // Truncates to 6 decimal places
         }
 
         return postMapper.entityToResponse(postRepository.save(post));
