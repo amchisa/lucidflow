@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.dtos;
+package com.amchisa.lucidflow.dtos.requests;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;

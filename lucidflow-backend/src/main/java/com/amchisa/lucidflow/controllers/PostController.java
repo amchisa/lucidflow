@@ -1,6 +1,7 @@
 package com.amchisa.lucidflow.controllers;
 
-import com.amchisa.lucidflow.dtos.PostRequest;
+import com.amchisa.lucidflow.dtos.requests.PostRequest;
+import com.amchisa.lucidflow.dtos.responses.PostResponse;
 import com.amchisa.lucidflow.entities.Post;
 import com.amchisa.lucidflow.services.PostService;
 import jakarta.validation.Valid;
@@ -29,24 +30,24 @@ public class PostController {
      * @return A Page object containing a list of posts and pagination metadata.
      */
     @GetMapping
-    public Page<Post> getPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
+    public Page<PostResponse> getPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
         return postService.getPosts(pageable);
     }
 
     @GetMapping("/{id}")
-    public Post getPost(@PathVariable Long id) {
+    public PostResponse getPost(@PathVariable Long id) {
         return postService.getPost(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Post createPost(@Valid @RequestBody PostRequest postRequest) {
+    public PostResponse createPost(@Valid @RequestBody PostRequest postRequest) {
         return postService.createPost(postRequest);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Post updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest postRequest) {
+    public PostResponse updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest postRequest) {
         return postService.updatePost(id, postRequest);
     }
 

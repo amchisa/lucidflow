@@ -17,3 +17,9 @@ export interface Post {
   timeCreated: Date;
   timeModified: Date;
 }
+
+export interface PostRequest {
+  title: string;
+  body: string;
+  images: Image[];
+}

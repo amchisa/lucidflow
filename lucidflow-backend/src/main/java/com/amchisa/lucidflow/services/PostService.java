@@ -1,6 +1,7 @@
 package com.amchisa.lucidflow.services;
 
-import com.amchisa.lucidflow.dtos.PostRequest;
+import com.amchisa.lucidflow.dtos.requests.PostRequest;
+import com.amchisa.lucidflow.dtos.responses.PostResponse;
 import com.amchisa.lucidflow.entities.Post;
 import com.amchisa.lucidflow.repositories.PostRepository;
 import com.amchisa.lucidflow.mappers.PostMapper;
@@ -33,19 +34,17 @@ public class PostService {
         return postRepository.count();
     }
 
-    public Page<Post> getPosts(Pageable pageable) {
-        return postRepository.findAll(pageable);
+    public Page<PostResponse> getPosts(Pageable pageable) {
+        return postRepository.findAll(pageable).map(postMapper::entityToResponse);
     }
 
-    public Post getPost(Long id) {
-        return postRepository.findById(id).orElseThrow(() ->
-            new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Post with ID %d could not be found", id))
-        );
+    public PostResponse getPost(Long id) {
+        return postMapper.entityToResponse(findPostById(id));
     }
 
     @Transactional
-    public Post createPost(PostRequest postRequest) {
-        return postRepository.save(initializePostFromRequest(postRequest));
+    public PostResponse createPost(PostRequest postRequest) {
+        return postMapper.entityToResponse(postRepository.save(initializePostFromRequest(postRequest)));
     }
 
     /**
@@ -63,8 +62,8 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Long id, PostRequest postRequest) {
-        Post post = getPost(id);
+    public PostResponse updatePost(Long id, PostRequest postRequest) {
+        Post post = findPostById(id);
 
         post.setTitle(postRequest.getTitle());
         post.setBody(postRequest.getBody());
@@ -75,11 +74,11 @@ public class PostService {
             post.setTimeModified(LocalDateTime.now());
         }
 
-        return postRepository.save(post);
+        return postMapper.entityToResponse(postRepository.save(post));
     }
 
     public void deletePost(Long id) {
-        postRepository.delete(getPost(id));
+        postRepository.delete(findPostById(id));
     }
 
     /**
@@ -99,5 +98,11 @@ public class PostService {
         imageService.updateImages(post, postRequest.getImages());
 
         return post;
+    }
+
+    private Post findPostById(Long id) {
+        return postRepository.findById(id).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Post with ID %d could not be found", id))
+        );
     }
 }

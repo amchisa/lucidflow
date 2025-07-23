@@ -17,7 +17,6 @@ public class Image {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    @JsonBackReference // This field will not be serialized when expressed as JSON
     private Post post;
 
     @Column(name = "url", nullable = false)

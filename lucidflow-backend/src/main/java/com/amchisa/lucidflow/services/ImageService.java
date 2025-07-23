@@ -1,6 +1,6 @@
 package com.amchisa.lucidflow.services;
 
-import com.amchisa.lucidflow.dtos.ImageRequest;
+import com.amchisa.lucidflow.dtos.requests.ImageRequest;
 import com.amchisa.lucidflow.entities.Image;
 import com.amchisa.lucidflow.entities.Post;
 import com.amchisa.lucidflow.mappers.ImageMapper;

@@ -34,7 +34,6 @@ public class Post {
         fetch = FetchType.LAZY
     )
     @OrderBy("displayIndex ASC")
-    @JsonManagedReference // This field will be serialized when expressed as JSON
     private List<Image> images;
 
     @Column(
