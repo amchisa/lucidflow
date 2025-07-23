@@ -23,11 +23,6 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping("/count")
-    public long postCount() {
-        return postService.postCount();
-    }
-
     /**
      * Retrieves all posts sorted by newest first by default.
      * @param pageable Contains pagination (page, size) and sorting (sort, direction) information.

@@ -45,7 +45,7 @@ public class PostService {
 
     @Transactional
     public Post createPost(PostRequest postRequest) {
-        return postRepository.save(initializePost(postRequest));
+        return postRepository.save(initializePostFromRequest(postRequest));
     }
 
     /**
@@ -56,7 +56,7 @@ public class PostService {
     @Transactional
     public void createPosts(@Valid List<PostRequest> postRequests) {
         List<Post> posts = postRequests.stream()
-            .map(this::initializePost)
+            .map(this::initializePostFromRequest)
             .toList();
 
         postRepository.saveAll(posts);
@@ -94,7 +94,7 @@ public class PostService {
         ids.forEach(this::deletePost);
     }
 
-    private Post initializePost(PostRequest postRequest) {
+    private Post initializePostFromRequest(PostRequest postRequest) {
         Post post = postMapper.requestToEntity(postRequest);
         imageService.updateImages(post, postRequest.getImages());
 
