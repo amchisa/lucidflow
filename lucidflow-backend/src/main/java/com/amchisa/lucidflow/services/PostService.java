@@ -13,16 +13,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @Validated
 public class PostService {
     private final PostRepository postRepository;
+    private final ImageService imageService;
     private final PostMapper postMapper;
 
-    public PostService(PostRepository postRepository, PostMapper postMapper) {
+    public PostService(PostRepository postRepository, ImageService imageService, PostMapper postMapper) {
         this.postRepository = postRepository;
+        this.imageService = imageService;
         this.postMapper = postMapper;
     }
 
@@ -40,8 +43,9 @@ public class PostService {
         );
     }
 
+    @Transactional
     public Post createPost(PostRequest postRequest) {
-        return postRepository.save(postMapper.applyRequestToEntity(postRequest, new Post()));
+        return postRepository.save(initializePost(postRequest));
     }
 
     /**
@@ -51,16 +55,27 @@ public class PostService {
      */
     @Transactional
     public void createPosts(@Valid List<PostRequest> postRequests) {
-        List<Post> posts = postRequests
-            .stream()
-            .map(postRequest -> postMapper.applyRequestToEntity(postRequest, new Post()))
+        List<Post> posts = postRequests.stream()
+            .map(this::initializePost)
             .toList();
 
         postRepository.saveAll(posts);
     }
 
+    @Transactional
     public Post updatePost(Long id, PostRequest postRequest) {
-        return postRepository.save(postMapper.applyRequestToEntity(postRequest, getPost(id)));
+        Post post = getPost(id);
+
+        post.setTitle(postRequest.getTitle());
+        post.setBody(postRequest.getBody());
+
+        boolean imagesModified = imageService.updateImages(post, postRequest.getImages());
+
+        if (imagesModified) { // Update timeModified if images have been modified (DB doesn't handle this)
+            post.setTimeModified(LocalDateTime.now());
+        }
+
+        return postRepository.save(post);
     }
 
     public void deletePost(Long id) {
@@ -77,5 +92,12 @@ public class PostService {
         }
 
         ids.forEach(this::deletePost);
+    }
+
+    private Post initializePost(PostRequest postRequest) {
+        Post post = postMapper.requestToEntity(postRequest);
+        imageService.updateImages(post, postRequest.getImages());
+
+        return post;
     }
 }

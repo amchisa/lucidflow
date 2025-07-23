@@ -7,12 +7,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @Table(name = "posts")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +35,7 @@ public class Post {
     )
     @OrderBy("displayIndex ASC")
     @JsonManagedReference // This field will be serialized when expressed as JSON
-    private List<Image> images = new ArrayList<>();
+    private List<Image> images;
 
     @Column(
         name = "time_created",
