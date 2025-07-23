@@ -28,6 +28,10 @@ export default function usePosts() {
 
     const response = await fetch(url, options);
 
+    if (response.status === 204) {
+      return undefined as T;
+    }
+
     return await response.json();
   };
 
@@ -101,7 +105,7 @@ export default function usePosts() {
     setError(null);
 
     try {
-      await executeAPICall("DELETE", `/api/posts/${id}`);
+      await executeAPICall<undefined>("DELETE", `/api/posts/${id}`);
 
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
     } catch (err) {
