@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { type Post, type PostResponse } from "../types/post";
+import { type Post, type PostResponse, type PostRequest } from "../types/post";
 
 export default function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -15,7 +15,7 @@ export default function usePosts() {
   const executeAPICall = async <T>(
     method: string,
     url: string,
-    body?: object
+    body?: PostRequest
   ): Promise<T> => {
     const options: RequestInit = {
       method: method,
@@ -62,7 +62,7 @@ export default function usePosts() {
       const parsedData = await executeAPICall<PostResponse>(
         "POST",
         "/api/posts",
-        { title, body }
+        { title, body, images }
       );
       const newPost: Post = mapPostResponseToPost(parsedData);
 
@@ -83,7 +83,7 @@ export default function usePosts() {
       const parsedData = await executeAPICall<PostResponse>(
         "PUT",
         `/api/posts/${id}`,
-        { title, body }
+        { title, body, images }
       );
       const updatedPost = mapPostResponseToPost(parsedData);
 
