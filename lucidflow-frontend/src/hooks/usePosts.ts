@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Post, PostRequest, PostResponse } from "../types/postTypes";
-import api from "../config/axiosConfig";
-import type { PaginatedResponse } from "../types/apiTypes";
-import { responseToPost } from "../mappers/postMapper";
+import type { Post, PostRequest, PostResponse } from "../types/post";
+import api from "../api/configs/axios";
+import type { PaginatedResponse } from "../types/api";
+import { responseToPost } from "../api/mappers/postMapper";
 
 let tempIDCounter = -1; // For generating temporary client-side IDs for optimistic updates
 const MIN_LOADING_DURATION = 500; // Helps avoid flickering

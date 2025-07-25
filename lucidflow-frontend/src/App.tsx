@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import Posts from "./pages/Posts";
+import Posts from "./pages/PostsPage";
 
 export default function App() {
   return (

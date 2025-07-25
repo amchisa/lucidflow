@@ -1,4 +1,4 @@
-import { type Image } from "./imageTypes";
+import { type Image } from "./image";
 
 export interface PostResponse {
   id: number;

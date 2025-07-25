@@ -1,4 +1,4 @@
-import { type Image as ImageType } from "../types/imageTypes";
+import { type Image as ImageType } from "../types/image";
 
 interface ImageGalleryProps {
   images: ImageType[];

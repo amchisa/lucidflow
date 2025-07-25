@@ -1,4 +1,4 @@
-import { type PostResponse, type Post } from "../types/postTypes";
+import { type PostResponse, type Post } from "../../types/post";
 
 export function responseToPost(postResponse: PostResponse): Post {
   return {

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: "/api", // Gets redirected through the api proxy configured in vite.config
   headers: {
     "Content-Type": "application/json",
