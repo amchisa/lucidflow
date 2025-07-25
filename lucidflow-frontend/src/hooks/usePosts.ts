@@ -101,16 +101,17 @@ export default function usePosts() {
   };
 
   const deletePost = async (id: number) => {
-    setLoading(true);
     setError(null);
+
+    const originalPosts = posts;
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
 
     try {
       await executeAPICall<undefined>("DELETE", `/api/posts/${id}`);
-
-      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
     } catch (err) {
       console.error(err);
-      setError("Failed to delete post.");
+      // setError("Failed to delete post.");
+      setPosts(originalPosts);
     } finally {
       setLoading(false);
     }

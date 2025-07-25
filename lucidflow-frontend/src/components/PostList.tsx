@@ -15,17 +15,14 @@ export default function PostList({
   onPostDelete: deletePost,
 }: PostListProps) {
   if (loading) {
-    return <span>Loading posts...</span>;
-  }
-
-  if (error) {
-    return <span>{error}</span>;
+    return <div className="text-center">Loading posts...</div>;
   }
 
   return (
-    <section>
+    <>
+      {error && <div className="text-red-500 text-center">{error}</div>}
       {posts.length === 0 ? (
-        <span>No posts available.</span>
+        <div className="text-center">No posts available.</div>
       ) : (
         posts.map((post) => {
           const { id } = post;
@@ -33,6 +30,6 @@ export default function PostList({
           return <Post key={id} post={post} onDelete={deletePost}></Post>;
         })
       )}
-    </section>
+    </>
   );
 }

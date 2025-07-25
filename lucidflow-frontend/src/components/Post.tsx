@@ -1,5 +1,5 @@
 import { type Post } from "../types/post";
-import ImageCollage from "./ImageCollage";
+import ImageGallery from "./ImageGallery";
 
 interface PostProps {
   post: Post;
@@ -10,26 +10,28 @@ export default function Post({ post, onDelete: deletePost }: PostProps) {
   const { id, title, body, images, timeCreated } = post;
 
   return (
-    <article className="border p-3 rounded-xl shadow-xl">
-      {images.length > 0 && <ImageCollage images={images}></ImageCollage>}
-      <time className="block mb-3">
-        {timeCreated.toLocaleDateString(undefined, {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-        })}{" "}
-        at {timeCreated.toLocaleTimeString()}
-      </time>
+    <div className="border p-3 rounded-xl mb-5 shadow-xl">
+      {images.length > 0 && <ImageGallery images={images}></ImageGallery>}
       <div>
-        <h2 className="text-xl">{title}</h2>
-        <p className="mb-5 mt-2">{body}</p>
+        <div className="mb-3 text-gray-700">
+          {timeCreated.toLocaleDateString(undefined, {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+          })}
+        </div>
+        <div>
+          <h2 className="text-xl">{title}</h2>
+          <p className="mb-5 mt-2">{body}</p>
+        </div>
+        <button
+          className="py-2 px-3 text-white text-sm font-bold bg-red-600 hover:bg-red-700 rounded-md"
+          onClick={() => deletePost(id)}
+        >
+          Delete Post
+        </button>
       </div>
-      <button
-        className="py-0.5 px-3 text-white text-sm font-bold bg-red-600 hover:bg-red-700 rounded-md"
-        onClick={() => deletePost(id)}
-      >
-        Delete Post
-      </button>
-    </article>
+    </div>
   );
 }

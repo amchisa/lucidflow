@@ -3,7 +3,7 @@ import Posts from "./pages/Posts";
 
 export default function App() {
   return (
-    <div className="h-screen w-screen antialiased">
+    <div className="h-screen w-screen antialiased scroll-smooth">
       <BrowserRouter>
         <Routes>
           <Route path={"/"} element={<Navigate to="/posts" replace />} />
