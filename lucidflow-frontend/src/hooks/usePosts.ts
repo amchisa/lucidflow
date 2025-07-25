@@ -1,121 +1,170 @@
 import { useState, useEffect, useCallback } from "react";
-import { type Post, type PostResponse, type PostRequest } from "../types/post";
+import type { Post, PostRequest, PostResponse } from "../types/postTypes";
+import api from "../config/axiosConfig";
+import type { PaginatedResponse } from "../types/apiTypes";
+import { responseToPost } from "../mappers/postMapper";
+
+let tempIDCounter = -1; // For generating temporary client-side IDs for optimistic updates
+const MIN_LOADING_DURATION = 500; // Helps avoid flickering
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const mapPostResponseToPost = (postResponse: PostResponse): Post => ({
-    ...postResponse,
-    timeCreated: new Date(postResponse.timeCreated),
-    timeModified: new Date(postResponse.timeModified),
-  });
-
-  const executeAPICall = async <T>(
-    method: string,
-    url: string,
-    body?: PostRequest
-  ): Promise<T> => {
-    const options: RequestInit = {
-      method: method,
-    };
-
-    if (body) {
-      options.headers = { "Content-Type": "application/json" };
-      options.body = JSON.stringify(body);
-    }
-
-    const response = await fetch(url, options);
-
-    if (response.status === 204) {
-      return undefined as T;
-    }
-
-    return await response.json();
-  };
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const loadPosts = useCallback(async () => {
-    try {
-      const parsedData = await executeAPICall<{ content: PostResponse[] }>(
-        "GET",
-        "/api/posts"
-      );
-      const fetchedPosts: Post[] = parsedData.content.map(
-        mapPostResponseToPost
-      );
+    setLoading(true);
+    setErrorMessage("");
 
+    try {
+      const [response] = await Promise.all([
+        api.get<PaginatedResponse<PostResponse>>("/posts"),
+        delay(MIN_LOADING_DURATION), // Wait for at least the minimum duration
+      ]);
+      const fetchedPosts = response.data.content.map(responseToPost);
       setPosts(fetchedPosts);
     } catch (err) {
-      console.error(err);
-      setError("Failed to load posts.");
+      console.error("Failed to load posts: ", err);
+      setErrorMessage("Failed to load posts. Please try again later.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  const createPost = async (title: string, body: string) => {
-    setLoading(true);
-    setError(null);
+  const createPost = useCallback(
+    async (postRequest: PostRequest) => {
+      setLoading(true);
+      setErrorMessage("");
 
-    try {
-      const parsedData = await executeAPICall<PostResponse>(
-        "POST",
-        "/api/posts",
-        { title, body, images }
-      );
-      const newPost: Post = mapPostResponseToPost(parsedData);
+      // Save original posts state for rollback in case of failure
+      const originalPosts = posts;
 
-      setPosts((prevPosts) => [...prevPosts, newPost]);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to create post.");
-    } finally {
-      setLoading(false);
-    }
-  };
+      const { title, body, images } = postRequest;
 
-  const updatePost = async (id: number, title: string, body: string) => {
-    setLoading(true);
-    setError(null);
+      // Create post ahead of time for optimistic updates
+      const newClientPost: Post = {
+        id: tempIDCounter--,
+        title: title,
+        body: body,
+        images: images,
+        timeCreated: new Date(),
+        timeModified: new Date(),
+      };
 
-    try {
-      const parsedData = await executeAPICall<PostResponse>(
-        "PUT",
-        `/api/posts/${id}`,
-        { title, body, images }
-      );
-      const updatedPost = mapPostResponseToPost(parsedData);
+      // Append new post to the start
+      setPosts((prevPosts) => [newClientPost, ...prevPosts]); // Prevents stale closures
 
+      // Make an API call to update and retrieve updated data from database
+      try {
+        const [response] = await Promise.all([
+          api.post<PostResponse>("/posts", postRequest),
+          delay(MIN_LOADING_DURATION), // Wait for at least the minimum duration
+        ]);
+        const newServerPost: Post = responseToPost(response.data);
+
+        // On success: Replace the temporary post with the one from the API
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === newClientPost.id ? newServerPost : post
+          )
+        );
+      } catch (err) {
+        // On failure: Roll back posts to its original state
+        setPosts(originalPosts);
+        console.error("Failed to create post: ", err);
+        setErrorMessage("Failed to create post. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [posts]
+  );
+
+  const updatePost = useCallback(
+    async (id: number, postRequest: PostRequest) => {
+      setLoading(true);
+      setErrorMessage("");
+
+      // Save original posts state for rollback in case of failure
+      const originalPosts = posts;
+
+      const {
+        title: updatedTitle,
+        body: updatedBody,
+        images: updatedImages,
+      } = postRequest;
+
+      // Update post ahead of time for optimistic updates
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post.id === updatedPost.id ? updatedPost : post
+          post.id === id
+            ? {
+                ...post,
+                title: updatedTitle,
+                body: updatedBody,
+                images: updatedImages,
+                timeModified: new Date(),
+              }
+            : post
         )
       );
-    } catch (err) {
-      console.error(err);
-      setError("Failed to update post.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const deletePost = async (id: number) => {
-    setError(null);
+      // Make an API call to update and retrieve updated data from database
+      try {
+        const [response] = await Promise.all([
+          api.put<PostResponse>(`/posts/${id}`, postRequest),
+          delay(MIN_LOADING_DURATION), // Wait for at least the minimum duration
+        ]);
+        const updatedServerPost: Post = responseToPost(response.data);
 
-    const originalPosts = posts;
-    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
+        // On success: Replace the temporary post with the one from the API
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
+        );
+      } catch (err) {
+        // On failure: Roll back posts to its original state
+        setPosts(originalPosts);
+        console.error("Failed to update post: ", err);
+        setErrorMessage("Failed to update post. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [posts]
+  );
 
-    try {
-      await executeAPICall<undefined>("DELETE", `/api/posts/${id}`);
-    } catch (err) {
-      console.error(err);
-      // setError("Failed to delete post.");
-      setPosts(originalPosts);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const deletePost = useCallback(
+    async (id: number) => {
+      setLoading(true);
+      setErrorMessage("");
+
+      // Save original posts state for rollback in case of failure
+      const originalPosts = posts;
+
+      // Delete post ahead of time for optimistic updates
+      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
+
+      // Make an API call to update the database
+      try {
+        await Promise.all([
+          api.delete<void>(`/posts/${id}`),
+          delay(MIN_LOADING_DURATION), // Wait for at least the minimum duration
+        ]);
+      } catch (err) {
+        // On failure: Roll back posts to its original state
+        setPosts(originalPosts);
+        console.error("Failed to delete post: ", err);
+        setErrorMessage("Failed to delete post. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [posts]
+  );
 
   useEffect(() => {
     loadPosts();
@@ -124,7 +173,7 @@ export default function usePosts() {
   return {
     posts,
     loading,
-    error,
+    errorMessage,
     loadPosts,
     createPost,
     updatePost,

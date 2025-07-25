@@ -1,4 +1,4 @@
-import { type Post as PostType } from "../types/post";
+import { type Post as PostType } from "../types/postTypes";
 import Post from "./Post";
 
 interface PostListProps {
@@ -11,17 +11,18 @@ interface PostListProps {
 export default function PostList({
   posts,
   isLoading: loading,
-  errorMessage: error,
+  errorMessage: errorMessage,
   onPostDelete: deletePost,
 }: PostListProps) {
-  if (loading) {
-    return <div className="text-center">Loading posts...</div>;
-  }
-
   return (
     <>
-      {error && <div className="text-red-500 text-center">{error}</div>}
-      {posts.length === 0 ? (
+      {loading && <div className="text-center mb-10">Loading posts...</div>}
+      {errorMessage && (
+        <div className="text-red-500 bg-red-200 text-center mb-10">
+          {errorMessage}
+        </div>
+      )}
+      {!loading && posts.length === 0 ? (
         <div className="text-center">No posts available.</div>
       ) : (
         posts.map((post) => {

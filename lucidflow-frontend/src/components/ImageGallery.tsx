@@ -1,22 +1,25 @@
-import { type Image as ImageType } from "../types/image";
+import { type Image as ImageType } from "../types/imageTypes";
 
-interface CollageProps {
+interface ImageGalleryProps {
   images: ImageType[];
 }
 
-export default function ImageCollage({ images }: CollageProps) {
+export default function ImageGallery({ images }: ImageGalleryProps) {
   return (
-    <div className="rounded-t-xl bg-white pd-4">
+    <div className="rounded-lg bg-gray-100 p-4 h-70 mb-2 flex space-x-2">
       {images.map((image) => {
         const { id, url } = image;
 
         return (
-          <img
-            key={id}
-            src={url}
-            alt="No alt text for this image."
-            loading="lazy"
-          />
+          <div className="w-full h-full overflow-hidden rounded-lg">
+            <img
+              className="object-cover"
+              key={id}
+              src={url}
+              alt="No alt text for this image."
+              loading="lazy"
+            />
+          </div>
         );
       })}
     </div>
