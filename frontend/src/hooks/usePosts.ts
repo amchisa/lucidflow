@@ -20,6 +20,29 @@ export default function usePosts() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   /**
+   * Handles errors by logging detailed technical context and updating the user-facing error message.
+   * This function is used across various API/service calls to centralize error handling and UI messaging.
+   *
+   * @param context - A brief string describing the operation that failed (e.g., "Failed to delete post").
+   * @param err - The error object caught from the failed operation.
+   * @param userMessage - (Optional) A user-facing message to display in the UI. Defaults to a generic fallback.
+   */
+  const handleError = (
+    context: string,
+    err: unknown,
+    userMessage = "Something went wrong. Please try again later."
+  ) => {
+    let logMessage = "An unknown error occurred.";
+
+    if (err instanceof Error) {
+      logMessage = err.message;
+    }
+
+    console.error(`${context}:`, logMessage); // Log error for debugging
+    setErrorMessage(userMessage); // User-friendly error message
+  };
+
+  /**
    * Fetches all posts from the API. Posts are typically retrieved in a sorted order (e.g., newest first)
    * as determined by the API. Manages loading and error states during the data retrieval process.
    */
@@ -33,14 +56,15 @@ export default function usePosts() {
         delay(MIN_LOADING_DURATION), // Avoid UI flickering
       ]);
 
-      if (result.status === "fulfilled") {
-        // Update UI with API response
-        const fetchedPosts: Post[] = result.value;
-        setPosts(fetchedPosts);
-      } else {
-        console.error("Failed to load posts: ", result.reason); // Log error for debugging
-        setErrorMessage("Failed to load posts. Please try again later."); // User-friendly error message
+      if (result.status !== "fulfilled") {
+        throw result.reason;
       }
+
+      // Update UI with API response
+      const fetchedPosts: Post[] = result.value;
+      setPosts(fetchedPosts);
+    } catch (err) {
+      handleError("Failed to load posts", err);
     } finally {
       setLoading(false);
     }
@@ -70,20 +94,20 @@ export default function usePosts() {
           delay(MIN_LOADING_DURATION),
         ]);
 
-        if (result.status === "fulfilled") {
-          // Reupdate UI with API response
-          const newServerPost: Post = result.value;
-          setPosts((prevPosts) =>
-            prevPosts.map((post) =>
-              post.id === newClientPost.id ? newServerPost : post
-            )
-          );
-        } else {
-          // Roll back UI to original state and display error messages
-          setPosts(originalPosts);
-          console.error("Failed to create post: ", result.reason);
-          setErrorMessage("Failed to create post. Please try again later.");
+        if (result.status !== "fulfilled") {
+          throw result.reason;
         }
+
+        // Reupdate UI with API response
+        const newServerPost: Post = result.value;
+        setPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === newClientPost.id ? newServerPost : post
+          )
+        );
+      } catch (err) {
+        setPosts(originalPosts); // Roll back UI to original state
+        handleError("Failed to create post", err);
       } finally {
         setLoading(false);
       }
@@ -117,18 +141,18 @@ export default function usePosts() {
           delay(MIN_LOADING_DURATION),
         ]);
 
-        if (result.status === "fulfilled") {
-          // Reupdate UI with API response
-          const updatedServerPost: Post = result.value;
-          setPosts((prevPosts) =>
-            prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
-          );
-        } else {
-          // Roll back UI to original state and display error messages
-          setPosts(originalPosts);
-          console.error("Failed to update post: ", result.reason);
-          setErrorMessage("Failed to update post. Please try again later.");
+        if (result.status !== "fulfilled") {
+          throw result.reason;
         }
+
+        // Reupdate UI with API response
+        const updatedServerPost: Post = result.value;
+        setPosts((prevPosts) =>
+          prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
+        );
+      } catch (err) {
+        setPosts(originalPosts); // Roll back UI to original state
+        handleError("Failed to update post", err);
       } finally {
         setLoading(false);
       }
@@ -157,12 +181,12 @@ export default function usePosts() {
           delay(MIN_LOADING_DURATION),
         ]);
 
-        if (result.status === "rejected") {
-          // Roll back UI to original state and display error messages
-          setPosts(originalPosts);
-          console.error("Failed to delete post: ", result.reason);
-          setErrorMessage("Failed to delete post. Please try again later.");
+        if (result.status !== "fulfilled") {
+          throw result.reason;
         }
+      } catch (err) {
+        setPosts(originalPosts);
+        handleError("Failed to delete post", err);
       } finally {
         setLoading(false);
       }
@@ -171,7 +195,7 @@ export default function usePosts() {
   );
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(); // Load posts on refresh/startup
   }, [fetchPosts]);
 
   return {
