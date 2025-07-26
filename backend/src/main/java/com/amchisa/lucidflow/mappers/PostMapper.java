@@ -12,7 +12,6 @@ import java.util.ArrayList;
 public class PostMapper {
     private final ImageMapper imageMapper;
 
-
     public PostMapper(ImageMapper imageMapper) {
         this.imageMapper = imageMapper;
     }

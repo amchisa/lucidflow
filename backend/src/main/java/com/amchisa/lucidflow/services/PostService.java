@@ -45,7 +45,7 @@ public class PostService {
 
     @Transactional
     public PostResponse createPost(PostRequest postRequest) {
-        return postMapper.entityToResponse(postRepository.save(initializePostFromRequest(postRequest)));
+        return postMapper.entityToResponse(postRepository.save(createPostEntity(postRequest)));
     }
 
     /**
@@ -56,7 +56,7 @@ public class PostService {
     @Transactional
     public void createPosts(@Valid List<PostRequest> postRequests) {
         List<Post> posts = postRequests.stream()
-            .map(this::initializePostFromRequest)
+            .map(this::createPostEntity)
             .toList();
 
         postRepository.saveAll(posts);
@@ -64,18 +64,7 @@ public class PostService {
 
     @Transactional
     public PostResponse updatePost(Long id, PostRequest postRequest) {
-        Post post = findPostById(id);
-
-        post.setTitle(postRequest.getTitle());
-        post.setBody(postRequest.getBody());
-
-        boolean imagesModified = imageService.updateImages(post, postRequest.getImages());
-
-        if (imagesModified) { // Update timeModified if images have been modified (DB doesn't handle this)
-            post.setTimeModified(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS)); // Truncates to 6 decimal places
-        }
-
-        return postMapper.entityToResponse(postRepository.save(post));
+        return postMapper.entityToResponse(postRepository.save(updatePostEntity(findPostById(id), postRequest)));
     }
 
     public void deletePost(Long id) {
@@ -94,9 +83,22 @@ public class PostService {
         ids.forEach(this::deletePost);
     }
 
-    private Post initializePostFromRequest(PostRequest postRequest) {
+    private Post createPostEntity(PostRequest postRequest) {
         Post post = postMapper.requestToEntity(postRequest);
-        imageService.updateImages(post, postRequest.getImages());
+        imageService.synchronizeImages(post, postRequest.getImages());
+
+        return post;
+    }
+
+    private Post updatePostEntity(Post post, PostRequest postRequest) {
+        post.setTitle(postRequest.getTitle());
+        post.setBody(postRequest.getBody());
+
+        boolean imagesModified = imageService.synchronizeImages(post, postRequest.getImages());
+
+        if (imagesModified) { // Update timeModified if images have been modified (DB doesn't handle this)
+            post.setTimeModified(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS)); // Truncates to 6 decimal places
+        }
 
         return post;
     }

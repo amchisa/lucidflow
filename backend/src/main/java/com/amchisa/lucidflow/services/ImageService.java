@@ -23,16 +23,16 @@ public class ImageService {
     }
 
     /**
-     * Updates the list of Image entities associated with a Post to that provided by a list of ImageRequests.
+     * Synchronizes the list of Image entities associated with a Post to that provided by a list of ImageRequests.
      * This method handles adding new images, updating existing ones, and removing missing ones.
      *
      * @param post The Post entity whose images are to be synchronized.
-     * @param imageRequests The list of incoming ImageRequest DTOs.
+     * @param imageRequests The list of incoming ImageRequest DTOs to synchronize with.
      * @return A boolean describing whether any modifications were made to the list of existing images.
      */
     @Transactional
-    public boolean updateImages(Post post, List<ImageRequest> imageRequests) {
-        List<Image> images = post.getImages();
+    public boolean synchronizeImages(Post post, List<ImageRequest> imageRequests) {
+        List<Image> postImages = post.getImages();
         AtomicBoolean imagesModified = new AtomicBoolean(false);
 
         // Ensure that images are indexed properly and contiguously
@@ -44,7 +44,7 @@ public class ImageService {
             .filter(Objects::nonNull) // Some image requests may not include ids
             .collect(Collectors.toSet());
 
-        images.removeIf(image -> {
+        postImages.removeIf(image -> {
             if (!incomingImageIDs.contains(image.getId())) {
                 imagesModified.set(true);
                 return true;
@@ -53,7 +53,7 @@ public class ImageService {
         });
 
         // Stage 2: Process incoming images (update and add)
-        Map<Long, Image> existingImages = images.stream()
+        Map<Long, Image> existingImages = postImages.stream()
             .collect(Collectors.toMap(
                 Image::getId,
                 Function.identity()
@@ -63,7 +63,7 @@ public class ImageService {
             Long imageID = imageRequest.getId();
 
             if (imageID != null && existingImages.containsKey(imageID)) { // Update image
-                imagesModified.set(updateImageFromRequest(existingImages.get(imageID), imageRequest) || imagesModified.get());
+                imagesModified.set(updateImageEntity(existingImages.get(imageID), imageRequest) || imagesModified.get());
             }
             else { // Add image
                 addImageToPost(post, imageMapper.requestToEntity(imageRequest));
@@ -100,7 +100,7 @@ public class ImageService {
         post.getImages().add(image);
     }
 
-    private boolean updateImageFromRequest(Image image, ImageRequest imageRequest) {
+    private boolean updateImageEntity(Image image, ImageRequest imageRequest) {
         boolean imagesModified = !imageRequest.getUrl().equals(image.getUrl())
                 || !imageRequest.getDisplayIndex().equals(image.getDisplayIndex());
 

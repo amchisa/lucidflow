@@ -1,10 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import type { Post, PostRequest, PostResponse } from "../types/post";
 import api from "../api/configs/axios";
-import type { PaginatedResponse } from "../types/api";
-import { responseToPost } from "../api/mappers/postMapper";
+import type { PageResponse } from "../types/api";
+import { PostMapper } from "../api/mappers/postMapper";
+import {
+  buildModelFromRequest,
+  updateModelFromRequest,
+} from "../utils/postUtils";
 
-let tempIDCounter = -1; // For generating temporary client-side IDs for optimistic updates
 const MIN_LOADING_DURATION = 500; // Helps avoid flickering
 
 function delay(ms: number): Promise<void> {
@@ -14,18 +17,21 @@ function delay(ms: number): Promise<void> {
 export default function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>("");
 
   const loadPosts = useCallback(async () => {
     setLoading(true);
-    setErrorMessage("");
+    setErrorMessage(null);
 
     try {
       const [response] = await Promise.all([
-        api.get<PaginatedResponse<PostResponse>>("/posts"),
+        api.get<PageResponse<PostResponse>>("/posts"),
         delay(MIN_LOADING_DURATION), // Wait for at least the minimum duration
       ]);
-      const fetchedPosts = response.data.content.map(responseToPost);
+      const fetchedPosts = response.data.content.map(
+        PostMapper.responseToModel
+      );
+
       setPosts(fetchedPosts);
     } catch (err) {
       console.error("Failed to load posts: ", err);
@@ -38,22 +44,13 @@ export default function usePosts() {
   const createPost = useCallback(
     async (postRequest: PostRequest) => {
       setLoading(true);
-      setErrorMessage("");
+      setErrorMessage(null);
 
       // Save original posts state for rollback in case of failure
       const originalPosts = posts;
 
-      const { title, body, images } = postRequest;
-
       // Create post ahead of time for optimistic updates
-      const newClientPost: Post = {
-        id: tempIDCounter--,
-        title: title,
-        body: body,
-        images: images,
-        timeCreated: new Date(),
-        timeModified: new Date(),
-      };
+      const newClientPost = buildModelFromRequest(postRequest);
 
       // Append new post to the start
       setPosts((prevPosts) => [newClientPost, ...prevPosts]); // Prevents stale closures
@@ -64,7 +61,7 @@ export default function usePosts() {
           api.post<PostResponse>("/posts", postRequest),
           delay(MIN_LOADING_DURATION), // Wait for at least the minimum duration
         ]);
-        const newServerPost: Post = responseToPost(response.data);
+        const newServerPost: Post = PostMapper.responseToModel(response.data);
 
         // On success: Replace the temporary post with the one from the API
         setPosts((prevPosts) =>
@@ -87,29 +84,15 @@ export default function usePosts() {
   const updatePost = useCallback(
     async (id: number, postRequest: PostRequest) => {
       setLoading(true);
-      setErrorMessage("");
+      setErrorMessage(null);
 
       // Save original posts state for rollback in case of failure
       const originalPosts = posts;
 
-      const {
-        title: updatedTitle,
-        body: updatedBody,
-        images: updatedImages,
-      } = postRequest;
-
       // Update post ahead of time for optimistic updates
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post.id === id
-            ? {
-                ...post,
-                title: updatedTitle,
-                body: updatedBody,
-                images: updatedImages,
-                timeModified: new Date(),
-              }
-            : post
+          post.id === id ? updateModelFromRequest(post, postRequest) : post
         )
       );
 
@@ -119,7 +102,7 @@ export default function usePosts() {
           api.put<PostResponse>(`/posts/${id}`, postRequest),
           delay(MIN_LOADING_DURATION), // Wait for at least the minimum duration
         ]);
-        const updatedServerPost: Post = responseToPost(response.data);
+        const updatedServerPost = PostMapper.responseToModel(response.data);
 
         // On success: Replace the temporary post with the one from the API
         setPosts((prevPosts) =>
@@ -140,7 +123,7 @@ export default function usePosts() {
   const deletePost = useCallback(
     async (id: number) => {
       setLoading(true);
-      setErrorMessage("");
+      setErrorMessage(null);
 
       // Save original posts state for rollback in case of failure
       const originalPosts = posts;

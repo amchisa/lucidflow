@@ -10,19 +10,19 @@ interface PostListProps {
 
 export default function PostList({
   posts,
-  isLoading: loading,
-  errorMessage: errorMessage,
+  isLoading,
+  errorMessage,
   onPostDelete: deletePost,
 }: PostListProps) {
   return (
     <>
-      {loading && <div className="text-center mb-10">Loading posts...</div>}
+      {isLoading && <div className="text-center mb-10">Loading posts...</div>}
       {errorMessage && (
         <div className="text-red-500 bg-red-200 text-center mb-10">
           {errorMessage}
         </div>
       )}
-      {!loading && posts.length === 0 ? (
+      {!isLoading && posts.length === 0 ? (
         <div className="text-center">No posts available.</div>
       ) : (
         posts.map((post) => {

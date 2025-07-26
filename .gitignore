@@ -1,21 +1,21 @@
 # Backend Exclusions
-lucidflow-backend/HELP.md
-lucidflow-backend/target/
-lucidflow-backend/.mvn/wrapper/maven-wrapper.jar
+backend/HELP.md
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
 # Frontend Exclusions
-lucidflow-frontend/logs
+frontend/logs
 *.log
-lucidflow-frontend/npm-debug.log*
-lucidflow-frontend/yarn-debug.log*
-lucidflow-frontend/yarn-error.log*
-lucidflow-frontend/pnpm-debug.log*
-lucidflow-frontend/lerna-debug.log*
-lucidflow-frontend/node_modules
-lucidflow-frontend/dist
-lucidflow-frontend/dist-ssr
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+frontend/lerna-debug.log*
+frontend/node_modules
+frontend/dist
+frontend/dist-ssr
 *.local
 
 # IntelliJ IDEA Exclusions
