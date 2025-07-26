@@ -1,4 +1,4 @@
-import type { PostResponse, Post } from "../../types/post";
+import type { PostResponse, Post } from "../../types/postTypes";
 
 export const PostMapper = {
   /**

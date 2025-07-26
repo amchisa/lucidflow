@@ -1,4 +1,4 @@
-import { type Image } from "./image";
+import { type Image } from "./imageTypes";
 
 /**
  * Represents the structure of a Post object received directly from the API.

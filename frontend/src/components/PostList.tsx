@@ -1,4 +1,4 @@
-import { type Post as PostType } from "../types/post";
+import { type Post as PostType } from "../types/postTypes";
 import Post from "./Post";
 
 interface PostListProps {

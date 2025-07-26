@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Post, PostRequest, PostResponse } from "../types/post";
-import api from "../api/configs/axios";
-import type { PageResponse } from "../types/api";
+import type { Post, PostRequest, PostResponse } from "../types/postTypes";
+import { api } from "../api/clients/axios";
+import type { PageResponse } from "../types/apiTypes";
 import { PostMapper } from "../api/mappers/postMapper";
 import {
-  buildModelFromRequest,
-  updateModelFromRequest,
+  createPostOptimistically,
+  updatePostOptimistically,
 } from "../utils/postUtils";
 
 const MIN_LOADING_DURATION = 500; // Helps avoid flickering
@@ -50,7 +50,7 @@ export default function usePosts() {
       const originalPosts = posts;
 
       // Create post ahead of time for optimistic updates
-      const newClientPost = buildModelFromRequest(postRequest);
+      const newClientPost = createPostOptimistically(postRequest);
 
       // Append new post to the start
       setPosts((prevPosts) => [newClientPost, ...prevPosts]); // Prevents stale closures
@@ -92,7 +92,7 @@ export default function usePosts() {
       // Update post ahead of time for optimistic updates
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
-          post.id === id ? updateModelFromRequest(post, postRequest) : post
+          post.id === id ? updatePostOptimistically(post, postRequest) : post
         )
       );
 

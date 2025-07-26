@@ -1,15 +1,15 @@
-import type { Post, PostRequest } from "../types/post";
+import type { Post, PostRequest } from "../types/postTypes";
 
 let tempIDCounter = -1; // For generating temporary client-side IDs for optimistic updates
 
 /**
- * Builds a new Post from an incoming PostRequest.
- * This function generates temporary values for ID, timeCreated, and timeModified.
- * Typically used for optimistic client-side post creation before an API response.
+ * Creates a new temporary local-only Post from an outgoing PostRequest.
+ * Generates temporary values for `ID`, `timeCreated`, and `timeModified`.
+ * Used for optimistic client-side post creation before an API response.
  * @param request The PostRequest data provided by the client.
- * @returns A new Post object with generated metadata.
+ * @returns A new Post object (for local/optimistic display only)
  */
-export function buildModelFromRequest(postRequest: PostRequest): Post {
+export function createPostOptimistically(postRequest: PostRequest): Post {
   const now = new Date();
   const { title, body, images } = postRequest;
 
@@ -24,14 +24,14 @@ export function buildModelFromRequest(postRequest: PostRequest): Post {
 }
 
 /**
- * Applies fields from a PostRequest to an existing internal Post model.
- * This function updates specified fields and sets timeModified to the current time.
- * Typically used for optimistic client-side updates of *existing* posts.
- * @param existingPost The original Post object to update.
+ * Returns a new temporary local-only Post object respresenting updates to an existing Post from a PostRequest.
+ * Generates temporary values for `title`, `body`, `images`, and `timeModified`.
+ * Used for optimistic client-side updates of *existing* posts before an API response.
+ * @param post The Post object to update.
  * @param postRequest The PostRequest containing the updated data.
- * @returns The POst
+ * @returns A new Post object containing updated information (for local/optimistic display only)
  */
-export function updateModelFromRequest(
+export function updatePostOptimistically(
   post: Post,
   postRequest: PostRequest
 ): Post {
