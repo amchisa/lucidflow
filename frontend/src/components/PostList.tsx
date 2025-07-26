@@ -1,8 +1,8 @@
-import { type Post as PostType } from "../types/postTypes";
-import Post from "./Post";
+import type { Post } from "../types/models";
+import PostItem from "./PostItem";
 
 interface PostListProps {
-  posts: PostType[];
+  posts: Post[];
   isLoading: boolean;
   errorMessage: string | null;
   onPostDelete: (id: number) => Promise<void>;
@@ -28,7 +28,9 @@ export default function PostList({
         posts.map((post) => {
           const { id } = post;
 
-          return <Post key={id} post={post} onDelete={deletePost}></Post>;
+          return (
+            <PostItem key={id} post={post} onDelete={deletePost}></PostItem>
+          );
         })
       )}
     </>

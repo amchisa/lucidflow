@@ -1,16 +1,15 @@
-import type { PostResponse, Post } from "../../types/postTypes";
+import type { PostResponse } from "../../types/responses";
+import type { Post } from "../../types/models";
 
-export const PostMapper = {
+export const postMapper = {
   /**
    * Converts a PostResponse to a Post.
    * @param postResponse The PostResponse to be converted
    * @returns The converted Post object
    */
-  responseToModel: (postResponse: PostResponse): Post => {
-    return {
-      ...postResponse,
-      timeCreated: new Date(postResponse.timeCreated),
-      timeModified: new Date(postResponse.timeModified),
-    };
-  },
+  responseToModel: (postResponse: PostResponse): Post => ({
+    ...postResponse,
+    timeCreated: new Date(postResponse.timeCreated),
+    timeModified: new Date(postResponse.timeModified),
+  }),
 };

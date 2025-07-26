@@ -1,7 +1,7 @@
-import { type Image as ImageType } from "../types/imageTypes";
+import type { Image } from "../types/models";
 
 interface ImageGalleryProps {
-  images: ImageType[];
+  images: Image[];
 }
 
 export default function ImageGallery({ images }: ImageGalleryProps) {

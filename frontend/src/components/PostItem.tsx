@@ -1,12 +1,12 @@
-import { type Post } from "../types/postTypes";
+import type { Post } from "../types/models";
 import ImageGallery from "./ImageGallery";
 
-interface PostProps {
+interface PostItemProps {
   post: Post;
   onDelete: (id: number) => Promise<void>;
 }
 
-export default function Post({ post, onDelete: deletePost }: PostProps) {
+export default function Post({ post, onDelete: deletePost }: PostItemProps) {
   const { id, title, body, images, timeCreated } = post;
 
   return (

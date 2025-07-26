@@ -2,7 +2,7 @@ import usePosts from "../hooks/usePosts";
 import PostList from "../components/PostList";
 
 export default function Posts() {
-  const { posts, loading, errorMessage, loadPosts, deletePost } = usePosts();
+  const { posts, loading, errorMessage, fetchPosts, deletePost } = usePosts();
 
   return (
     <>
@@ -14,7 +14,7 @@ export default function Posts() {
           </button>
           <button
             className="py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 rounded-md"
-            onClick={loadPosts}
+            onClick={fetchPosts}
           >
             Refresh Posts (Temp)
           </button>
