@@ -3,7 +3,7 @@ import PostItem from "./PostItem";
 
 interface PostListProps {
   posts: Post[];
-  isLoading: boolean;
+  loading: boolean;
   errorMessage: string | null;
   onPostEdit: (post: Post) => void;
   onPostDelete: (id: number) => Promise<void>;
@@ -11,20 +11,20 @@ interface PostListProps {
 
 export default function PostList({
   posts,
-  isLoading,
+  loading,
   errorMessage,
   onPostEdit: handlePostEdit,
-  onPostDelete: deletePost,
+  onPostDelete: handlePostDelete,
 }: PostListProps) {
   return (
     <>
-      {isLoading && <div className="text-center mb-10">Loading posts...</div>}
       {errorMessage && (
         <div className="text-red-500 bg-red-200 text-center mb-10">
           {errorMessage}
         </div>
       )}
-      {!isLoading && posts.length === 0 ? (
+      {loading && <div className="text-center mb-10">Loading posts...</div>}
+      {!loading && posts.length === 0 ? (
         <div className="text-center">No posts available.</div>
       ) : (
         posts.map((post) => {
@@ -35,7 +35,7 @@ export default function PostList({
               key={id}
               post={post}
               onEdit={handlePostEdit}
-              onDelete={deletePost}
+              onDelete={handlePostDelete}
             ></PostItem>
           );
         })

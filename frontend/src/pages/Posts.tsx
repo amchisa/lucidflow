@@ -1,5 +1,5 @@
 import usePosts from "../hooks/usePosts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PostList from "../components/PostList";
 import PostEditor from "../components/PostEditor";
 import type { Post } from "../types/models";
@@ -15,31 +15,49 @@ export default function Posts() {
     updatePost,
     deletePost,
   } = usePosts();
-  const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
-  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [isEditorOpen, setEditorOpen] = useState<boolean>(false);
+  const [postToEdit, setPostToEdit] = useState<Post | null>(null);
 
-  const handleOpenCreateEditor = () => {
-    setEditingPost(null);
-    setIsEditorOpen(true);
+  /**
+   * Handles opening the editor after clicking to create a new post.
+   */
+  const openCreateEditor = () => {
+    setPostToEdit(null);
+    setEditorOpen(true);
   };
 
-  const handleOpenEditEditor = (post: Post) => {
-    setEditingPost(post);
-    setIsEditorOpen(true);
+  /**
+   * Handles opening the editor after clicking to edit an existing post.
+   * @param post The post to be edited.
+   */
+  const openUpdateEditor = (post: Post) => {
+    setPostToEdit(post);
+    setEditorOpen(true);
   };
 
-  const handleCloseEditor = () => {
-    setIsEditorOpen(false);
-    setEditingPost(null);
+  /**
+   * Handles closing the editor upon the user's request.
+   */
+  const closeEditor = () => {
+    setEditorOpen(false);
+    setPostToEdit(null);
   };
 
-  const handleSavePost = (postData: PostRequest) => {
-    if (editingPost) {
-      updatePost(editingPost.id, postData);
+  /**
+   * Handles saving a post that the user has created or edited to the database.
+   * @param requestData The PostRequest object containing the updated/new post information.
+   */
+  const savePost = async (requestData: PostRequest) => {
+    if (postToEdit) {
+      await updatePost(postToEdit.id, requestData);
     } else {
-      createPost(postData);
+      await createPost(requestData);
     }
   };
+
+  useEffect(() => {
+    fetchPosts(); // Load posts on startup
+  }, [fetchPosts]);
 
   return (
     <>
@@ -47,8 +65,8 @@ export default function Posts() {
         <h1 className="text-3xl">LucidFlow</h1>
         <span>
           <button
-            className="mr-5 py-2 px-3 text-white font-bold text-sm bg-blue-500 hover:bg-blue-600 rounded-md"
-            onClick={handleOpenCreateEditor}
+            className="mr-2 py-2 px-3 text-white font-bold text-sm bg-blue-500 hover:bg-blue-600 rounded-md"
+            onClick={openCreateEditor}
           >
             Create Post
           </button>
@@ -63,15 +81,15 @@ export default function Posts() {
       <main className="mx-auto w-225 pt-30 pb-8">
         <PostEditor
           isOpen={isEditorOpen}
-          onClose={handleCloseEditor}
-          postToEdit={editingPost}
-          onSave={handleSavePost}
+          onClose={closeEditor}
+          post={postToEdit}
+          onSave={savePost}
         ></PostEditor>
         <PostList
           posts={posts}
-          isLoading={loading}
+          loading={loading}
           errorMessage={errorMessage}
-          onPostEdit={handleOpenEditEditor}
+          onPostEdit={openUpdateEditor}
           onPostDelete={deletePost}
         ></PostList>
       </main>

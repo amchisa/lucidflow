@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import type { Post } from "../types/models";
 import type { PostRequest } from "../types/requests";
 
@@ -184,10 +184,6 @@ export default function usePosts() {
     },
     [posts] // Dependency on posts for capturing originalPosts
   );
-
-  useEffect(() => {
-    fetchPosts(); // Load posts on refresh/startup
-  }, [fetchPosts]);
 
   return {
     posts,

@@ -4,8 +4,8 @@ import type { Post } from "../../types/models";
 export const postMapper = {
   /**
    * Converts a PostResponse to a Post.
-   * @param postResponse The PostResponse to be converted
-   * @returns The converted Post object
+   * @param postResponse The PostResponse to be converted.
+   * @returns The converted Post object.
    */
   responseToModel: (postResponse: PostResponse): Post => ({
     ...postResponse,
