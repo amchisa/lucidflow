@@ -2,7 +2,7 @@ import type { Post } from "../../types/models";
 import type { PostRequest } from "../../types/requests";
 import type { PageResponse, PostResponse } from "../../types/responses";
 import { postMapper } from "../mappers/postMapper";
-import { api } from "../client/axiosConfig";
+import { api } from "../client/axios";
 
 export const postService = {
   /**

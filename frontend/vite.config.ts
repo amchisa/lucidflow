@@ -12,7 +12,6 @@ export default defineConfig({
     proxy: {
       "/api": {
         target: "http://localhost:8080",
-        rewrite: (path) => path.replace(/^\/api/, ""), // Backend does not expect /api url header
         changeOrigin: true, // Bypasses CORS restrictions in development
       },
     },

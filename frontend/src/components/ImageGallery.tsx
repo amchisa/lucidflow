@@ -11,10 +11,9 @@ export default function ImageGallery({ images }: ImageGalleryProps) {
         const { id, url } = image;
 
         return (
-          <div className="w-full h-full overflow-hidden rounded-lg">
+          <div key={id} className="w-full h-full overflow-hidden rounded-lg">
             <img
               className="object-cover"
-              key={id}
               src={url}
               alt="No alt text for this image."
               loading="lazy"

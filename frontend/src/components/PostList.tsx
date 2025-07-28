@@ -5,6 +5,7 @@ interface PostListProps {
   posts: Post[];
   isLoading: boolean;
   errorMessage: string | null;
+  onPostEdit: (post: Post) => void;
   onPostDelete: (id: number) => Promise<void>;
 }
 
@@ -12,6 +13,7 @@ export default function PostList({
   posts,
   isLoading,
   errorMessage,
+  onPostEdit: handlePostEdit,
   onPostDelete: deletePost,
 }: PostListProps) {
   return (
@@ -29,7 +31,12 @@ export default function PostList({
           const { id } = post;
 
           return (
-            <PostItem key={id} post={post} onDelete={deletePost}></PostItem>
+            <PostItem
+              key={id}
+              post={post}
+              onEdit={handlePostEdit}
+              onDelete={deletePost}
+            ></PostItem>
           );
         })
       )}

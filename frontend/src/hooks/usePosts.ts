@@ -79,7 +79,6 @@ export default function usePosts() {
    */
   const createPost = useCallback(
     async (postRequest: PostRequest) => {
-      setLoading(true);
       setErrorMessage(null);
 
       const originalPosts = posts; // Rollback state
@@ -108,8 +107,6 @@ export default function usePosts() {
       } catch (err) {
         setPosts(originalPosts); // Roll back UI to original state
         handleError("Failed to create post", err);
-      } finally {
-        setLoading(false);
       }
     },
     [posts] // Dependency on posts for capturing originalPosts
@@ -124,7 +121,6 @@ export default function usePosts() {
    */
   const updatePost = useCallback(
     async (id: number, postRequest: PostRequest) => {
-      setLoading(true);
       setErrorMessage(null);
 
       const originalPosts = posts; // Rollback state
@@ -153,8 +149,6 @@ export default function usePosts() {
       } catch (err) {
         setPosts(originalPosts); // Roll back UI to original state
         handleError("Failed to update post", err);
-      } finally {
-        setLoading(false);
       }
     },
     [posts] // Dependency on posts for capturing originalPosts
@@ -168,7 +162,6 @@ export default function usePosts() {
    */
   const deletePost = useCallback(
     async (id: number) => {
-      setLoading(true);
       setErrorMessage(null);
 
       const originalPosts = posts; // Rollback state
@@ -187,8 +180,6 @@ export default function usePosts() {
       } catch (err) {
         setPosts(originalPosts);
         handleError("Failed to delete post", err);
-      } finally {
-        setLoading(false);
       }
     },
     [posts] // Dependency on posts for capturing originalPosts
