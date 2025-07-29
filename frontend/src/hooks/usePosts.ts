@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react";
 import type { Post } from "../types/models";
 import type { PostRequest } from "../types/requests";
-
 import { delay } from "../utils/timeUtils";
 import { postService } from "../api/services/postService";
+import { AxiosError } from "axios";
 
 const MIN_LOADING_DURATION = 500; // To avoid flickering loading states
 let tempIDCounter = -1; // For generating temporary client-side IDs for optimistic updates
@@ -22,7 +22,6 @@ export default function usePosts() {
   /**
    * Handles errors by logging detailed technical context and updating the user-facing error message.
    * This function is used across various API/service calls to centralize error handling and UI messaging.
-   *
    * @param context - A brief string describing the operation that failed (e.g., "Failed to delete post").
    * @param err - The error object caught from the failed operation.
    * @param userMessage - (Optional) A user-facing message to display in the UI. Defaults to a generic fallback.
@@ -35,7 +34,11 @@ export default function usePosts() {
     let logMessage = "An unknown error occurred.";
 
     if (err instanceof Error) {
-      logMessage = err.message;
+      logMessage = `${err.name}: ${err.message}`;
+
+      if (err instanceof AxiosError) {
+        logMessage += ` (${err.code})`;
+      }
     }
 
     console.error(`${context}:`, logMessage); // Log error for debugging
