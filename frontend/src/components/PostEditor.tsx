@@ -120,7 +120,7 @@ export default function PostEditor({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-20">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
       <form
         className="bg-white opacity-100 p-4 rounded-lg"
         onSubmit={handleSubmit}

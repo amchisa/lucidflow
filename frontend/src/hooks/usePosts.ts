@@ -128,11 +128,12 @@ export default function usePosts() {
 
       const originalPosts = posts; // Rollback state
 
+      // Perform optimistic UI update
       setPosts((prevPosts) =>
         prevPosts.map((post) =>
           post.id === id ? updatePostOptimistically(post, postRequest) : post
         )
-      ); // Optimistic UI update
+      );
 
       try {
         const [result] = await Promise.allSettled([

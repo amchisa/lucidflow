@@ -1,18 +1,18 @@
 import { useState, type ReactNode } from "react";
 
 interface DropdownMenuProps {
-  trigger: (props: { onMouseDown: (e: React.MouseEvent) => void }) => ReactNode;
+  triggerIcon: ReactNode;
   children: ReactNode;
 }
 
-export default function DropdownMenu({ trigger, children }: DropdownMenuProps) {
+export default function DropdownMenu({
+  triggerIcon,
+  children,
+}: DropdownMenuProps) {
   const [isOpen, setOpen] = useState<boolean>(false);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button === 0) {
-      // Left mouse button
-      setOpen(true);
-    }
+  const toggleDropdown = () => {
+    setOpen((prevIsOpen) => !prevIsOpen);
   };
 
   const handleMouseLeave = () => {
@@ -20,10 +20,12 @@ export default function DropdownMenu({ trigger, children }: DropdownMenuProps) {
   };
 
   return (
-    <div className="flex justify-end" onMouseLeave={handleMouseLeave}>
-      {trigger({ onMouseDown: handleMouseDown })}
+    <div className="relative" onMouseLeave={handleMouseLeave}>
+      <button className="pl-10" onClick={toggleDropdown}>
+        {triggerIcon}
+      </button>
       {isOpen && (
-        <div className="bg-white fixed p-2 border rounded-lg mt-6 shadow z-10">
+        <div className="bg-white p-2 border rounded-lg shadow-xl z-10 absolute min-w-max right-0">
           {children}
         </div>
       )}

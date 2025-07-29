@@ -55,13 +55,21 @@ export default function Posts() {
     }
   };
 
+  /**
+   * Handles refreshing the page. Fetches posts and scrolls to the top.
+   */
+  const handleRefresh = () => {
+    fetchPosts();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   useEffect(() => {
     fetchPosts(); // Load posts on startup
   }, [fetchPosts]);
 
   return (
     <>
-      <header className="px-8 py-4 fixed w-full bg-white border-b border-gray-400 flex justify-between">
+      <header className="px-8 py-4 fixed z-20 w-full bg-white border-b border-gray-400 flex justify-between">
         <h1 className="text-3xl">LucidFlow</h1>
         <span>
           <button
@@ -72,13 +80,13 @@ export default function Posts() {
           </button>
           <button
             className="py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 rounded-md"
-            onClick={fetchPosts}
+            onClick={handleRefresh}
           >
             Refresh Posts
           </button>
         </span>
       </header>
-      <main className="mx-auto w-225 pt-30 pb-8">
+      <main className="mx-auto w-225 pt-30 pb-8 flex-grow">
         <PostEditor
           isOpen={isEditorOpen}
           onClose={closeEditor}
@@ -93,6 +101,7 @@ export default function Posts() {
           onPostDelete={deletePost}
         ></PostList>
       </main>
+      <footer className="text-center pb-7 text-sm">Alex Chisa 2025</footer>
     </>
   );
 }

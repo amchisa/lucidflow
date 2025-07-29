@@ -43,13 +43,7 @@ export default function PostItem({
       <div>
         <div className="mb-2 flex justify-between text-gray-800">
           <span>{formattedDateTimeCreated}</span>
-          <DropdownMenu
-            trigger={({ onMouseDown: handleMouseDown }) => (
-              <button onMouseDown={handleMouseDown}>
-                <Ellipsis />
-              </button>
-            )}
-          >
+          <DropdownMenu triggerIcon={<Ellipsis />}>
             <ul className="flex flex-col gap-0.5">
               <li>
                 <button
