@@ -91,17 +91,8 @@ export default function usePosts() {
       setPosts((prevPosts) => [newClientPost, ...prevPosts]);
 
       try {
-        const [result] = await Promise.allSettled([
-          postService.createPost(postRequest),
-          delay(MIN_LOADING_DURATION),
-        ]);
-
-        if (result.status !== "fulfilled") {
-          throw result.reason;
-        }
-
         // Reupdate UI with API response
-        const newServerPost: Post = result.value;
+        const newServerPost = await postService.createPost(postRequest);
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
             post.id === newClientPost.id ? newServerPost : post
@@ -136,17 +127,8 @@ export default function usePosts() {
       );
 
       try {
-        const [result] = await Promise.allSettled([
-          postService.updatePost(id, postRequest),
-          delay(MIN_LOADING_DURATION),
-        ]);
-
-        if (result.status !== "fulfilled") {
-          throw result.reason;
-        }
-
         // Reupdate UI with API response
-        const updatedServerPost: Post = result.value;
+        const updatedServerPost = await postService.updatePost(id, postRequest);
         setPosts((prevPosts) =>
           prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
         );
@@ -173,14 +155,7 @@ export default function usePosts() {
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id)); // Optimistic UI update
 
       try {
-        const [result] = await Promise.allSettled([
-          postService.deletePost(id),
-          delay(MIN_LOADING_DURATION),
-        ]);
-
-        if (result.status !== "fulfilled") {
-          throw result.reason;
-        }
+        await postService.deletePost(id);
       } catch (err) {
         setPosts(originalPosts);
         handleError("Failed to delete post", err);

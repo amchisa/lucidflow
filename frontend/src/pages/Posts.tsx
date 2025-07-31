@@ -15,7 +15,7 @@ export default function Posts() {
     updatePost,
     deletePost,
   } = usePosts();
-  const [isEditorOpen, setEditorOpen] = useState<boolean>(false);
+  const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const [postToEdit, setPostToEdit] = useState<Post | null>(null);
 
   /**
@@ -23,7 +23,7 @@ export default function Posts() {
    */
   const openCreateEditor = () => {
     setPostToEdit(null);
-    setEditorOpen(true);
+    setIsEditorOpen(true);
   };
 
   /**
@@ -32,26 +32,26 @@ export default function Posts() {
    */
   const openUpdateEditor = (post: Post) => {
     setPostToEdit(post);
-    setEditorOpen(true);
+    setIsEditorOpen(true);
   };
 
   /**
    * Handles closing the editor upon the user's request.
    */
   const closeEditor = () => {
-    setEditorOpen(false);
     setPostToEdit(null);
+    setIsEditorOpen(false);
   };
 
   /**
    * Handles saving a post that the user has created or edited to the database.
-   * @param requestData The PostRequest object containing the updated/new post information.
+   * @param postRequest The PostRequest object containing the updated/new post information.
    */
-  const savePost = async (requestData: PostRequest) => {
+  const savePost = (postRequest: PostRequest) => {
     if (postToEdit) {
-      await updatePost(postToEdit.id, requestData);
+      updatePost(postToEdit.id, postRequest);
     } else {
-      await createPost(requestData);
+      createPost(postRequest);
     }
   };
 
@@ -70,23 +70,23 @@ export default function Posts() {
   return (
     <>
       <header className="px-8 py-4 fixed z-20 w-full bg-white border-b border-gray-400 flex justify-between">
-        <h1 className="text-3xl">LucidFlow</h1>
+        <h1 className="text-2xl font-medium">LucidFlow</h1>
         <span>
           <button
-            className="mr-2 py-2 px-3 text-white font-bold text-sm bg-blue-500 hover:bg-blue-600 rounded-md"
+            className="mr-2 py-2 px-3 text-white font-bold text-sm bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-md"
             onClick={openCreateEditor}
           >
             Create Post
           </button>
           <button
-            className="py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 rounded-md"
+            className="py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
             onClick={handleRefresh}
           >
             Refresh Posts
           </button>
         </span>
       </header>
-      <main className="mx-auto w-225 pt-30 pb-8 flex-grow">
+      <main className="mx-auto w-225 pt-30 pb-8 flex-grow text-md">
         <PostEditor
           isOpen={isEditorOpen}
           onClose={closeEditor}
@@ -101,7 +101,9 @@ export default function Posts() {
           onPostDelete={deletePost}
         ></PostList>
       </main>
-      <footer className="text-center pb-7 text-sm">Alex Chisa 2025</footer>
+      <footer className="text-center pb-7 text-sm">
+        Alex Chisa &copy; 2025
+      </footer>
     </>
   );
 }

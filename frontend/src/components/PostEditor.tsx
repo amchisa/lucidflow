@@ -5,8 +5,9 @@ import type { PostRequest } from "../types/requests";
 interface PostEditorProps {
   isOpen: boolean;
   onClose: () => void;
-  post?: Post | null;
+  post: Post | null;
   onSave: (postData: PostRequest) => void;
+  className?: string;
 }
 
 export default function PostEditor({
@@ -19,11 +20,11 @@ export default function PostEditor({
   const [body, setBody] = useState<string>("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
+  const saveButtonText = post ? "Save Changes" : "Create Post";
   const wordCount = body
     .trim()
     .split(/\s+/)
     .filter((word) => word.length > 0).length; // Remove any empty strings from the count
-  const saveButtonText = post ? "Save Changes" : "Create Post";
   const formattedDateTimeModified = post?.timeModified
     ? post.timeModified.toLocaleString(undefined, {
         month: "short",
@@ -51,7 +52,7 @@ export default function PostEditor({
     }
 
     handleClose();
-    await handleSave({
+    handleSave({
       title: formattedTitle,
       body: formattedBody,
       images: [], // Images is set to an empty array as image uploading is not implemented yet
@@ -102,14 +103,11 @@ export default function PostEditor({
 
     let changesDetected = false;
 
-    if (post) {
-      if (title.trim() !== post.title || body.trim() !== post.body) {
-        changesDetected = true;
-      }
-    } else {
-      if (title.trim() !== "" || body.trim() !== "") {
-        changesDetected = true;
-      }
+    if (
+      title.trim() !== (post?.title ? post.title : "") ||
+      body.trim() !== (post?.body ? post.body : "")
+    ) {
+      changesDetected = true;
     }
 
     setHasUnsavedChanges(changesDetected);
@@ -120,18 +118,25 @@ export default function PostEditor({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-30">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-30"
+      onClick={handleCloseWithConfirmation}
+    >
       <form
         className="bg-white opacity-100 p-4 rounded-lg"
         onSubmit={handleSubmit}
+        onClick={(e) => e.stopPropagation()} // Prevent editor close when interacting with the form
       >
         <div className="mb-2">
-          <label htmlFor="title_input" className="block select-none mb-2">
+          <label
+            htmlFor="title_input"
+            className="block select-none mb-2 font-bold"
+          >
             Title
           </label>
           <textarea
             id="title_input"
-            className="border resize-none p-1 rounded-lg"
+            className="border border-gray-400 resize-none py-1 px-2 rounded-lg"
             rows={1}
             cols={100}
             value={title}
@@ -142,12 +147,15 @@ export default function PostEditor({
           ></textarea>
         </div>
         <div className="mb-2">
-          <label htmlFor="body_input" className="block select-none mb-2">
+          <label
+            htmlFor="body_input"
+            className="block select-none mb-2 font-bold"
+          >
             Body
           </label>
           <textarea
             id="body_input"
-            className="border resize-none p-1 rounded-lg"
+            className="border border-gray-400 resize-none py-1 px-2 rounded-lg"
             rows={10}
             cols={100}
             value={body}
@@ -157,12 +165,12 @@ export default function PostEditor({
             }}
           ></textarea>
         </div>
-        <div className="mb-2 flex justify-between">
+        <div className="mb-2 flex justify-between text-sm text-gray-800">
           <span>Words: {wordCount}</span>
           {post && <span>Last Modified: {formattedDateTimeModified}</span>}
         </div>
         <button
-          className="py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 rounded-md"
+          className={`py-2 px-3 text-white font-bold text-sm ${hasUnsavedChanges ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500 hover:bg-gray-600 active:bg-gray-700"} rounded-md`}
           type="submit"
         >
           {saveButtonText}
@@ -170,7 +178,7 @@ export default function PostEditor({
         <button
           onClick={handleCloseWithConfirmation}
           type="button"
-          className="py-2 px-3 ml-2 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 rounded-md"
+          className="py-2 px-3 ml-2 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
         >
           Close
         </button>

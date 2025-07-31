@@ -7,6 +7,7 @@ interface PostListProps {
   errorMessage: string | null;
   onPostEdit: (post: Post) => void;
   onPostDelete: (id: number) => Promise<void>;
+  className?: string;
 }
 
 export default function PostList({
@@ -23,16 +24,16 @@ export default function PostList({
           {errorMessage}
         </div>
       )}
-      {loading && <div className="text-center mb-10">Loading posts...</div>}
+      {loading && (
+        <div className="text-center mb-10 text-sm">Loading posts...</div>
+      )}
       {!loading && posts.length === 0 ? (
         <div className="text-center">No posts available.</div>
       ) : (
         posts.map((post) => {
-          const { id } = post;
-
           return (
             <PostItem
-              key={id}
+              key={post.id}
               post={post}
               onEdit={handlePostEdit}
               onDelete={handlePostDelete}
