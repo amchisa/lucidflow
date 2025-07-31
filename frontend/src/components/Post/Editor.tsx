@@ -1,26 +1,26 @@
 import { useEffect, useState } from "react";
-import type { Post } from "../types/models";
-import type { PostRequest } from "../types/requests";
+import type { Post } from "../../types/models";
+import type { PostRequest } from "../../types/requests";
+import { X } from "lucide-react";
 
-interface PostEditorProps {
-  isOpen: boolean;
+interface EditorProps {
   onClose: () => void;
   post: Post | null;
   onSave: (postData: PostRequest) => void;
   className?: string;
 }
 
-export default function PostEditor({
-  isOpen,
+export default function Editor({
   onClose: handleClose,
   post,
   onSave: handleSave,
-}: PostEditorProps) {
-  const [title, setTitle] = useState<string>("");
-  const [body, setBody] = useState<string>("");
+}: EditorProps) {
+  const [title, setTitle] = useState<string>(() => post?.title || "");
+  const [body, setBody] = useState<string>(() => post?.body || "");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   const saveButtonText = post ? "Save Changes" : "Create Post";
+  const canSave = hasUnsavedChanges && title && body;
   const wordCount = body
     .trim()
     .split(/\s+/)
@@ -38,23 +38,10 @@ export default function PostEditor({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formattedTitle = title.trim();
-    const formattedBody = body.trim();
-
-    if (formattedTitle === "") {
-      window.alert("Title cannot be blank");
-      return;
-    }
-
-    if (formattedBody === "") {
-      window.alert("Body cannot be blank");
-      return;
-    }
-
     handleClose();
     handleSave({
-      title: formattedTitle,
-      body: formattedBody,
+      title: title.trim(),
+      body: body.trim(),
       images: [], // Images is set to an empty array as image uploading is not implemented yet
     });
   };
@@ -75,58 +62,44 @@ export default function PostEditor({
 
   // Editor setup
   useEffect(() => {
-    if (isOpen) {
-      // Disable background scrolling
-      document.body.style.overflow = "hidden";
-
-      if (post) {
-        // Set states to the existing values of the post being updated
-        setTitle(post.title);
-        setBody(post.body);
-      }
-    }
+    // Disable background scrolling
+    document.body.style.overflow = "hidden";
 
     // Cleanup after state change or component unmount
     return () => {
       document.body.style.overflow = "";
-      setTitle("");
-      setBody("");
-      setHasUnsavedChanges(false);
     };
-  }, [isOpen, post]);
+  }, [post]);
 
   // Unsaved changes tracker
   useEffect(() => {
-    if (!isOpen) {
-      return; // No need to run
-    }
+    const initialTitle = post?.title || "";
+    const initialBody = post?.body || "";
 
-    let changesDetected = false;
-
-    if (
-      title.trim() !== (post?.title ? post.title : "") ||
-      body.trim() !== (post?.body ? post.body : "")
-    ) {
-      changesDetected = true;
-    }
+    const changesDetected =
+      title.trim() !== initialTitle.trim() ||
+      body.trim() !== initialBody.trim();
 
     setHasUnsavedChanges(changesDetected);
-  }, [title, body, post, isOpen]);
-
-  if (!isOpen) {
-    return null; // Don't render if not meant to be open
-  }
+  }, [title, body, post]);
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-30"
+      className="fixed inset-0 bg-black/50 flex flex-col items-center justify-center z-30"
       onClick={handleCloseWithConfirmation}
     >
       <form
-        className="bg-white opacity-100 p-4 rounded-lg"
+        className="bg-white opacity-100 p-4 rounded-lg w-250 relative"
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()} // Prevent editor close when interacting with the form
       >
+        <button
+          onClick={handleCloseWithConfirmation}
+          type="button"
+          className="p-1 absolute right-1 top-1 text-white font-bold text-sm bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md"
+        >
+          <X size={24}></X>
+        </button>
         <div className="mb-2">
           <label
             htmlFor="title_input"
@@ -136,9 +109,8 @@ export default function PostEditor({
           </label>
           <textarea
             id="title_input"
-            className="border border-gray-400 resize-none py-1 px-2 rounded-lg"
+            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full whitespace-nowrap"
             rows={1}
-            cols={100}
             value={title}
             placeholder="Give your post a title"
             onChange={(e) => {
@@ -151,13 +123,12 @@ export default function PostEditor({
             htmlFor="body_input"
             className="block select-none mb-2 font-bold"
           >
-            Body
+            Description
           </label>
           <textarea
             id="body_input"
-            className="border border-gray-400 resize-none py-1 px-2 rounded-lg"
+            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full"
             rows={10}
-            cols={100}
             value={body}
             placeholder="Write about your day"
             onChange={(e) => {
@@ -170,17 +141,11 @@ export default function PostEditor({
           {post && <span>Last Modified: {formattedDateTimeModified}</span>}
         </div>
         <button
-          className={`py-2 px-3 text-white font-bold text-sm ${hasUnsavedChanges ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500 hover:bg-gray-600 active:bg-gray-700"} rounded-md`}
+          className={`py-2 px-3 text-white font-bold text-sm ${canSave ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500"} rounded-md`}
           type="submit"
+          disabled={!canSave}
         >
           {saveButtonText}
-        </button>
-        <button
-          onClick={handleCloseWithConfirmation}
-          type="button"
-          className="py-2 px-3 ml-2 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
-        >
-          Close
         </button>
       </form>
     </div>

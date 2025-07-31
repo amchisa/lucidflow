@@ -1,9 +1,10 @@
 import usePosts from "../hooks/usePosts";
 import { useState, useEffect } from "react";
-import PostList from "../components/PostList";
-import PostEditor from "../components/PostEditor";
+import EntryList from "../components/Post/EntryList";
+import Editor from "../components/Post/Editor";
 import type { Post } from "../types/models";
 import type { PostRequest } from "../types/requests";
+import { RotateCcw, SquarePen } from "lucide-react";
 
 export default function Posts() {
   const {
@@ -39,7 +40,6 @@ export default function Posts() {
    * Handles closing the editor upon the user's request.
    */
   const closeEditor = () => {
-    setPostToEdit(null);
     setIsEditorOpen(false);
   };
 
@@ -69,37 +69,40 @@ export default function Posts() {
 
   return (
     <>
-      <header className="px-8 py-4 fixed z-20 w-full bg-white border-b border-gray-400 flex justify-between">
+      <header className="px-8 py-4 fixed z-20 w-full bg-white border-b border-gray-300 flex justify-between">
         <h1 className="text-2xl font-medium">LucidFlow</h1>
-        <span>
+        <span className="flex gap-2">
           <button
-            className="mr-2 py-2 px-3 text-white font-bold text-sm bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-md"
+            className="flex gap-2 py-2 px-3 text-white font-bold text-sm bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-md"
             onClick={openCreateEditor}
           >
-            Create Post
+            <SquarePen size={20} />
+            <span>Create Post</span>
           </button>
           <button
-            className="py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
+            className="flex gap-2 py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
             onClick={handleRefresh}
           >
-            Refresh Posts
+            <RotateCcw size={20}></RotateCcw>
+            <span>Refresh Posts</span>
           </button>
         </span>
       </header>
       <main className="mx-auto w-225 pt-30 pb-8 flex-grow text-md">
-        <PostEditor
-          isOpen={isEditorOpen}
-          onClose={closeEditor}
-          post={postToEdit}
-          onSave={savePost}
-        ></PostEditor>
-        <PostList
+        {isEditorOpen && (
+          <Editor
+            onClose={closeEditor}
+            post={postToEdit}
+            onSave={savePost}
+          ></Editor>
+        )}
+        <EntryList
           posts={posts}
           loading={loading}
           errorMessage={errorMessage}
           onPostEdit={openUpdateEditor}
           onPostDelete={deletePost}
-        ></PostList>
+        ></EntryList>
       </main>
       <footer className="text-center pb-7 text-sm">
         Alex Chisa &copy; 2025

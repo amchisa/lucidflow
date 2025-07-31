@@ -1,20 +1,20 @@
-import type { Post } from "../types/models";
+import type { Post } from "../../types/models";
 import Dropdown from "./Dropdown";
-import ImageGallery from "./ImageGallery";
+import Gallery from "./ImageGallery";
 import { Ellipsis, Edit2, Trash2 } from "lucide-react";
 
-interface PostItemProps {
+interface EntryProps {
   post: Post;
   onEdit: (post: Post) => void;
   onDelete: (id: number) => Promise<void>;
   className?: string;
 }
 
-export default function PostItem({
+export default function Entry({
   post,
   onEdit: handleEdit,
   onDelete: handleDelete,
-}: PostItemProps) {
+}: EntryProps) {
   const { id, title, body, images, timeCreated } = post;
 
   const formattedDateTimeCreated = timeCreated.toLocaleString(undefined, {
@@ -39,8 +39,8 @@ export default function PostItem({
   };
 
   return (
-    <div className="border border-gray-400 p-3 rounded-xl mb-5 shadow-lg">
-      <div className="flex justify-between">
+    <div className="bg-white p-3 rounded-xl mb-5 shadow-md border border-gray-300">
+      <div className="flex justify-between mb-1.5">
         <span className="text-sm text-gray-800">
           {formattedDateTimeCreated}
         </span>
@@ -48,7 +48,7 @@ export default function PostItem({
           <ul className="flex flex-col gap-1">
             <li>
               <button
-                className="w-full flex gap-2 justify-start py-2 px-3 text-white text-sm font-bold bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-lg"
+                className="w-full flex gap-2 py-2 px-3 text-white text-sm font-bold bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-lg"
                 onClick={() => handleEdit(post)}
               >
                 <Edit2 size={20} />
@@ -57,7 +57,7 @@ export default function PostItem({
             </li>
             <li>
               <button
-                className="w-full flex gap-2 justify-start py-2 px-3 text-white text-sm font-bold bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-lg"
+                className="w-full flex gap-2 py-2 px-3 text-white text-sm font-bold bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-lg"
                 onClick={handleDeleteWithConfirmation}
               >
                 <Trash2 size={20} />
@@ -67,13 +67,13 @@ export default function PostItem({
           </ul>
         </Dropdown>
       </div>
-      <div>
-        <h2 className="text-lg mb-2 font-bold">{title}</h2>
-        <p>{body}</p>
-      </div>
       {images.length > 0 && (
-        <ImageGallery className="mt-4" images={images}></ImageGallery>
+        <Gallery className="mb-2" images={images}></Gallery>
       )}
+      <div>
+        <h2 className="text-lg font-bold mb-3 truncate">{title}</h2>
+        <p className="whitespace-pre-wrap">{body}</p>
+      </div>
     </div>
   );
 }
