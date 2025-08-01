@@ -1,6 +1,6 @@
 import type { Post } from "../../types/models";
 import Dropdown from "./Dropdown";
-import Gallery from "./ImageGallery";
+import Gallery from "./Gallery";
 import { Ellipsis, Edit2, Trash2 } from "lucide-react";
 
 interface EntryProps {
@@ -39,16 +39,16 @@ export default function Entry({
   };
 
   return (
-    <div className="bg-white p-3 rounded-xl mb-5 shadow-md border border-gray-300">
+    <div className="bg-white p-3 rounded-xl mb-5 shadow-lg border border-gray-300">
       <div className="flex justify-between mb-1.5">
         <span className="text-sm text-gray-800">
           {formattedDateTimeCreated}
         </span>
-        <Dropdown triggerIcon={<Ellipsis size={24} />}>
-          <ul className="flex flex-col gap-1">
+        <Dropdown trigger={<Ellipsis size={24} />}>
+          <ul className="flex flex-col text-gray-800">
             <li>
               <button
-                className="w-full flex gap-2 py-2 px-3 text-white text-sm font-bold bg-green-600 hover:bg-green-700 active:bg-green-800 rounded-lg"
+                className="w-full flex gap-2 py-2 px-3 text-sm font-bold hover:bg-green-600 hover:text-white active:bg-green-700 rounded-lg"
                 onClick={() => handleEdit(post)}
               >
                 <Edit2 size={20} />
@@ -57,7 +57,7 @@ export default function Entry({
             </li>
             <li>
               <button
-                className="w-full flex gap-2 py-2 px-3 text-white text-sm font-bold bg-red-600 hover:bg-red-700 active:bg-red-800 rounded-lg"
+                className="w-full flex gap-2 py-2 px-3 text-sm font-bold hover:bg-red-600 hover:text-white active:bg-red-700 rounded-lg"
                 onClick={handleDeleteWithConfirmation}
               >
                 <Trash2 size={20} />
@@ -67,9 +67,7 @@ export default function Entry({
           </ul>
         </Dropdown>
       </div>
-      {images.length > 0 && (
-        <Gallery className="mb-2" images={images}></Gallery>
-      )}
+      {images.length > 0 && <Gallery className="mb-2" images={images} />}
       <div>
         <h2 className="text-lg font-bold mb-3 truncate">{title}</h2>
         <p className="whitespace-pre-wrap">{body}</p>

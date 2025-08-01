@@ -5,6 +5,8 @@ import com.amchisa.lucidflow.dtos.responses.PostResponse;
 import com.amchisa.lucidflow.entities.Post;
 import com.amchisa.lucidflow.repositories.PostRepository;
 import com.amchisa.lucidflow.mappers.PostMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,10 +27,14 @@ public class PostService {
     private final ImageService imageService;
     private final PostMapper postMapper;
 
-    public PostService(PostRepository postRepository, ImageService imageService, PostMapper postMapper) {
+    @PersistenceContext
+    private final EntityManager entityManager;
+
+    public PostService(PostRepository postRepository, ImageService imageService, PostMapper postMapper, EntityManager entityManager) {
         this.postRepository = postRepository;
         this.imageService = imageService;
         this.postMapper = postMapper;
+        this.entityManager = entityManager;
     }
 
     public long postCount() {
@@ -64,7 +70,14 @@ public class PostService {
 
     @Transactional
     public PostResponse updatePost(Long id, PostRequest postRequest) {
-        return postMapper.entityToResponse(postRepository.save(updatePostEntity(findPostById(id), postRequest)));
+        Post updatedPost = updatePostEntity(findPostById(id), postRequest);
+        postRepository.save(updatedPost);
+
+        // Ensure the entity is synchronized with the database to prevent stale responses
+        entityManager.flush();
+        entityManager.refresh(updatedPost);
+
+        return postMapper.entityToResponse(updatedPost);
     }
 
     public void deletePost(Long id) {
@@ -96,8 +109,8 @@ public class PostService {
 
         boolean imagesModified = imageService.synchronizeImages(post, postRequest.getImages());
 
-        if (imagesModified) { // Update timeModified if images have been modified (DB doesn't handle this)
-            post.setTimeModified(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS)); // Truncates to 6 decimal places
+        if (imagesModified) { // Update timeModified (DB doesn't handle this)
+            post.setTimeModified(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS)); // Truncate to 6 decimal places to match DB
         }
 
         return post;

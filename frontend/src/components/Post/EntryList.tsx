@@ -4,7 +4,6 @@ import Entry from "./Entry";
 interface EntryListProps {
   posts: Post[];
   loading: boolean;
-  errorMessage: string | null;
   onPostEdit: (post: Post) => void;
   onPostDelete: (id: number) => Promise<void>;
   className?: string;
@@ -13,17 +12,11 @@ interface EntryListProps {
 export default function EntryList({
   posts,
   loading,
-  errorMessage,
   onPostEdit: handlePostEdit,
   onPostDelete: handlePostDelete,
 }: EntryListProps) {
   return (
     <>
-      {errorMessage && (
-        <div className="text-red-500 bg-red-200 text-center mb-10 text-sm">
-          {errorMessage}
-        </div>
-      )}
       {loading && (
         <div className="text-center mb-10 text-sm">Loading posts...</div>
       )}
@@ -37,7 +30,7 @@ export default function EntryList({
               post={post}
               onEdit={handlePostEdit}
               onDelete={handlePostDelete}
-            ></Entry>
+            />
           );
         })
       )}

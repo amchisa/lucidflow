@@ -35,10 +35,7 @@ export const postService = {
    */
   async updatePost(id: number, postRequest: PostRequest): Promise<Post> {
     const response = await api.put<PostResponse>(`/posts/${id}`, postRequest);
-    console.log(response);
-    const mapped = postMapper.responseToModel(response.data);
-    console.log(mapped);
-    return mapped;
+    return postMapper.responseToModel(response.data);
   },
 
   /**
