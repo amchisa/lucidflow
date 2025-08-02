@@ -45,7 +45,7 @@ export default function Entry({
           {formattedDateTimeCreated}
         </span>
         <Dropdown trigger={<Ellipsis size={24} />}>
-          <ul className="flex flex-col text-gray-800">
+          <ul className="flex flex-col">
             <li>
               <button
                 className="w-full flex gap-2 py-2 px-3 text-sm font-bold hover:bg-green-600 hover:text-white active:bg-green-700 rounded-lg"

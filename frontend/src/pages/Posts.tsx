@@ -1,5 +1,5 @@
 import usePosts from "../hooks/usePosts";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import EntryList from "../components/Post/EntryList";
 import Editor from "../components/Post/Editor";
 import type { Post } from "../types/models";
@@ -9,15 +9,18 @@ import { RotateCcw, Search, SquarePen } from "lucide-react";
 export default function Posts() {
   const {
     posts,
+    hasMore,
     loading,
     errorMessage,
     fetchPosts,
+    refreshPosts,
     createPost,
     updatePost,
     deletePost,
   } = usePosts();
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const [postToEdit, setPostToEdit] = useState<Post | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   /**
    * Handles opening the editor after clicking to create a new post.
@@ -57,15 +60,43 @@ export default function Posts() {
   };
 
   /**
-   * Handles refreshing the page. Fetches posts and scrolls to the top.
+   * Handles refresh of the page.
    */
-  const handleRefresh = () => {
-    fetchPosts();
+  const handleRefresh = useCallback(() => {
+    refreshPosts();
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  }, [refreshPosts]);
 
+  // Load posts on startup
   useEffect(() => {
-    fetchPosts(); // Load posts on startup
+    handleRefresh();
+  }, [handleRefresh]);
+
+  // Fetch more posts when bottom is reached
+  useEffect(() => {
+    const handleFetch = (entries: IntersectionObserverEntry[]) => {
+      const entry = entries[0];
+
+      if (entry.isIntersecting) {
+        fetchPosts();
+      }
+    };
+
+    const observer = new IntersectionObserver(handleFetch, {
+      rootMargin: "50px", // Triggers fetch before the div enters the viewport
+    });
+
+    const target = loadMoreRef.current;
+
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+    };
   }, [fetchPosts]);
 
   return (
@@ -109,8 +140,13 @@ export default function Posts() {
           onPostEdit={openUpdateEditor}
           onPostDelete={deletePost}
         />
+        {hasMore && (
+          <div ref={loadMoreRef} className="text-center text-sm mt-10">
+            Loading more posts...
+          </div>
+        )}
       </main>
-      <footer className="text-center py-1 text-sm bg-white border-t border-gray-300">
+      <footer className="text-center py-1 text-sm bg-white border-t border-gray-300 text-gray-800">
         Alex Chisa &copy; 2025 &middot;{" "}
         <a href="https://github.com/amchisa" target="_blank">
           GitHub

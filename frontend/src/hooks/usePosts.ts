@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import type { Post } from "../types/models";
 import type { PostRequest } from "../types/requests";
 import { delay } from "../utils/timeUtils";
@@ -18,6 +18,9 @@ export default function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const pageNumber = useRef<number>(0);
+  const [hasMore, setHasMore] = useState<boolean>(false);
 
   /**
    * Handles errors by logging detailed technical context and updating the user-facing error message.
@@ -46,16 +49,18 @@ export default function usePosts() {
   };
 
   /**
-   * Fetches all posts from the API. Posts are typically retrieved in a sorted order (e.g., newest first)
-   * as determined by the API. Manages loading and error states during the data retrieval process.
+   * Fetches more posts as the user scrolls.
    */
   const fetchPosts = useCallback(async () => {
-    setLoading(true);
     setErrorMessage(null);
+
+    if (!hasMore) {
+      return;
+    }
 
     try {
       const [result] = await Promise.allSettled([
-        postService.getPosts(), // Call service to get posts
+        postService.getPosts(pageNumber.current), // Call service to get posts
         delay(MIN_LOADING_DURATION), // Avoid UI flickering
       ]);
 
@@ -63,11 +68,60 @@ export default function usePosts() {
         throw result.reason;
       }
 
-      // Update UI with API response
-      const fetchedPosts: Post[] = result.value;
-      setPosts(fetchedPosts);
+      const fetchedPosts: Post[] = result.value.content;
+
+      // Update UI with API response, filtering to prevent duplicate posts
+      setPosts((prevPosts) => {
+        const combinedPosts = [...prevPosts, ...fetchedPosts];
+        const seenIDs = new Set();
+
+        const uniquePosts = combinedPosts.filter((post) => {
+          if (!seenIDs.has(post.id)) {
+            seenIDs.add(post.id);
+            return true;
+          }
+
+          return false;
+        });
+
+        return uniquePosts;
+      });
+
+      pageNumber.current++;
+      setHasMore(pageNumber.current < result.value.page.totalPages);
     } catch (err) {
       handleError("Failed to load posts", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [hasMore]);
+
+  /**
+   * Refreshes/loads the initial list of posts (page 0) from the API.
+   */
+  const refreshPosts = useCallback(async () => {
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const [result] = await Promise.allSettled([
+        postService.getPosts(0), // Call service to get posts
+        delay(MIN_LOADING_DURATION), // Avoid UI flickering
+      ]);
+
+      if (result.status !== "fulfilled") {
+        throw result.reason;
+      }
+
+      const fetchedPosts: Post[] = result.value.content;
+
+      // Update UI with API response
+      setPosts(fetchedPosts);
+
+      pageNumber.current = 1;
+      setHasMore(result.value.page.totalPages > 1);
+    } catch (err) {
+      handleError("Failed to refresh posts", err);
     } finally {
       setLoading(false);
     }
@@ -86,13 +140,14 @@ export default function usePosts() {
 
       const originalPosts = posts; // Rollback state
 
-      // Optimistically create and display the new post immediately
+      // Optimistically create the new post without waiting for an API response
       const newClientPost = createPostOptimistically(postRequest);
       setPosts((prevPosts) => [newClientPost, ...prevPosts]);
 
       try {
-        // Reupdate UI with API response
         const newServerPost = await postService.createPost(postRequest);
+
+        // Reupdate UI with API response
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
             post.id === newClientPost.id ? newServerPost : post
@@ -127,8 +182,9 @@ export default function usePosts() {
       );
 
       try {
-        // Reupdate UI with API response
         const updatedServerPost = await postService.updatePost(id, postRequest);
+
+        // Reupdate UI with API response
         setPosts((prevPosts) =>
           prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
         );
@@ -166,9 +222,11 @@ export default function usePosts() {
 
   return {
     posts,
+    hasMore,
     loading,
     errorMessage,
     fetchPosts,
+    refreshPosts,
     createPost,
     updatePost,
     deletePost,

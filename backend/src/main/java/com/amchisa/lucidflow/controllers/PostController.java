@@ -2,7 +2,6 @@ package com.amchisa.lucidflow.controllers;
 
 import com.amchisa.lucidflow.dtos.requests.PostRequest;
 import com.amchisa.lucidflow.dtos.responses.PostResponse;
-import com.amchisa.lucidflow.entities.Post;
 import com.amchisa.lucidflow.services.PostService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -30,7 +29,7 @@ public class PostController {
      * @return A Page object containing a list of posts and pagination metadata.
      */
     @GetMapping
-    public Page<PostResponse> getPosts(@PageableDefault(sort = "timeCreated", direction = Sort.Direction.DESC) Pageable pageable) {
+    public Page<PostResponse> getPosts(@PageableDefault(sort = {"timeCreated", "id"}, direction = Sort.Direction.DESC) Pageable pageable) {
         return postService.getPosts(pageable);
     }
 
