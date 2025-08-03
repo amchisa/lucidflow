@@ -20,6 +20,7 @@ export default function Posts() {
   } = usePosts();
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const [postToEdit, setPostToEdit] = useState<Post | null>(null);
+  const [search, setSearch] = useState<string | null>(null);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   /**
@@ -63,14 +64,19 @@ export default function Posts() {
    * Handles refresh of the page.
    */
   const handleRefresh = useCallback(() => {
-    refreshPosts();
+    if (search) {
+      refreshPosts(search);
+    } else {
+      refreshPosts();
+    }
+
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [refreshPosts]);
+  }, [refreshPosts, search]);
 
   // Load posts on startup
   useEffect(() => {
     handleRefresh();
-  }, [handleRefresh]);
+  }, [handleRefresh, search]);
 
   // Fetch more posts when bottom is reached
   useEffect(() => {
@@ -106,11 +112,13 @@ export default function Posts() {
           <h1 className="text-2xl font-medium mr-8">LucidFlow</h1>
           <div className="border border-gray-400 rounded-lg flex items-center pr-2 mr-2">
             <Search size={20} className="mx-2" />
-            <textarea
-              className="resize-none w-full whitespace-nowrap focus:outline-none"
-              rows={1}
+            <input
+              className="resize-none w-full focus:outline-none"
               placeholder="Search by title"
-            ></textarea>
+              onChange={(e) => {
+                setSearch(e.target.value);
+              }}
+            ></input>
           </div>
         </span>
         <span className="flex gap-2">

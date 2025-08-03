@@ -23,14 +23,12 @@ public class PostController {
         this.postService = postService;
     }
 
-    /**
-     * Retrieves all posts sorted by newest first by default.
-     * @param pageable Contains pagination (page, size) and sorting (sort, direction) information.
-     * @return A Page object containing a list of posts and pagination metadata.
-     */
     @GetMapping
-    public Page<PostResponse> getPosts(@PageableDefault(sort = {"timeCreated", "id"}, direction = Sort.Direction.DESC) Pageable pageable) {
-        return postService.getPosts(pageable);
+    public Page<PostResponse> getPosts(
+        @RequestParam(required = false) String search,
+        @PageableDefault(sort = {"timeCreated", "id"}, direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        return postService.getPosts(search, pageable);
     }
 
     @GetMapping("/{id}")

@@ -107,16 +107,15 @@ export default function Editor({
           >
             Title
           </label>
-          <textarea
+          <input
             id="title_input"
-            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full whitespace-nowrap"
-            rows={1}
+            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full"
             value={title}
             placeholder="Give your post a title"
             onChange={(e) => {
               setTitle(e.target.value);
             }}
-          ></textarea>
+          ></input>
         </div>
         <div className="mb-2">
           <label

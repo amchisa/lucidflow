@@ -41,8 +41,12 @@ public class PostService {
         return postRepository.count();
     }
 
-    public Page<PostResponse> getPosts(Pageable pageable) {
-        return postRepository.findAll(pageable).map(postMapper::entityToResponse);
+    public Page<PostResponse> getPosts(String search, Pageable pageable) {
+        if (search == null || search.isBlank()) {
+            return postRepository.findAll(pageable).map(postMapper::entityToResponse);
+        }
+
+        return postRepository.findAllByTitleContainingIgnoreCase(search, pageable).map(postMapper::entityToResponse);
     }
 
     public PostResponse getPost(Long id) {

@@ -51,61 +51,64 @@ export default function usePosts() {
   /**
    * Fetches more posts as the user scrolls.
    */
-  const fetchPosts = useCallback(async () => {
-    setErrorMessage(null);
+  const fetchPosts = useCallback(
+    async (search?: string) => {
+      setErrorMessage(null);
 
-    if (!hasMore) {
-      return;
-    }
-
-    try {
-      const [result] = await Promise.allSettled([
-        postService.getPosts(pageNumber.current), // Call service to get posts
-        delay(MIN_LOADING_DURATION), // Avoid UI flickering
-      ]);
-
-      if (result.status !== "fulfilled") {
-        throw result.reason;
+      if (!hasMore) {
+        return;
       }
 
-      const fetchedPosts: Post[] = result.value.content;
+      try {
+        const [result] = await Promise.allSettled([
+          postService.getPosts(search, pageNumber.current), // Call service to get posts
+          delay(MIN_LOADING_DURATION), // Avoid UI flickering
+        ]);
 
-      // Update UI with API response, filtering to prevent duplicate posts
-      setPosts((prevPosts) => {
-        const combinedPosts = [...prevPosts, ...fetchedPosts];
-        const seenIDs = new Set();
+        if (result.status !== "fulfilled") {
+          throw result.reason;
+        }
 
-        const uniquePosts = combinedPosts.filter((post) => {
-          if (!seenIDs.has(post.id)) {
-            seenIDs.add(post.id);
-            return true;
-          }
+        const fetchedPosts: Post[] = result.value.content;
 
-          return false;
+        // Update UI with API response, filtering to prevent duplicate posts
+        setPosts((prevPosts) => {
+          const combinedPosts = [...prevPosts, ...fetchedPosts];
+          const seenIDs = new Set();
+
+          const uniquePosts = combinedPosts.filter((post) => {
+            if (!seenIDs.has(post.id)) {
+              seenIDs.add(post.id);
+              return true;
+            }
+
+            return false;
+          });
+
+          return uniquePosts;
         });
 
-        return uniquePosts;
-      });
-
-      pageNumber.current++;
-      setHasMore(pageNumber.current < result.value.page.totalPages);
-    } catch (err) {
-      handleError("Failed to load posts", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [hasMore]);
+        pageNumber.current++;
+        setHasMore(pageNumber.current < result.value.page.totalPages);
+      } catch (err) {
+        handleError("Failed to load posts", err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [hasMore]
+  );
 
   /**
    * Refreshes/loads the initial list of posts (page 0) from the API.
    */
-  const refreshPosts = useCallback(async () => {
+  const refreshPosts = useCallback(async (search?: string) => {
     setLoading(true);
     setErrorMessage(null);
 
     try {
       const [result] = await Promise.allSettled([
-        postService.getPosts(0), // Call service to get posts
+        postService.getPosts(search, 0), // Call service to get posts
         delay(MIN_LOADING_DURATION), // Avoid UI flickering
       ]);
 
