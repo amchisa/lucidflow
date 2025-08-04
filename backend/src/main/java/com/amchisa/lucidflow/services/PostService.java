@@ -37,10 +37,16 @@ public class PostService {
         this.entityManager = entityManager;
     }
 
-    public long postCount() {
-        return postRepository.count();
+    public PostResponse getPost(Long id) {
+        return postMapper.entityToResponse(findPostById(id));
     }
 
+    /**
+     * Retrieves all posts matching the criteria specified in the parameters.
+     * @param search The title search string to match posts against.
+     * @param pageable The pageable containing pagination information.
+     * @return A page of post responses corresponding to the queried posts.
+     */
     public Page<PostResponse> getPosts(String search, Pageable pageable) {
         if (search == null || search.isBlank()) {
             return postRepository.findAll(pageable).map(postMapper::entityToResponse);
@@ -49,20 +55,11 @@ public class PostService {
         return postRepository.findAllByTitleContainingIgnoreCase(search, pageable).map(postMapper::entityToResponse);
     }
 
-    public PostResponse getPost(Long id) {
-        return postMapper.entityToResponse(findPostById(id));
-    }
-
     @Transactional
     public PostResponse createPost(PostRequest postRequest) {
         return postMapper.entityToResponse(postRepository.save(createPostEntity(postRequest)));
     }
 
-    /**
-     * Creates posts in bulk from a list of postRequests.
-     * This method will create new posts without overwriting existing ones,
-     * which could lead to duplicates. Use with caution!
-     */
     @Transactional
     public void createPosts(@Valid List<PostRequest> postRequests) {
         List<Post> posts = postRequests.stream()
@@ -74,10 +71,9 @@ public class PostService {
 
     @Transactional
     public PostResponse updatePost(Long id, PostRequest postRequest) {
-        Post updatedPost = updatePostEntity(findPostById(id), postRequest);
-        postRepository.save(updatedPost);
+        Post updatedPost = postRepository.save(updatePostEntity(findPostById(id), postRequest));
 
-        // Ensure the entity is synchronized with the database to prevent stale responses
+        // Ensure the entity is synchronized with the database to prevent stale responses (bug fix)
         entityManager.flush();
         entityManager.refresh(updatedPost);
 
@@ -88,9 +84,6 @@ public class PostService {
         postRepository.delete(findPostById(id));
     }
 
-    /**
-     * Deletes posts in bulk from a list of ids.
-     */
     @Transactional
     public void deletePosts(List<Long> ids) {
         if (ids.isEmpty()) {
@@ -100,9 +93,19 @@ public class PostService {
         ids.forEach(this::deletePost);
     }
 
+    public long postCount() {
+        return postRepository.count();
+    }
+
+    private Post findPostById(Long id) {
+        return postRepository.findById(id).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Post with ID: %d could not be found", id))
+        );
+    }
+
     private Post createPostEntity(PostRequest postRequest) {
         Post post = postMapper.requestToEntity(postRequest);
-        imageService.synchronizeImages(post, postRequest.getImages());
+        imageService.syncImages(post, postRequest.getImages());
 
         return post;
     }
@@ -111,18 +114,12 @@ public class PostService {
         post.setTitle(postRequest.getTitle());
         post.setBody(postRequest.getBody());
 
-        boolean imagesModified = imageService.synchronizeImages(post, postRequest.getImages());
+        boolean imagesModified = imageService.syncImages(post, postRequest.getImages());
 
-        if (imagesModified) { // Update timeModified (DB doesn't handle this)
-            post.setTimeModified(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS)); // Truncate to 6 decimal places to match DB
+        if (imagesModified) { // Trigger modification timestamp update
+           post.touch();
         }
 
         return post;
-    }
-
-    private Post findPostById(Long id) {
-        return postRepository.findById(id).orElseThrow(() ->
-            new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("Post with ID %d could not be found", id))
-        );
     }
 }

@@ -6,5 +6,5 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import static org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode.VIA_DTO;
 
 @Configuration
-@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO)
+@EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO) // Stabilizes page response JSON to avoid warnings
 public class SpringDataWebConfig {}

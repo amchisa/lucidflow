@@ -1,9 +1,9 @@
 package com.amchisa.lucidflow.entities;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
@@ -38,7 +38,7 @@ public class Post {
 
     @Column(
         name = "time_created",
-        nullable = false, // Redundant (kept for readability)
+        nullable = false, // Redundant (since insert and update are disabled) but kept for readability
         insertable = false,
         updatable = false
     )
@@ -52,4 +52,13 @@ public class Post {
     )
     @UpdateTimestamp
     private LocalDateTime timeModified;
+
+    /**
+     * Triggers an update to the timeModified timestamp in order to mark the post entity it is called on
+     * as dirty. Allows changes that are not tracked properly by JPA/Hibernate to cause an DB update to
+     * the modification timestamp.
+     */
+    public void touch() {
+        this.setTimeModified(LocalDateTime.now());
+    }
 }

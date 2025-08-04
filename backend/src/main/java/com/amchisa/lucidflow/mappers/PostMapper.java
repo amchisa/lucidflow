@@ -20,7 +20,7 @@ public class PostMapper {
         return Post.builder()
             .title(postRequest.getTitle())
             .body(postRequest.getBody())
-            .images(new ArrayList<>())
+            .images(new ArrayList<>()) // Avoid null checks
             .build();
     }
 
