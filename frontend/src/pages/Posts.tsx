@@ -1,4 +1,5 @@
 import usePosts from "../hooks/usePosts";
+import useDebounce from "../hooks/useDebounce";
 import { useState, useEffect, useRef, useCallback } from "react";
 import EntryList from "../components/Post/EntryList";
 import Editor from "../components/Post/Editor";
@@ -9,11 +10,10 @@ import { RotateCcw, Search, SquarePen } from "lucide-react";
 export default function Posts() {
   const {
     posts,
+    isLoading,
     hasMore,
-    loading,
     errorMessage,
     fetchPosts,
-    refreshPosts,
     createPost,
     updatePost,
     deletePost,
@@ -21,7 +21,10 @@ export default function Posts() {
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const [postToEdit, setPostToEdit] = useState<Post | null>(null);
   const [search, setSearch] = useState<string | null>(null);
+
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  const debouncedSearch = useDebounce(search, 500);
 
   /**
    * Handles opening the editor after clicking to create a new post.
@@ -64,27 +67,17 @@ export default function Posts() {
    * Handles refresh of the page.
    */
   const handleRefresh = useCallback(() => {
-    if (search) {
-      refreshPosts(search);
-    } else {
-      refreshPosts();
-    }
-
+    fetchPosts(true, search ?? undefined); // Nullish coalescing to condense null to undefined
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [refreshPosts, search]);
+  }, [fetchPosts, search]);
 
-  // Load posts on startup
-  useEffect(() => {
-    handleRefresh();
-  }, [handleRefresh, search]);
-
-  // Fetch more posts when bottom is reached
+  // Fetch more posts on startup and when bottom is reached
   useEffect(() => {
     const handleFetch = (entries: IntersectionObserverEntry[]) => {
       const entry = entries[0];
 
-      if (entry.isIntersecting) {
-        fetchPosts();
+      if (entry.isIntersecting && hasMore) {
+        fetchPosts(false, search ?? undefined);
       }
     };
 
@@ -103,7 +96,7 @@ export default function Posts() {
         observer.unobserve(target);
       }
     };
-  }, [fetchPosts]);
+  }, [fetchPosts, search, hasMore]);
 
   return (
     <div className="flex flex-col min-h-screen min-w-screen">
@@ -144,14 +137,19 @@ export default function Posts() {
         )}
         <EntryList
           posts={posts}
-          loading={loading}
+          loading={isLoading}
           onPostEdit={openUpdateEditor}
           onPostDelete={deletePost}
         />
-        {hasMore && (
+        {hasMore && !errorMessage && (
           <div ref={loadMoreRef} className="text-center text-sm mt-10">
             Loading more posts...
           </div>
+        )}
+        {errorMessage && (
+          <span className="fixed right-5 bottom-7 z-40 text-sm p-4 rounded-xl bg-red-300 text-red-600 text-center">
+            {errorMessage}
+          </span>
         )}
       </main>
       <footer className="text-center py-1 text-sm bg-white border-t border-gray-300 text-gray-800">
@@ -165,11 +163,6 @@ export default function Posts() {
         </a>{" "}
         &middot; Built using Spring Boot, React, Tailwind CSS, and Vite.
       </footer>
-      {errorMessage && (
-        <span className="absolute right-5 bottom-7 z-40 text-sm p-4 rounded-xl bg-red-300 text-red-600 text-center">
-          {errorMessage}
-        </span>
-      )}
     </div>
   );
 }

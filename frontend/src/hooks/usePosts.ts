@@ -5,63 +5,115 @@ import { delay } from "../utils/timeUtils";
 import { postService } from "../api/services/postService";
 import { AxiosError } from "axios";
 
-const MIN_LOADING_DURATION = 500; // To avoid flickering loading states
-let tempIDCounter = -1; // For generating temporary client-side IDs for optimistic updates
+const MIN_LOADING_DURATION = 500; // Minimum load duration to avoid flickering loading states
 
 /**
- * Custom hook for managing Post-related data and UI state.
- * It provides functions for fetching, creating, updating, and deleting posts.
- * This hook implements optimistic UI updates to provide immediate feedback to the user,
- * managing loading states, and handling errors with rollback capabilities.
+ * Custom hook for managing Post related data and UI state. Provides functions for fetching,
+ * creating, updating, and deleting posts. Implements optimistic UI updates to provide immediate
+ * feedback to the user, manages loading states, and handles errors with rollback capabilities.
  */
 export default function usePosts() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const pageNumber = useRef<number>(0);
-  const [hasMore, setHasMore] = useState<boolean>(false);
+  const tempIDCounter = useRef(-1); // Generates temporary client-side IDs for optimistic updates
+  const isFetching = useRef(false); // Flag to prevent duplicate fetches
 
   /**
-   * Handles errors by logging detailed technical context and updating the user-facing error message.
-   * This function is used across various API/service calls to centralize error handling and UI messaging.
+   * Handles errors by logging detailed technical context and updating the user error message.
+   * Used across various API/service calls to centralize error handling and UI messaging.
    * @param context - A brief string describing the operation that failed (e.g., "Failed to delete post").
    * @param err - The error object caught from the failed operation.
    * @param userMessage - (Optional) A user-facing message to display in the UI. Defaults to a generic fallback.
    */
-  const handleError = (
-    context: string,
-    err: unknown,
-    userMessage = "Something went wrong. Please try again later."
-  ) => {
-    let logMessage = "An unknown error occurred.";
+  const handleError = useCallback(
+    (
+      context: string,
+      err: unknown,
+      userMessage = "Something went wrong. Please try again later."
+    ): void => {
+      let logMessage = "An unknown error occurred.";
 
-    if (err instanceof Error) {
-      logMessage = `${err.name}: ${err.message}`;
+      if (err instanceof Error) {
+        logMessage = `${err.name}: ${err.message}`;
 
-      if (err instanceof AxiosError) {
-        logMessage += ` (${err.code})`;
+        if (err instanceof AxiosError) {
+          logMessage += ` (${err.code})`;
+        }
       }
-    }
 
-    console.error(`${context}:`, logMessage); // Log error for debugging
-    setErrorMessage(userMessage); // User-friendly error message
+      console.error(`${context}:`, logMessage); // Log error for debugging
+      setErrorMessage(userMessage); // User-friendly error message
+    },
+    []
+  );
+
+  /**
+   * Creates a new temporary local-only Post from an outgoing PostRequest.
+   * Generates temporary values for `ID`, `timeCreated`, and `timeModified`.
+   * Used for optimistic client-side post creation before an API response.
+   * @param request The PostRequest data provided by the client.
+   * @returns A new Post object (for local/optimistic display only)
+   */
+  const createPostOptimistically = (postRequest: PostRequest): Post => {
+    const now = new Date();
+
+    return {
+      id: tempIDCounter.current--, // Use a new temporary negative ID
+      ...postRequest,
+      timeCreated: now,
+      timeModified: now,
+    };
   };
 
   /**
-   * Fetches more posts as the user scrolls.
+   * Returns a new temporary local-only Post object respresenting updates to an existing Post from a PostRequest.
+   * Generates temporary values for `title`, `body`, `images`, and `timeModified`.
+   * Used for optimistic client-side updates of existing posts before an API response.
+   * @param post The Post object to update.
+   * @param postRequest The PostRequest containing the updated data.
+   * @returns A new Post object containing updated information (for local/optimistic display only)
+   */
+  const updatePostOptimistically = (
+    post: Post,
+    postRequest: PostRequest
+  ): Post => {
+    return {
+      ...post, // Keep existing ID, timeCreated, etc.
+      ...postRequest, // Update overlapping Post fields with PostRequest fields
+      timeModified: new Date(), // Update the modification timestamp
+    };
+  };
+
+  /**
+   * Fetches posts. Supports full refresh and infinite scroll functionality.
+   * @param refresh A boolean indicating whether or not a full refresh is to be performed.
+   * @param search An optional search query on post titles.
    */
   const fetchPosts = useCallback(
-    async (search?: string) => {
-      setErrorMessage(null);
-
-      if (!hasMore) {
+    async (refresh = false, search?: string): Promise<void> => {
+      if (isFetching.current || (!refresh && !hasMore)) {
         return;
       }
 
+      if (refresh) {
+        setIsLoading(true);
+        setErrorMessage(null);
+        pageNumber.current = 0;
+      }
+
+      isFetching.current = true;
+
       try {
         const [result] = await Promise.allSettled([
-          postService.getPosts(search, pageNumber.current), // Call service to get posts
+          postService.getPosts({
+            ...(search && { search }), // Conditionally include the search string if specified
+            page: pageNumber.current,
+          }),
           delay(MIN_LOADING_DURATION), // Avoid UI flickering
         ]);
 
@@ -69,66 +121,44 @@ export default function usePosts() {
           throw result.reason;
         }
 
-        const fetchedPosts: Post[] = result.value.content;
+        const paginatedPosts = result.value;
+        const fetchedPosts = paginatedPosts.content;
 
-        // Update UI with API response, filtering to prevent duplicate posts
-        setPosts((prevPosts) => {
-          const combinedPosts = [...prevPosts, ...fetchedPosts];
-          const seenIDs = new Set();
+        if (refresh) {
+          setPosts(fetchedPosts);
+        } else {
+          setPosts((prevPosts) => {
+            const combinedPosts = [...prevPosts, ...fetchedPosts];
+            const seenIDs = new Set();
 
-          const uniquePosts = combinedPosts.filter((post) => {
-            if (!seenIDs.has(post.id)) {
-              seenIDs.add(post.id);
-              return true;
-            }
+            // Filter to prevent duplicate posts
+            const uniquePosts = combinedPosts.filter((post) => {
+              if (!seenIDs.has(post.id)) {
+                seenIDs.add(post.id);
+                return true;
+              }
 
-            return false;
+              return false;
+            });
+
+            return uniquePosts;
           });
-
-          return uniquePosts;
-        });
+        }
 
         pageNumber.current++;
-        setHasMore(pageNumber.current < result.value.page.totalPages);
+        setHasMore(pageNumber.current < paginatedPosts.totalPages);
       } catch (err) {
-        handleError("Failed to load posts", err);
+        handleError("Failed to load posts.", err);
       } finally {
-        setLoading(false);
+        isFetching.current = false;
+
+        if (refresh) {
+          setIsLoading(false);
+        }
       }
     },
-    [hasMore]
+    [hasMore, handleError]
   );
-
-  /**
-   * Refreshes/loads the initial list of posts (page 0) from the API.
-   */
-  const refreshPosts = useCallback(async (search?: string) => {
-    setLoading(true);
-    setErrorMessage(null);
-
-    try {
-      const [result] = await Promise.allSettled([
-        postService.getPosts(search, 0), // Call service to get posts
-        delay(MIN_LOADING_DURATION), // Avoid UI flickering
-      ]);
-
-      if (result.status !== "fulfilled") {
-        throw result.reason;
-      }
-
-      const fetchedPosts: Post[] = result.value.content;
-
-      // Update UI with API response
-      setPosts(fetchedPosts);
-
-      pageNumber.current = 1;
-      setHasMore(result.value.page.totalPages > 1);
-    } catch (err) {
-      handleError("Failed to refresh posts", err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
 
   /**
    * Creates a new post with an optimistic UI update.
@@ -138,14 +168,18 @@ export default function usePosts() {
    * @param postRequest The data required to create the new post.
    */
   const createPost = useCallback(
-    async (postRequest: PostRequest) => {
-      setErrorMessage(null);
-
-      const originalPosts = posts; // Rollback state
-
-      // Optimistically create the new post without waiting for an API response
+    async (postRequest: PostRequest): Promise<void> => {
+      let originalPosts: Post[] = [];
       const newClientPost = createPostOptimistically(postRequest);
-      setPosts((prevPosts) => [newClientPost, ...prevPosts]);
+
+      // Perform optimistic UI update and create rollback state
+      setPosts((prevPosts) => {
+        originalPosts = prevPosts; // Save rollback state
+
+        return [newClientPost, ...prevPosts];
+      });
+
+      setErrorMessage(null);
 
       try {
         const newServerPost = await postService.createPost(postRequest);
@@ -161,7 +195,7 @@ export default function usePosts() {
         handleError("Failed to create post", err);
       }
     },
-    [posts] // Dependency on posts for capturing originalPosts
+    [handleError]
   );
 
   /**
@@ -173,16 +207,18 @@ export default function usePosts() {
    */
   const updatePost = useCallback(
     async (id: number, postRequest: PostRequest) => {
-      setErrorMessage(null);
+      let originalPosts: Post[] = [];
 
-      const originalPosts = posts; // Rollback state
+      // Perform optimistic UI update and create rollback state
+      setPosts((prevPosts) => {
+        originalPosts = prevPosts; // Save rollback state
 
-      // Perform optimistic UI update
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
+        return prevPosts.map((post) =>
           post.id === id ? updatePostOptimistically(post, postRequest) : post
-        )
-      );
+        );
+      });
+
+      setErrorMessage(null);
 
       try {
         const updatedServerPost = await postService.updatePost(id, postRequest);
@@ -196,7 +232,7 @@ export default function usePosts() {
         handleError("Failed to update post", err);
       }
     },
-    [posts] // Dependency on posts for capturing originalPosts
+    [handleError]
   );
 
   /**
@@ -207,11 +243,16 @@ export default function usePosts() {
    */
   const deletePost = useCallback(
     async (id: number) => {
+      let originalPosts: Post[] = [];
+
+      // Perform optimistic UI update and create rollback state
+      setPosts((prevPosts) => {
+        originalPosts = prevPosts; // Save rollback state
+
+        return prevPosts.filter((post) => post.id !== id);
+      });
+
       setErrorMessage(null);
-
-      const originalPosts = posts; // Rollback state
-
-      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id)); // Optimistic UI update
 
       try {
         await postService.deletePost(id);
@@ -220,52 +261,17 @@ export default function usePosts() {
         handleError("Failed to delete post", err);
       }
     },
-    [posts] // Dependency on posts for capturing originalPosts
+    [handleError]
   );
 
   return {
     posts,
+    isLoading,
     hasMore,
-    loading,
     errorMessage,
     fetchPosts,
-    refreshPosts,
     createPost,
     updatePost,
     deletePost,
-  };
-}
-
-/**
- * Creates a new temporary local-only Post from an outgoing PostRequest.
- * Generates temporary values for `ID`, `timeCreated`, and `timeModified`.
- * Used for optimistic client-side post creation before an API response.
- * @param request The PostRequest data provided by the client.
- * @returns A new Post object (for local/optimistic display only)
- */
-function createPostOptimistically(postRequest: PostRequest): Post {
-  const now = new Date();
-
-  return {
-    id: tempIDCounter--, // Use a temporary negative ID
-    ...postRequest,
-    timeCreated: now,
-    timeModified: now,
-  };
-}
-
-/**
- * Returns a new temporary local-only Post object respresenting updates to an existing Post from a PostRequest.
- * Generates temporary values for `title`, `body`, `images`, and `timeModified`.
- * Used for optimistic client-side updates of *existing* posts before an API response.
- * @param post The Post object to update.
- * @param postRequest The PostRequest containing the updated data.
- * @returns A new Post object containing updated information (for local/optimistic display only)
- */
-function updatePostOptimistically(post: Post, postRequest: PostRequest): Post {
-  return {
-    ...post, // Keep existing ID, timeCreated, etc.
-    ...postRequest, // Update overlapping Post fields with PostRequest fields
-    timeModified: new Date(), // Update the modification timestamp
   };
 }

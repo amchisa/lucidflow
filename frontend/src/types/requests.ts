@@ -7,5 +7,5 @@ import type { Image } from "./models";
 export interface PostRequest {
   title: string;
   body: string;
-  images: Image[];
+  images: Image[]; // Not ImageRequest as this type is not currently needed
 }

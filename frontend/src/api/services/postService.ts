@@ -1,48 +1,47 @@
-import type { Post } from "../../types/models";
+import type { Post, Page } from "../../types/models";
 import type { PostRequest } from "../../types/requests";
 import type { PageResponse, PostResponse } from "../../types/responses";
 import { postMapper } from "../mappers/postMapper";
-import { api } from "../client/axios";
+import { pageMapper } from "../mappers/pageMapper";
+import { api } from "../config/axios";
 
+interface getPostsParams {
+  /** The string to match in the title of retrieved posts. */
+  search?: string;
+  /** The page number to retrieve (0-indexed). */
+  page?: number;
+  /** The number of posts per page. */
+  size?: number;
+}
+
+/**
+ * Service to consolodate and simplify API calls to post endpoints.
+ */
 export const postService = {
   /**
-   * Gets a paginated list of posts from the API.
-   * @param search The string to match in the title of retrived posts.
-   * @param page The page to retrieve (0-indexed). API returns page 0 by default if not specified.
-   * @param size The number of posts per page. Default is defined in API.
-   * @returns A promise that resolves to a page response containing an array of Post objects.
+   * Gets a page containing a list of posts from the API.
+   * @param params An object containing the query parameters for the request.
+   * @returns A promise that resolves to a page containing an array of Post objects.
    * @throws An error if the API call fails.
    */
-  async getPosts(
-    search?: string,
-    page?: number,
-    size?: number
-  ): Promise<PageResponse<Post>> {
-    const params = new URLSearchParams();
+  async getPosts(params: getPostsParams = {}): Promise<Page<Post>> {
+    const urlParams = new URLSearchParams();
 
-    if (search !== undefined) {
-      params.append("search", search);
+    // Convert params into urlParams
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) {
+        urlParams.append(key, String(value));
+      }
     }
 
-    if (page !== undefined) {
-      params.append("page", page.toString());
-    }
+    const apiResponse = await api.get<PageResponse<PostResponse>>("/posts", {
+      params: urlParams,
+    });
 
-    if (size !== undefined) {
-      params.append("size", size.toString());
-    }
-
-    const queryString = params.toString();
-
-    const response = await api.get<PageResponse<PostResponse>>(
-      `/posts${queryString ? `?${queryString}` : ""}`
-    );
-    const mappedContent = response.data.content.map(postMapper.responseToModel);
-
-    return {
-      ...response.data,
-      content: mappedContent,
-    };
+    return pageMapper.responseToModel({
+      ...apiResponse.data,
+      content: apiResponse.data.content.map(postMapper.responseToModel),
+    });
   },
 
   /**
@@ -52,8 +51,8 @@ export const postService = {
    * @throws An error if the API call fails.
    */
   async createPost(postRequest: PostRequest): Promise<Post> {
-    const response = await api.post<PostResponse>("/posts", postRequest);
-    return postMapper.responseToModel(response.data);
+    const apiResponse = await api.post<PostResponse>("/posts", postRequest);
+    return postMapper.responseToModel(apiResponse.data);
   },
 
   /**
@@ -64,14 +63,16 @@ export const postService = {
    * @throws An error if the API call fails.
    */
   async updatePost(id: number, postRequest: PostRequest): Promise<Post> {
-    const response = await api.put<PostResponse>(`/posts/${id}`, postRequest);
-    return postMapper.responseToModel(response.data);
+    const apiResponse = await api.put<PostResponse>(
+      `/posts/${id}`,
+      postRequest
+    );
+    return postMapper.responseToModel(apiResponse.data);
   },
 
   /**
    * Deletes a post via the API.
    * @param id The ID of the post to delete.
-   * @returns A promise that resolves when the delete operation is complete.
    * @throws An error if the API call fails.
    */
   async deletePost(id: number): Promise<void> {
