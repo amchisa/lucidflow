@@ -6,11 +6,8 @@ import { pageMapper } from "../mappers/pageMapper";
 import { api } from "../config/axios";
 
 interface getPostsParams {
-  /** The string to match in the title of retrieved posts. */
   search?: string;
-  /** The page number to retrieve (0-indexed). */
   page?: number;
-  /** The number of posts per page. */
   size?: number;
 }
 

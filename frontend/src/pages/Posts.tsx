@@ -1,11 +1,15 @@
 import usePosts from "../hooks/usePosts";
+import { useRef, useEffect, useCallback } from "react";
+import PostList from "../components/Post/PostList";
+import PostEditor from "../components/Post/PostEditor";
+import { CircleAlert, RotateCcw, Search, SquarePen } from "lucide-react";
+import usePostEditor from "../hooks/usePostEditor";
+import useInfiniteScroll from "../hooks/useInfiniteScroll";
 import useDebounce from "../hooks/useDebounce";
-import { useState, useEffect, useRef, useCallback } from "react";
-import EntryList from "../components/Post/EntryList";
-import Editor from "../components/Post/Editor";
-import type { Post } from "../types/models";
 import type { PostRequest } from "../types/requests";
-import { RotateCcw, Search, SquarePen } from "lucide-react";
+
+const MIN_REFRESH_DURATION = 500;
+const DEBOUNCE_DELAY = 300;
 
 export default function Posts() {
   const {
@@ -18,85 +22,65 @@ export default function Posts() {
     updatePost,
     deletePost,
   } = usePosts();
-  const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
-  const [postToEdit, setPostToEdit] = useState<Post | null>(null);
-  const [search, setSearch] = useState<string | null>(null);
 
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-
-  const debouncedSearch = useDebounce(search, 500);
-
-  /**
-   * Handles opening the editor after clicking to create a new post.
-   */
-  const openCreateEditor = () => {
-    setPostToEdit(null);
-    setIsEditorOpen(true);
-  };
-
-  /**
-   * Handles opening the editor after clicking to edit an existing post.
-   * @param post The post to be edited.
-   */
-  const openUpdateEditor = (post: Post) => {
-    setPostToEdit(post);
-    setIsEditorOpen(true);
-  };
-
-  /**
-   * Handles closing the editor upon the user's request.
-   */
-  const closeEditor = () => {
-    setIsEditorOpen(false);
-  };
-
-  /**
-   * Handles saving a post that the user has created or edited to the database.
-   * @param postRequest The PostRequest object containing the updated/new post information.
-   */
-  const savePost = (postRequest: PostRequest) => {
-    if (postToEdit) {
-      updatePost(postToEdit.id, postRequest);
-    } else {
+  const {
+    isEditorOpen,
+    postToEdit,
+    openCreateEditor,
+    openUpdateEditor,
+    savePost,
+    closeEditor,
+  } = usePostEditor({
+    onCreate: (postRequest: PostRequest) => {
       createPost(postRequest);
-      window.scrollTo({ top: 0, behavior: "smooth" }); // Scrolls to the top for better user feedback
-    }
-  };
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    },
+    onUpdate: updatePost,
+  });
+
+  const [searchQuery, setSearchQuery] = useDebounce<string | null>(
+    null,
+    DEBOUNCE_DELAY
+  );
+
+  const loadMoreRef = useRef<HTMLDivElement>(null!);
 
   /**
-   * Handles refresh of the page.
+   * Handles refreshing of the post list. Maintains the current search input.
    */
-  const handleRefresh = useCallback(() => {
-    fetchPosts(true, search ?? undefined); // Nullish coalescing to condense null to undefined
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [fetchPosts, search]);
-
-  // Fetch more posts on startup and when bottom is reached
-  useEffect(() => {
-    const handleFetch = (entries: IntersectionObserverEntry[]) => {
-      const entry = entries[0];
-
-      if (entry.isIntersecting && hasMore) {
-        fetchPosts(false, search ?? undefined);
-      }
-    };
-
-    const observer = new IntersectionObserver(handleFetch, {
-      rootMargin: "50px", // Triggers fetch before the div enters the viewport
+  const refreshPosts = useCallback(() => {
+    fetchPosts({
+      refresh: true,
+      search: searchQuery ?? undefined,
+      loadDelay: MIN_REFRESH_DURATION,
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [searchQuery, fetchPosts]);
 
-    const target = loadMoreRef.current;
+  /**
+   * Helper function to help handle setting the search query based on an input change.
+   * @param e The change event associated with the text modification.
+   */
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
 
-    if (target) {
-      observer.observe(target);
-    }
+  // Trigger refresh on component mount and search query change
+  useEffect(() => {
+    refreshPosts();
+  }, [refreshPosts]);
 
-    return () => {
-      if (target) {
-        observer.unobserve(target);
-      }
-    };
-  }, [fetchPosts, search, hasMore]);
+  // Infinite scroll hook for lazy post loading
+  useInfiniteScroll(
+    {
+      triggerRef: loadMoreRef,
+      onLoadMore: () => {
+        fetchPosts({ search: searchQuery ?? undefined });
+      },
+      observerOptions: { rootMargin: "100px" }, // Trigger loading 100 px before the div appears
+    },
+    [searchQuery, hasMore, fetchPosts]
+  );
 
   return (
     <div className="flex flex-col min-h-screen min-w-screen">
@@ -108,9 +92,7 @@ export default function Posts() {
             <input
               className="resize-none w-full focus:outline-none"
               placeholder="Search by title"
-              onChange={(e) => {
-                setSearch(e.target.value);
-              }}
+              onChange={handleSearch}
             ></input>
           </div>
         </span>
@@ -124,7 +106,7 @@ export default function Posts() {
           </button>
           <button
             className="flex gap-2 py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
-            onClick={handleRefresh}
+            onClick={refreshPosts}
           >
             <RotateCcw size={20} />
             <span>Refresh Posts</span>
@@ -133,9 +115,13 @@ export default function Posts() {
       </header>
       <main className="mx-auto w-225 pt-30 pb-8 flex-grow text-md">
         {isEditorOpen && (
-          <Editor onClose={closeEditor} post={postToEdit} onSave={savePost} />
+          <PostEditor
+            post={postToEdit}
+            onSave={savePost}
+            onClose={closeEditor}
+          />
         )}
-        <EntryList
+        <PostList
           posts={posts}
           loading={isLoading}
           onPostEdit={openUpdateEditor}
@@ -147,9 +133,10 @@ export default function Posts() {
           </div>
         )}
         {errorMessage && (
-          <span className="fixed right-5 bottom-7 z-40 text-sm p-4 rounded-xl bg-red-300 text-red-600 text-center">
-            {errorMessage}
-          </span>
+          <div className="fixed flex gap-2 right-5 bottom-7 z-40 text-sm p-4 rounded-xl bg-red-300 text-red-600 text-center">
+            <CircleAlert size={20} />
+            <span>{errorMessage}</span>
+          </div>
         )}
       </main>
       <footer className="text-center py-1 text-sm bg-white border-t border-gray-300 text-gray-800">

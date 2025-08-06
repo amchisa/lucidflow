@@ -3,18 +3,18 @@ import type { Post } from "../../types/models";
 import type { PostRequest } from "../../types/requests";
 import { X } from "lucide-react";
 
-interface EditorProps {
+interface PostEditorProps {
   onClose: () => void;
   post: Post | null;
   onSave: (postData: PostRequest) => void;
   className?: string;
 }
 
-export default function Editor({
+export default function PostEditor({
   onClose: handleClose,
   post,
   onSave: handleSave,
-}: EditorProps) {
+}: PostEditorProps) {
   const [title, setTitle] = useState<string>(() => post?.title || "");
   const [body, setBody] = useState<string>(() => post?.body || "");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);

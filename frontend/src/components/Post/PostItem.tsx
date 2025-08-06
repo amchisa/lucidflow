@@ -1,20 +1,20 @@
 import type { Post } from "../../types/models";
 import Dropdown from "./Dropdown";
-import Gallery from "./Gallery";
+import ImageGallery from "./ImageGallery";
 import { Ellipsis, Edit2, Trash2 } from "lucide-react";
 
-interface EntryProps {
+interface PostItemProps {
   post: Post;
   onEdit: (post: Post) => void;
   onDelete: (id: number) => Promise<void>;
   className?: string;
 }
 
-export default function Entry({
+export default function PostItem({
   post,
   onEdit: handleEdit,
   onDelete: handleDelete,
-}: EntryProps) {
+}: PostItemProps) {
   const { id, title, body, images, timeCreated } = post;
 
   const formattedDateTimeCreated = timeCreated.toLocaleString(undefined, {
@@ -67,7 +67,7 @@ export default function Entry({
           </ul>
         </Dropdown>
       </div>
-      {images.length > 0 && <Gallery className="mb-2" images={images} />}
+      {images.length > 0 && <ImageGallery className="mb-2" images={images} />}
       <div>
         <h2 className="text-lg font-bold mb-3 truncate">{title}</h2>
         <p className="whitespace-pre-wrap">{body}</p>

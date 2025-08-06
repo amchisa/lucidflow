@@ -1,7 +1,7 @@
 import type { Post } from "../../types/models";
-import Entry from "./Entry";
+import PostItem from "./PostItem";
 
-interface EntryListProps {
+interface PostListProps {
   posts: Post[];
   loading: boolean;
   onPostEdit: (post: Post) => void;
@@ -9,12 +9,12 @@ interface EntryListProps {
   className?: string;
 }
 
-export default function EntryList({
+export default function PostList({
   posts,
   loading,
   onPostEdit: handlePostEdit,
   onPostDelete: handlePostDelete,
-}: EntryListProps) {
+}: PostListProps) {
   return (
     <>
       {loading && (
@@ -25,7 +25,7 @@ export default function EntryList({
       ) : (
         posts.map((post) => {
           return (
-            <Entry
+            <PostItem
               key={post.id}
               post={post}
               onEdit={handlePostEdit}

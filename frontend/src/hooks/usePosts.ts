@@ -1,11 +1,15 @@
 import { useState, useCallback, useRef } from "react";
 import type { Post } from "../types/models";
 import type { PostRequest } from "../types/requests";
-import { delay } from "../utils/timeUtils";
 import { postService } from "../api/services/postService";
 import { AxiosError } from "axios";
+import { delay } from "../utils/timeUtils";
 
-const MIN_LOADING_DURATION = 500; // Minimum load duration to avoid flickering loading states
+interface FetchPostsParams {
+  refresh?: boolean;
+  search?: string;
+  loadDelay?: number;
+}
 
 /**
  * Custom hook for managing Post related data and UI state. Provides functions for fetching,
@@ -93,10 +97,15 @@ export default function usePosts() {
    * Fetches posts. Supports full refresh and infinite scroll functionality.
    * @param refresh A boolean indicating whether or not a full refresh is to be performed.
    * @param search An optional search query on post titles.
+   * @param delay A minimum delay (in ms).
    */
   const fetchPosts = useCallback(
-    async (refresh = false, search?: string): Promise<void> => {
-      if (isFetching.current || (!refresh && !hasMore)) {
+    async ({
+      refresh = false,
+      search,
+      loadDelay,
+    }: FetchPostsParams): Promise<void> => {
+      if (isFetching.current) {
         return;
       }
 
@@ -109,19 +118,14 @@ export default function usePosts() {
       isFetching.current = true;
 
       try {
-        const [result] = await Promise.allSettled([
+        const [paginatedPosts] = await Promise.all([
           postService.getPosts({
             ...(search && { search }), // Conditionally include the search string if specified
             page: pageNumber.current,
           }),
-          delay(MIN_LOADING_DURATION), // Avoid UI flickering
+          delay(loadDelay ?? 0), // Avoid UI flickering
         ]);
 
-        if (result.status !== "fulfilled") {
-          throw result.reason;
-        }
-
-        const paginatedPosts = result.value;
         const fetchedPosts = paginatedPosts.content;
 
         if (refresh) {
@@ -146,9 +150,9 @@ export default function usePosts() {
         }
 
         pageNumber.current++;
-        setHasMore(pageNumber.current < paginatedPosts.totalPages);
+        setHasMore(pageNumber.current < paginatedPosts.totalPages); // Set the hasMore state
       } catch (err) {
-        handleError("Failed to load posts.", err);
+        handleError("Failed to load posts", err);
       } finally {
         isFetching.current = false;
 
@@ -157,7 +161,7 @@ export default function usePosts() {
         }
       }
     },
-    [hasMore, handleError]
+    [handleError]
   );
 
   /**
@@ -269,6 +273,7 @@ export default function usePosts() {
     isLoading,
     hasMore,
     errorMessage,
+    setErrorMessage,
     fetchPosts,
     createPost,
     updatePost,

@@ -1,11 +1,11 @@
 import type { Image } from "../../types/models";
 
-interface GalleryProps {
+interface ImageGalleryProps {
   images: Image[];
   className?: string;
 }
 
-export default function Gallery({ images, className }: GalleryProps) {
+export default function ImageGallery({ images, className }: ImageGalleryProps) {
   return (
     <div
       className={`h-55 w-fit max-w-full flex flex-nowrap space-x-2 overflow-x-auto rounded-lg snap-x ${className}`}
