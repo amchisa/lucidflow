@@ -26,7 +26,7 @@ export default function Dropdown({ trigger, children }: DropdownProps) {
         {trigger}
       </button>
       {isOpen && (
-        <div className="bg-white p-1 rounded-lg border border-gray-300 drop-shadow-lg z-10 min-w-max absolute right-0 top-full">
+        <div className="bg-white p-1 rounded-xl border border-gray-300 drop-shadow-lg z-10 min-w-max absolute right-0 top-full">
           {children}
         </div>
       )}

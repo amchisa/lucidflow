@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import type { Post } from "../../types/models";
+import type { Image, Post } from "../../types/models";
 import type { PostRequest } from "../../types/requests";
 import { X } from "lucide-react";
+import DOMPurify from "dompurify";
 
 interface PostEditorProps {
   onClose: () => void;
@@ -10,13 +11,10 @@ interface PostEditorProps {
   className?: string;
 }
 
-export default function PostEditor({
-  onClose: handleClose,
-  post,
-  onSave: handleSave,
-}: PostEditorProps) {
+export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const [title, setTitle] = useState<string>(() => post?.title || "");
   const [body, setBody] = useState<string>(() => post?.body || "");
+  const [images, setImages] = useState<Image[]>(() => post?.images || []);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   const saveButtonText = post ? "Save Changes" : "Create Post";
@@ -35,15 +33,15 @@ export default function PostEditor({
       })
     : null; // e.g., Jul 28, 2025, 2:27 p.m.
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    handleClose();
-    handleSave({
+    onSave({
       title: title.trim(),
       body: body.trim(),
-      images: [], // Images is set to an empty array as image uploading is not implemented yet
+      images: images,
     });
+    onClose();
   };
 
   const handleCloseWithConfirmation = () => {
@@ -57,7 +55,7 @@ export default function PostEditor({
       }
     }
 
-    handleClose(); // User wishes to discard their changes
+    onClose(); // User wishes to discard their changes
   };
 
   // Editor setup
@@ -75,13 +73,15 @@ export default function PostEditor({
   useEffect(() => {
     const initialTitle = post?.title || "";
     const initialBody = post?.body || "";
+    const initialImages = post?.images || [];
 
     const changesDetected =
       title.trim() !== initialTitle.trim() ||
-      body.trim() !== initialBody.trim();
+      body.trim() !== initialBody.trim() ||
+      JSON.stringify(images) !== JSON.stringify(initialImages);
 
     setHasUnsavedChanges(changesDetected);
-  }, [title, body, post]);
+  }, [title, body, images, post]);
 
   return (
     <div
@@ -89,14 +89,14 @@ export default function PostEditor({
       onClick={handleCloseWithConfirmation}
     >
       <form
-        className="bg-white opacity-100 p-4 rounded-lg w-250 relative"
+        className="bg-white opacity-100 p-4 rounded-xl w-250 relative"
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()} // Prevent editor close when interacting with the form
       >
         <button
           onClick={handleCloseWithConfirmation}
           type="button"
-          className="p-1 absolute right-1 top-1 text-white font-bold text-sm bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md"
+          className="p-1 absolute right-1.5 top-1.5 text-white font-bold text-sm bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md"
         >
           <X size={24}></X>
         </button>
@@ -134,7 +134,17 @@ export default function PostEditor({
               setBody(e.target.value);
             }}
           ></textarea>
+          {/* <div
+            id="body_input"
+            contentEditable="plaintext-only"
+            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full min-h-65"
+            onInput={(e) => {
+              setBody(e.currentTarget.innerHTML);
+            }}
+            dangerouslySetInnerHTML={{ __html: body }}
+          ></div> */}
         </div>
+        <div className="mb-2"></div>
         <div className="mb-2 flex justify-between text-sm text-gray-800">
           <span>Words: {wordCount}</span>
           {post && <span>Last Modified: {formattedDateTimeModified}</span>}

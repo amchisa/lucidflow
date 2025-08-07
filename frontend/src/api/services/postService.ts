@@ -12,7 +12,7 @@ interface getPostsParams {
 }
 
 /**
- * Service to consolodate and simplify API calls to post endpoints.
+ * API service to consolodate and simplify API calls to post endpoints.
  */
 export const postService = {
   /**

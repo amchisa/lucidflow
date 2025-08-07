@@ -1,5 +1,5 @@
 import type { Post } from "../../types/models";
-import Dropdown from "./Dropdown";
+import Dropdown from "../ui/Dropdown";
 import ImageGallery from "./ImageGallery";
 import { Ellipsis, Edit2, Trash2 } from "lucide-react";
 
@@ -44,8 +44,8 @@ export default function PostItem({
         <span className="text-sm text-gray-800">
           {formattedDateTimeCreated}
         </span>
-        <Dropdown trigger={<Ellipsis size={24} />}>
-          <ul className="flex flex-col">
+        <Dropdown trigger={<Ellipsis size={24} className="text-gray-800" />}>
+          <ul className="flex flex-col text-gray-800">
             <li>
               <button
                 className="w-full flex gap-2 py-2 px-3 text-sm font-bold hover:bg-green-600 hover:text-white active:bg-green-700 rounded-lg"

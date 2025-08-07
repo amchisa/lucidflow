@@ -1,12 +1,11 @@
 import usePosts from "../hooks/usePosts";
-import { useRef, useEffect, useCallback } from "react";
-import PostList from "../components/Post/PostList";
-import PostEditor from "../components/Post/PostEditor";
-import { CircleAlert, RotateCcw, Search, SquarePen } from "lucide-react";
+import { useEffect, useCallback } from "react";
+import PostList from "../components/post/PostList";
+import PostEditor from "../components/post/PostEditor";
+import { CircleAlert, ListRestart, SquarePen } from "lucide-react";
 import usePostEditor from "../hooks/usePostEditor";
-import useInfiniteScroll from "../hooks/useInfiniteScroll";
 import useDebounce from "../hooks/useDebounce";
-import type { PostRequest } from "../types/requests";
+import Searchbar from "../components/ui/Searchbar";
 
 const MIN_REFRESH_DURATION = 500;
 const DEBOUNCE_DELAY = 300;
@@ -31,9 +30,9 @@ export default function Posts() {
     savePost,
     closeEditor,
   } = usePostEditor({
-    onCreate: (postRequest: PostRequest) => {
+    onCreate: (postRequest) => {
       createPost(postRequest);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top for improved user experience
     },
     onUpdate: updatePost,
   });
@@ -42,8 +41,6 @@ export default function Posts() {
     null,
     DEBOUNCE_DELAY
   );
-
-  const loadMoreRef = useRef<HTMLDivElement>(null!);
 
   /**
    * Handles refreshing of the post list. Maintains the current search input.
@@ -70,31 +67,15 @@ export default function Posts() {
     refreshPosts();
   }, [refreshPosts]);
 
-  // Infinite scroll hook for lazy post loading
-  useInfiniteScroll(
-    {
-      triggerRef: loadMoreRef,
-      onLoadMore: () => {
-        fetchPosts({ search: searchQuery ?? undefined });
-      },
-      observerOptions: { rootMargin: "100px" }, // Trigger loading 100 px before the div appears
-    },
-    [searchQuery, hasMore, fetchPosts]
-  );
-
   return (
     <div className="flex flex-col min-h-screen min-w-screen">
       <header className="px-8 py-4 fixed z-20 w-full bg-white border-b border-gray-300 flex justify-between">
         <span className="flex">
           <h1 className="text-2xl font-medium mr-8">LucidFlow</h1>
-          <div className="border border-gray-400 rounded-lg flex items-center pr-2 mr-2">
-            <Search size={20} className="mx-2" />
-            <input
-              className="resize-none w-full focus:outline-none"
-              placeholder="Search by title"
-              onChange={handleSearch}
-            ></input>
-          </div>
+          <Searchbar
+            onChange={handleSearch}
+            placeholderText="Search by title"
+          />
         </span>
         <span className="flex gap-2">
           <button
@@ -108,7 +89,7 @@ export default function Posts() {
             className="flex gap-2 py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
             onClick={refreshPosts}
           >
-            <RotateCcw size={20} />
+            <ListRestart size={20} />
             <span>Refresh Posts</span>
           </button>
         </span>
@@ -124,16 +105,14 @@ export default function Posts() {
         <PostList
           posts={posts}
           loading={isLoading}
+          hasMore={hasMore}
+          searchQuery={searchQuery}
           onPostEdit={openUpdateEditor}
           onPostDelete={deletePost}
+          onLoadMore={() => fetchPosts({ search: searchQuery ?? undefined })}
         />
-        {hasMore && !errorMessage && (
-          <div ref={loadMoreRef} className="text-center text-sm mt-10">
-            Loading more posts...
-          </div>
-        )}
         {errorMessage && (
-          <div className="fixed flex gap-2 right-5 bottom-7 z-40 text-sm p-4 rounded-xl bg-red-300 text-red-600 text-center">
+          <div className="fixed flex gap-2 left-5 bottom-7 z-40 text-sm p-4 rounded-xl border border-red-600 bg-red-300/75 text-red-600 text-center">
             <CircleAlert size={20} />
             <span>{errorMessage}</span>
           </div>

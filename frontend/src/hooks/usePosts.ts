@@ -118,7 +118,8 @@ export default function usePosts() {
       isFetching.current = true;
 
       try {
-        const [paginatedPosts] = await Promise.all([
+        const [result] = await Promise.allSettled([
+          // Use allSettled to prevent errors from cancelling the loadDelay
           postService.getPosts({
             ...(search && { search }), // Conditionally include the search string if specified
             page: pageNumber.current,
@@ -126,6 +127,11 @@ export default function usePosts() {
           delay(loadDelay ?? 0), // Avoid UI flickering
         ]);
 
+        if (result.status != "fulfilled") {
+          throw result.reason;
+        }
+
+        const paginatedPosts = result.value;
         const fetchedPosts = paginatedPosts.content;
 
         if (refresh) {

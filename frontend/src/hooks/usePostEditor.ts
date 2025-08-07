@@ -13,8 +13,8 @@ interface UsePostEditorParams {
  * @param onUpdate The method to invoke when updating an existing post.
  */
 export default function usePostEditor({
-  onCreate: createPost,
-  onUpdate: updatePost,
+  onCreate,
+  onUpdate,
 }: UsePostEditorParams) {
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const [postToEdit, setPostToEdit] = useState<Post | null>(null);
@@ -42,9 +42,9 @@ export default function usePostEditor({
    */
   const savePost = (postRequest: PostRequest) => {
     if (postToEdit) {
-      updatePost(postToEdit.id, postRequest);
+      onUpdate(postToEdit.id, postRequest);
     } else {
-      createPost(postRequest);
+      onCreate(postRequest);
     }
   };
 
