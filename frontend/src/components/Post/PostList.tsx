@@ -6,7 +6,7 @@ import { useRef } from "react";
 import PostSkeleton from "./PostSkeleton";
 
 interface PostListProps {
-  posts: Post[];
+  posts: Post[] | null;
   loading: boolean;
   hasMore: boolean;
   searchQuery: string | null;
@@ -27,15 +27,17 @@ export default function PostList({
 }: PostListProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null!);
 
+  const noPostsMessage = searchQuery
+    ? `No posts found with title "${searchQuery}".`
+    : "No posts available.";
+
   // Infinite scroll hook for lazy post loading
-  useInfiniteScroll(
-    {
-      triggerRef: loadMoreRef,
-      onLoadMore,
-      observerOptions: { rootMargin: "100px" }, // Trigger loading 100px before the div appears
-    },
-    [searchQuery, hasMore, onLoadMore]
-  );
+  useInfiniteScroll({
+    triggerRef: loadMoreRef,
+    onLoadMore,
+    hasMore,
+    observerOptions: { rootMargin: "100px" }, // Trigger loading 100px before the div appears
+  });
 
   return (
     <div>
@@ -45,22 +47,24 @@ export default function PostList({
           <span>Loading posts...</span>
         </div>
       )}
-      {!loading && posts.length === 0 ? (
-        <div className="text-center text-sm">No posts available.</div>
-      ) : (
-        posts.map((post) => {
-          return (
-            <PostItem
-              key={post.id}
-              post={post}
-              onEdit={onPostEdit}
-              onDelete={onPostDelete}
-            />
-          );
-        })
-      )}
+      {posts &&
+        (posts.length === 0 && !loading ? (
+          <div className="text-center text-sm">{noPostsMessage}</div>
+        ) : (
+          posts.map((post) => {
+            return (
+              <PostItem
+                key={post.id}
+                post={post}
+                onEdit={onPostEdit}
+                onDelete={onPostDelete}
+              />
+            );
+          })
+        ))}
       {hasMore && (
         <div ref={loadMoreRef}>
+          <PostSkeleton />
           <PostSkeleton />
           <PostSkeleton />
         </div>

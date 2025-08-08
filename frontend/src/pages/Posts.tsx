@@ -48,7 +48,7 @@ export default function Posts() {
   const refreshPosts = useCallback(() => {
     fetchPosts({
       refresh: true,
-      search: searchQuery ?? undefined,
+      search: searchQuery,
       loadDelay: MIN_REFRESH_DURATION,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -58,9 +58,17 @@ export default function Posts() {
    * Helper function to help handle setting the search query based on an input change.
    * @param e The change event associated with the text modification.
    */
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value.trim());
   };
+
+  /**
+   * Helper function for loading more posts. Calls fetch posts with refresh = false (implicit) and
+   * maintains the search query.
+   */
+  const handleLoadMore = useCallback(() => {
+    fetchPosts({ search: searchQuery });
+  }, [searchQuery, fetchPosts]);
 
   // Trigger refresh on component mount and search query change
   useEffect(() => {
@@ -73,8 +81,8 @@ export default function Posts() {
         <span className="flex">
           <h1 className="text-2xl font-medium mr-8">LucidFlow</h1>
           <Searchbar
-            onChange={handleSearch}
-            placeholderText="Search by title"
+            onChange={handleSearchChange}
+            placeholder="Search by title"
           />
         </span>
         <span className="flex gap-2">
@@ -109,7 +117,7 @@ export default function Posts() {
           searchQuery={searchQuery}
           onPostEdit={openUpdateEditor}
           onPostDelete={deletePost}
-          onLoadMore={() => fetchPosts({ search: searchQuery ?? undefined })}
+          onLoadMore={handleLoadMore}
         />
         {errorMessage && (
           <div className="fixed flex gap-2 left-5 bottom-7 z-40 text-sm p-4 rounded-xl border border-red-600 bg-red-300/75 text-red-600 text-center">

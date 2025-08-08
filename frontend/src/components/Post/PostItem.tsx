@@ -44,7 +44,9 @@ export default function PostItem({
         <span className="text-sm text-gray-800">
           {formattedDateTimeCreated}
         </span>
-        <Dropdown trigger={<Ellipsis size={24} className="text-gray-800" />}>
+        <Dropdown
+          triggerIcon={<Ellipsis size={24} className="text-gray-800" />}
+        >
           <ul className="flex flex-col text-gray-800">
             <li>
               <button
@@ -70,7 +72,10 @@ export default function PostItem({
       {images.length > 0 && <ImageGallery className="mb-2" images={images} />}
       <div>
         <h2 className="text-lg font-bold mb-3 truncate">{title}</h2>
-        <p className="whitespace-pre-wrap">{body}</p>
+        <div
+          className="whitespace-pre-wrap"
+          dangerouslySetInnerHTML={{ __html: body }}
+        ></div>
       </div>
     </div>
   );

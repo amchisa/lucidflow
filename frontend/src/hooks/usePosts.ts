@@ -7,7 +7,7 @@ import { delay } from "../utils/timeUtils";
 
 interface FetchPostsParams {
   refresh?: boolean;
-  search?: string;
+  search?: string | null;
   loadDelay?: number;
 }
 
@@ -17,10 +17,10 @@ interface FetchPostsParams {
  * feedback to the user, manages loading states, and handles errors with rollback capabilities.
  */
 export default function usePosts() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[] | null>(null);
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [hasMore, setHasMore] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const pageNumber = useRef<number>(0);
@@ -138,7 +138,7 @@ export default function usePosts() {
           setPosts(fetchedPosts);
         } else {
           setPosts((prevPosts) => {
-            const combinedPosts = [...prevPosts, ...fetchedPosts];
+            const combinedPosts = [...(prevPosts ?? []), ...fetchedPosts];
             const seenIDs = new Set();
 
             // Filter to prevent duplicate posts
@@ -179,14 +179,14 @@ export default function usePosts() {
    */
   const createPost = useCallback(
     async (postRequest: PostRequest): Promise<void> => {
-      let originalPosts: Post[] = [];
+      let rollbackState: Post[] | null = null;
       const newClientPost = createPostOptimistically(postRequest);
 
       // Perform optimistic UI update and create rollback state
       setPosts((prevPosts) => {
-        originalPosts = prevPosts; // Save rollback state
+        rollbackState = prevPosts; // Save rollback state
 
-        return [newClientPost, ...prevPosts];
+        return [newClientPost, ...(prevPosts ?? [])];
       });
 
       setErrorMessage(null);
@@ -196,12 +196,12 @@ export default function usePosts() {
 
         // Reupdate UI with API response
         setPosts((prevPosts) =>
-          prevPosts.map((post) =>
+          (prevPosts ?? []).map((post) =>
             post.id === newClientPost.id ? newServerPost : post
           )
         );
       } catch (err) {
-        setPosts(originalPosts); // Roll back UI to original state
+        setPosts(rollbackState); // Roll back UI to original state
         handleError("Failed to create post", err);
       }
     },
@@ -217,13 +217,13 @@ export default function usePosts() {
    */
   const updatePost = useCallback(
     async (id: number, postRequest: PostRequest) => {
-      let originalPosts: Post[] = [];
+      let rollbackState: Post[] | null = null;
 
       // Perform optimistic UI update and create rollback state
       setPosts((prevPosts) => {
-        originalPosts = prevPosts; // Save rollback state
+        rollbackState = prevPosts; // Save rollback state
 
-        return prevPosts.map((post) =>
+        return (prevPosts ?? []).map((post) =>
           post.id === id ? updatePostOptimistically(post, postRequest) : post
         );
       });
@@ -235,10 +235,12 @@ export default function usePosts() {
 
         // Reupdate UI with API response
         setPosts((prevPosts) =>
-          prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
+          (prevPosts ?? []).map((post) =>
+            post.id === id ? updatedServerPost : post
+          )
         );
       } catch (err) {
-        setPosts(originalPosts); // Roll back UI to original state
+        setPosts(rollbackState); // Roll back UI to original state
         handleError("Failed to update post", err);
       }
     },
@@ -253,13 +255,13 @@ export default function usePosts() {
    */
   const deletePost = useCallback(
     async (id: number) => {
-      let originalPosts: Post[] = [];
+      let rollbackState: Post[] | null = null;
 
       // Perform optimistic UI update and create rollback state
       setPosts((prevPosts) => {
-        originalPosts = prevPosts; // Save rollback state
+        rollbackState = prevPosts; // Save rollback state
 
-        return prevPosts.filter((post) => post.id !== id);
+        return (prevPosts ?? []).filter((post) => post.id !== id);
       });
 
       setErrorMessage(null);
@@ -267,7 +269,7 @@ export default function usePosts() {
       try {
         await postService.deletePost(id);
       } catch (err) {
-        setPosts(originalPosts);
+        setPosts(rollbackState);
         handleError("Failed to delete post", err);
       }
     },
