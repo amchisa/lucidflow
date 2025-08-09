@@ -6,8 +6,9 @@ import { useRef } from "react";
 import PostSkeleton from "./PostSkeleton";
 
 interface PostListProps {
-  posts: Post[] | null;
+  posts: Post[];
   loading: boolean;
+  isError: boolean;
   hasMore: boolean;
   searchQuery: string | null;
   onPostEdit: (post: Post) => void;
@@ -19,6 +20,7 @@ interface PostListProps {
 export default function PostList({
   posts,
   loading,
+  isError,
   hasMore,
   searchQuery,
   onPostEdit,
@@ -47,22 +49,21 @@ export default function PostList({
           <span>Loading posts...</span>
         </div>
       )}
-      {posts &&
-        (posts.length === 0 && !loading ? (
-          <div className="text-center text-sm">{noPostsMessage}</div>
-        ) : (
-          posts.map((post) => {
-            return (
-              <PostItem
-                key={post.id}
-                post={post}
-                onEdit={onPostEdit}
-                onDelete={onPostDelete}
-              />
-            );
-          })
-        ))}
-      {hasMore && (
+      {!loading && posts.length === 0 ? (
+        <div className="text-center text-sm">{noPostsMessage}</div>
+      ) : (
+        posts.map((post) => {
+          return (
+            <PostItem
+              key={post.id}
+              post={post}
+              onEdit={onPostEdit}
+              onDelete={onPostDelete}
+            />
+          );
+        })
+      )}
+      {((hasMore && !isError) || (loading && posts.length === 0)) && (
         <div ref={loadMoreRef}>
           <PostSkeleton />
           <PostSkeleton />

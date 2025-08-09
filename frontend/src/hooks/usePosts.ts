@@ -17,15 +17,15 @@ interface FetchPostsParams {
  * feedback to the user, manages loading states, and handles errors with rollback capabilities.
  */
 export default function usePosts() {
-  const [posts, setPosts] = useState<Post[] | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const pageNumber = useRef<number>(0);
   const tempIDCounter = useRef(-1); // Generates temporary client-side IDs for optimistic updates
-  const isFetching = useRef(false); // Flag to prevent duplicate fetches
+  const fetchIDCounter = useRef(-1); // Generates fetch request IDs to ensure the fetch performed is always the latest called
 
   /**
    * Handles errors by logging detailed technical context and updating the user error message.
@@ -105,17 +105,13 @@ export default function usePosts() {
       search,
       loadDelay,
     }: FetchPostsParams): Promise<void> => {
-      if (isFetching.current) {
-        return;
-      }
+      const currentFetchID = ++fetchIDCounter.current;
 
       if (refresh) {
         setIsLoading(true);
         setErrorMessage(null);
         pageNumber.current = 0;
       }
-
-      isFetching.current = true;
 
       try {
         const [result] = await Promise.allSettled([
@@ -127,7 +123,12 @@ export default function usePosts() {
           delay(loadDelay ?? 0), // Avoid UI flickering
         ]);
 
-        if (result.status != "fulfilled") {
+        if (currentFetchID !== fetchIDCounter.current) {
+          // Cancel fetch if it is not the latest performed
+          return;
+        }
+
+        if (result.status !== "fulfilled") {
           throw result.reason;
         }
 
@@ -138,7 +139,7 @@ export default function usePosts() {
           setPosts(fetchedPosts);
         } else {
           setPosts((prevPosts) => {
-            const combinedPosts = [...(prevPosts ?? []), ...fetchedPosts];
+            const combinedPosts = [...prevPosts, ...fetchedPosts];
             const seenIDs = new Set();
 
             // Filter to prevent duplicate posts
@@ -160,8 +161,6 @@ export default function usePosts() {
       } catch (err) {
         handleError("Failed to load posts", err);
       } finally {
-        isFetching.current = false;
-
         if (refresh) {
           setIsLoading(false);
         }
@@ -179,14 +178,14 @@ export default function usePosts() {
    */
   const createPost = useCallback(
     async (postRequest: PostRequest): Promise<void> => {
-      let rollbackState: Post[] | null = null;
+      let rollbackState: Post[] = [];
       const newClientPost = createPostOptimistically(postRequest);
 
       // Perform optimistic UI update and create rollback state
       setPosts((prevPosts) => {
         rollbackState = prevPosts; // Save rollback state
 
-        return [newClientPost, ...(prevPosts ?? [])];
+        return [newClientPost, ...prevPosts];
       });
 
       setErrorMessage(null);
@@ -196,7 +195,7 @@ export default function usePosts() {
 
         // Reupdate UI with API response
         setPosts((prevPosts) =>
-          (prevPosts ?? []).map((post) =>
+          prevPosts.map((post) =>
             post.id === newClientPost.id ? newServerPost : post
           )
         );
@@ -217,13 +216,13 @@ export default function usePosts() {
    */
   const updatePost = useCallback(
     async (id: number, postRequest: PostRequest) => {
-      let rollbackState: Post[] | null = null;
+      let rollbackState: Post[] = [];
 
       // Perform optimistic UI update and create rollback state
       setPosts((prevPosts) => {
         rollbackState = prevPosts; // Save rollback state
 
-        return (prevPosts ?? []).map((post) =>
+        return prevPosts.map((post) =>
           post.id === id ? updatePostOptimistically(post, postRequest) : post
         );
       });
@@ -235,9 +234,7 @@ export default function usePosts() {
 
         // Reupdate UI with API response
         setPosts((prevPosts) =>
-          (prevPosts ?? []).map((post) =>
-            post.id === id ? updatedServerPost : post
-          )
+          prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
         );
       } catch (err) {
         setPosts(rollbackState); // Roll back UI to original state
@@ -255,13 +252,13 @@ export default function usePosts() {
    */
   const deletePost = useCallback(
     async (id: number) => {
-      let rollbackState: Post[] | null = null;
+      let rollbackState: Post[] = [];
 
       // Perform optimistic UI update and create rollback state
       setPosts((prevPosts) => {
         rollbackState = prevPosts; // Save rollback state
 
-        return (prevPosts ?? []).filter((post) => post.id !== id);
+        return prevPosts.filter((post) => post.id !== id);
       });
 
       setErrorMessage(null);

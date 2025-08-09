@@ -37,8 +37,8 @@ export default function Posts() {
     onUpdate: updatePost,
   });
 
-  const [searchQuery, setSearchQuery] = useDebounce<string | null>(
-    null,
+  const [debouncedSearchInput, setSearchInput] = useDebounce<string>(
+    "",
     DEBOUNCE_DELAY
   );
 
@@ -48,18 +48,18 @@ export default function Posts() {
   const refreshPosts = useCallback(() => {
     fetchPosts({
       refresh: true,
-      search: searchQuery,
+      search: debouncedSearchInput,
       loadDelay: MIN_REFRESH_DURATION,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [searchQuery, fetchPosts]);
+  }, [debouncedSearchInput, fetchPosts]);
 
   /**
    * Helper function to help handle setting the search query based on an input change.
    * @param e The change event associated with the text modification.
    */
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value.trim());
+    setSearchInput(e.target.value.trim());
   };
 
   /**
@@ -67,8 +67,8 @@ export default function Posts() {
    * maintains the search query.
    */
   const handleLoadMore = useCallback(() => {
-    fetchPosts({ search: searchQuery });
-  }, [searchQuery, fetchPosts]);
+    fetchPosts({ search: debouncedSearchInput });
+  }, [debouncedSearchInput, fetchPosts]);
 
   // Trigger refresh on component mount and search query change
   useEffect(() => {
@@ -113,8 +113,9 @@ export default function Posts() {
         <PostList
           posts={posts}
           loading={isLoading}
+          isError={!!errorMessage}
           hasMore={hasMore}
-          searchQuery={searchQuery}
+          searchQuery={debouncedSearchInput}
           onPostEdit={openUpdateEditor}
           onPostDelete={deletePost}
           onLoadMore={handleLoadMore}
