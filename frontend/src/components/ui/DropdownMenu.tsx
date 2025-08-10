@@ -1,27 +1,30 @@
 import { useState, type ReactNode } from "react";
 
-interface DropdownProps {
+interface DropdownMenuProps {
   triggerIcon: ReactNode;
   children?: ReactNode;
   className?: string;
 }
 
-export default function Dropdown({ triggerIcon, children }: DropdownProps) {
+export default function DropdownMenu({
+  triggerIcon,
+  children,
+}: DropdownMenuProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const toggleDropdown = () => {
+  const toggleDropdownMenu = () => {
     setIsOpen((prevIsOpen) => !prevIsOpen);
   };
 
-  const closeDropdown = () => {
+  const closeDropdownMenu = () => {
     setIsOpen(false);
   };
 
   return (
-    <div className="relative flex pb-1" onMouseLeave={closeDropdown}>
+    <div className="relative flex pb-1" onMouseLeave={closeDropdownMenu}>
       <button
         className={`rounded-full px-1 ${isOpen ? "bg-gray-200" : "hover:bg-gray-100 active:bg-gray-200"}`}
-        onClick={toggleDropdown}
+        onClick={toggleDropdownMenu}
       >
         {triggerIcon}
       </button>

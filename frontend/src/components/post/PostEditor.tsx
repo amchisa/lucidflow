@@ -5,7 +5,9 @@ import {
   Bold,
   Code,
   Italic,
-  LinkIcon,
+  List,
+  ListOrdered,
+  SquareCode,
   Strikethrough,
   Underline,
   X,
@@ -14,12 +16,14 @@ import DOMPurify from "dompurify";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { normalizeHTMLText } from "../../utils/textUtils";
+import Link from "@tiptap/extension-link";
+import { htmlToPlainText } from "../../utils/textUtils";
+import ToolbarButton from "../ui/ToolbarButton";
 
 interface PostEditorProps {
   onClose: () => void;
   post: Post | null;
-  onSave: (postData: PostRequest) => void;
+  onSave: (postData: PostRequest) => Promise<void>;
   className?: string;
 }
 
@@ -28,28 +32,8 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const [body, setBody] = useState<string>(() => post?.body || "");
   const [images] = useState<Image[]>(() => post?.images || []);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  const [, toggleRerender] = useState<boolean>(false);
-  const [isBodyEditorFocused, setIsBodyEditorFocused] =
-    useState<boolean>(false);
-
-  // Tiptap editor integration
-  const bodyEditor = useEditor({
-    extensions: [
-      StarterKit,
-      Placeholder.configure({
-        placeholder: "Write about your day",
-      }),
-    ],
-    content: body,
-    onUpdate: ({ editor }) => setBody(editor.getHTML()),
-    onFocus: () => setIsBodyEditorFocused(true),
-    onBlur: () => setIsBodyEditorFocused(false),
-    editorProps: {
-      attributes: {
-        class: "focus:outline-none h-55 resize-none overflow-y-auto",
-      },
-    },
-  });
+  const [, setRerenderToggle] = useState<boolean>(false);
+  const [isBodyEditorFocused, setIsBodyEditorFocused] = useState<boolean>(true);
 
   const initialPostRef = useRef({
     title: post?.title || "",
@@ -57,10 +41,38 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     images: post?.images || [],
   });
 
-  const saveButtonText = post ? "Save Changes" : "Create Post";
-  const canSave = hasUnsavedChanges && title && normalizeHTMLText(body);
+  // Tiptap editor integration
+  const bodyEditor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        link: false, // Disable default link implementation
+      }),
+      Placeholder.configure({
+        placeholder: "Write about your day",
+      }),
+      Link.configure({
+        autolink: true,
+        openOnClick: "whenNotEditable",
+        // HTMLAttributes: {
+        //   target: "_blank",
+        // },
+      }),
+    ],
+    content: body,
+    onUpdate: ({ editor }) => setBody(editor.getHTML()),
+    editorProps: {
+      attributes: {
+        class:
+          "focus:outline-none h-55 resize-none overflow-y-auto whitespace-pre-wrap",
+      },
+    },
+  });
 
-  const wordCount = bodyEditor
+  const saveButtonText = post ? "Save Changes" : "Create Post";
+  const canSave = hasUnsavedChanges && title && htmlToPlainText(body);
+
+  const titleCharCount = title.length;
+  const bodyWordCount = bodyEditor
     .getText()
     .trim()
     .split(/\s+/)
@@ -75,6 +87,57 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
         minute: "2-digit",
       }) // e.g., Jul 28, 2025, 2:27 p.m.
     : null;
+
+  const toolbarButtons = [
+    {
+      icon: <Bold size={18} />,
+      onClick: () => bodyEditor.chain().focus().toggleBold().run(),
+      isActive: () => isBodyEditorFocused && bodyEditor.isActive("bold"),
+      tooltip: "Bold text",
+    },
+    {
+      icon: <Italic size={18} />,
+      onClick: () => bodyEditor.chain().focus().toggleItalic().run(),
+      isActive: () => isBodyEditorFocused && bodyEditor.isActive("italic"),
+      tooltip: "Italicize text",
+    },
+    {
+      icon: <Underline size={18} />,
+      onClick: () => bodyEditor.chain().focus().toggleUnderline().run(),
+      isActive: () => isBodyEditorFocused && bodyEditor.isActive("underline"),
+      tooltip: "Underline text",
+    },
+    {
+      icon: <Strikethrough size={18} />,
+      onClick: () => bodyEditor.chain().focus().toggleStrike().run(),
+      isActive: () => isBodyEditorFocused && bodyEditor.isActive("strike"),
+      tootip: "Strikethrough text",
+    },
+    {
+      icon: <Code size={18} />,
+      onClick: () => bodyEditor.chain().focus().toggleCode().run(),
+      isActive: () => isBodyEditorFocused && bodyEditor.isActive("code"),
+      tooltop: "Create inline code",
+    },
+    {
+      icon: <SquareCode size={21} />,
+      onClick: () => bodyEditor.chain().focus().setCodeBlock().run(),
+      isActive: () => isBodyEditorFocused && bodyEditor.isActive("codeBlock"),
+      tooltop: "Create a code block",
+    },
+    {
+      icon: <List size={21} />,
+      onClick: () => bodyEditor.chain().focus().toggleBulletList().run(),
+      isActive: () => isBodyEditorFocused && bodyEditor.isActive("bulletList"),
+      tooltop: "Create a bullet list",
+    },
+    {
+      icon: <ListOrdered size={21} />,
+      onClick: () => bodyEditor.chain().focus().toggleOrderedList().run(),
+      isActive: () => isBodyEditorFocused && bodyEditor.isActive("orderedList"),
+      tooltop: "Create an ordered list",
+    },
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +183,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
 
     const changesDetected =
       title.trim() !== initialPost.title.trim() ||
-      normalizeHTMLText(body) !== normalizeHTMLText(initialPost.body) ||
+      body !== initialPost.body ||
       JSON.stringify(images) !== JSON.stringify(initialPost.images);
 
     setHasUnsavedChanges(changesDetected);
@@ -148,18 +211,20 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             htmlFor="title-input"
             className="block select-none mb-2 font-bold"
           >
-            Title
+            Title{!title.trim() && <span className="text-red-600">*</span>}
           </label>
           <input
             id="title-input"
-            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full focus:outline-none"
+            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full focus:outline-2 focus:outline-blue-700 focus:outline-solid"
             value={title}
             placeholder="Give your post a title"
             autoComplete="off"
+            maxLength={100}
             onChange={(e) => {
               setTitle(e.target.value);
             }}
           ></input>
+          <span className="text-sm text-gray-800">{titleCharCount}/100</span>
         </div>
         <div className="mb-2">
           <label
@@ -167,64 +232,34 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             className="block select-none mb-2 font-bold"
           >
             Description
+            {!htmlToPlainText(body) && <span className="text-red-600">*</span>}
           </label>
           <div
             id="body-input"
-            className="border border-gray-400 resize-none py-1 px-2 rounded-lg"
-            onClick={() => toggleRerender((prev) => !prev)}
+            className="rich-text border border-gray-400 resize-none py-1 px-2 rounded-lg focus:outline-2 focus:outline-blue-700 focus:outline-solid"
+            tabIndex={-1}
+            onFocus={() => setIsBodyEditorFocused(true)}
+            onBlur={() => setIsBodyEditorFocused(false)}
+            onClick={() => setRerenderToggle((prev) => !prev)}
           >
-            <div className="border-b border-gray-400 mb-2">
-              <button
-                type="button"
-                onClick={() => bodyEditor.chain().focus().toggleBold().run()}
-                className={`p-1 rounded-md ${bodyEditor.isFocused && bodyEditor.isActive("bold") ? "bg-gray-200" : "hover:bg-gray-100"}`}
-              >
-                <Bold size={18}></Bold>
-              </button>
-              <button
-                type="button"
-                onClick={() => bodyEditor.chain().focus().toggleItalic().run()}
-                className={`p-1 rounded-md ${isBodyEditorFocused && bodyEditor.isActive("italic") ? "bg-gray-200" : "hover:bg-gray-100"}`}
-              >
-                <Italic size={18}></Italic>
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  bodyEditor.chain().focus().toggleUnderline().run()
-                }
-                className={`p-1 rounded-md ${isBodyEditorFocused && bodyEditor.isActive("underline") ? "bg-gray-200" : "hover:bg-gray-100"}`}
-              >
-                <Underline size={18}></Underline>
-              </button>
-              <button
-                type="button"
-                onClick={() => bodyEditor.chain().focus().toggleStrike().run()}
-                className={`p-1 rounded-md ${isBodyEditorFocused && bodyEditor.isActive("strike") ? "bg-gray-200" : "hover:bg-gray-100"}`}
-              >
-                <Strikethrough size={18}></Strikethrough>
-              </button>
-              <button
-                type="button"
-                onClick={() => bodyEditor.chain().focus().toggleLink().run()}
-                className={`p-1 rounded-md ${isBodyEditorFocused && bodyEditor.isActive("link") ? "bg-gray-200" : "hover:bg-gray-100"}`}
-              >
-                <LinkIcon size={18}></LinkIcon>
-              </button>
-              <button
-                type="button"
-                onClick={() => bodyEditor.chain().focus().toggleCode().run()}
-                className={`p-1 rounded-md ${isBodyEditorFocused && bodyEditor.isActive("code") ? "bg-gray-200" : "hover:bg-gray-100"}`}
-              >
-                <Code size={18}></Code>
-              </button>
+            <div className="border-b border-gray-400 mb-2 pb-1 flex">
+              {toolbarButtons.map((btn, index) => (
+                <ToolbarButton
+                  key={index}
+                  icon={btn.icon}
+                  onClick={btn.onClick}
+                  isActive={btn.isActive()}
+                  tooltip={btn.tooltip}
+                  className={"h-7 w-7 flex items-center justify-center"}
+                ></ToolbarButton>
+              ))}
             </div>
             <EditorContent editor={bodyEditor}></EditorContent>
           </div>
         </div>
         <div className="mb-2"></div>
         <div className="mb-2 flex justify-between text-sm text-gray-800">
-          <span>Words: {wordCount}</span>
+          <span>Words: {bodyWordCount}</span>
           {post && <span>Last Modified: {formattedDateTimeModified}</span>}
         </div>
         <button

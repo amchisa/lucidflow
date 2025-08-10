@@ -1,11 +1,32 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,100..900;1,100..900&display=swap");
 @import "tailwindcss";
 
-a {
+a[href] {
   @apply text-blue-600 underline;
 }
+
 .font-inter {
   font-family: "Inter", sans-serif;
+}
+
+.rich-text :not(pre) > code {
+  @apply bg-gray-200 py-0.5 px-1 rounded-md;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.rich-text pre {
+  @apply bg-gray-200 px-1 rounded-md w-fit max-w-full overflow-x-auto;
+}
+
+.rich-text ul {
+  list-style-type: disc;
+  margin-left: 1.5rem;
+}
+
+.rich-text ol {
+  list-style-type: decimal;
+  margin-left: 1.5rem;
 }
 
 .tiptap p.is-editor-empty:first-child::before {

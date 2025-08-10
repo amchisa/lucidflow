@@ -3,8 +3,8 @@ import type { Post } from "../types/models";
 import { useState } from "react";
 
 interface UsePostEditorParams {
-  onCreate: (postRequest: PostRequest) => void;
-  onUpdate: (id: number, postRequest: PostRequest) => void;
+  onCreate: (postRequest: PostRequest) => Promise<void>;
+  onUpdate: (id: number, postRequest: PostRequest) => Promise<void>;
 }
 
 /**
@@ -40,11 +40,11 @@ export default function usePostEditor({
    * Handles saving a post that the user has created or edited to the database.
    * @param postRequest The PostRequest object containing the new/updated post information.
    */
-  const savePost = (postRequest: PostRequest) => {
+  const savePost = async (postRequest: PostRequest) => {
     if (postToEdit) {
-      onUpdate(postToEdit.id, postRequest);
+      await onUpdate(postToEdit.id, postRequest);
     } else {
-      onCreate(postRequest);
+      await onCreate(postRequest);
     }
   };
 

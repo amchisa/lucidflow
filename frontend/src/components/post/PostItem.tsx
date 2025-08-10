@@ -1,5 +1,5 @@
 import type { Post } from "../../types/models";
-import Dropdown from "../ui/Dropdown";
+import DropdownMenu from "../ui/DropdownMenu";
 import ImageGallery from "./ImageGallery";
 import { Ellipsis, Edit2, Trash2 } from "lucide-react";
 
@@ -44,7 +44,7 @@ export default function PostItem({
         <span className="text-sm text-gray-800">
           {formattedDateTimeCreated}
         </span>
-        <Dropdown
+        <DropdownMenu
           triggerIcon={<Ellipsis size={24} className="text-gray-800" />}
         >
           <ul className="flex flex-col text-gray-800">
@@ -67,13 +67,13 @@ export default function PostItem({
               </button>
             </li>
           </ul>
-        </Dropdown>
+        </DropdownMenu>
       </div>
       {images.length > 0 && <ImageGallery className="mb-2" images={images} />}
       <div>
         <h2 className="text-lg font-bold mb-3 truncate">{title}</h2>
         <div
-          className="whitespace-pre-wrap"
+          className="rich-text whitespace-pre-wrap"
           dangerouslySetInnerHTML={{ __html: body }}
         ></div>
       </div>

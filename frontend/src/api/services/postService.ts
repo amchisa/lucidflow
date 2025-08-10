@@ -3,7 +3,7 @@ import type { PostRequest } from "../../types/requests";
 import type { PageResponse, PostResponse } from "../../types/responses";
 import { postMapper } from "../mappers/postMapper";
 import { pageMapper } from "../mappers/pageMapper";
-import { api } from "../config/axios";
+import { api } from "../client/axios";
 
 interface getPostsParams {
   search?: string;

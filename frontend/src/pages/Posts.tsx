@@ -8,7 +8,7 @@ import useDebounce from "../hooks/useDebounce";
 import Searchbar from "../components/ui/Searchbar";
 
 const MIN_REFRESH_DURATION = 500;
-const DEBOUNCE_DELAY = 300;
+const DEBOUNCE_DELAY = 400;
 
 export default function Posts() {
   const {
@@ -30,9 +30,9 @@ export default function Posts() {
     savePost,
     closeEditor,
   } = usePostEditor({
-    onCreate: (postRequest) => {
-      createPost(postRequest);
+    onCreate: async (postRequest) => {
       window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to top for improved user experience
+      createPost(postRequest);
     },
     onUpdate: updatePost,
   });
