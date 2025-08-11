@@ -12,7 +12,7 @@ export default function Searchbar({
   placeholder,
 }: SearchbarProps) {
   return (
-    <form
+    <search
       className={`border border-gray-400 rounded-lg flex items-center pr-2 ${className}`}
       onSubmit={(e) => e.preventDefault()}
     >
@@ -22,6 +22,6 @@ export default function Searchbar({
         placeholder={placeholder}
         onChange={onChange}
       ></input>
-    </form>
+    </search>
   );
 }

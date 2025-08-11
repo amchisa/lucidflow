@@ -19,6 +19,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import { htmlToPlainText } from "../../utils/textUtils";
 import ToolbarButton from "../ui/ToolbarButton";
+import { Tooltip } from "react-tooltip";
 
 interface PostEditorProps {
   onClose: () => void;
@@ -32,8 +33,18 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const [body, setBody] = useState<string>(() => post?.body || "");
   const [images] = useState<Image[]>(() => post?.images || []);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  const [, setRerenderToggle] = useState<boolean>(false);
-  const [isBodyEditorFocused, setIsBodyEditorFocused] = useState<boolean>(true);
+  const [isBodyEditorFocused, setIsBodyEditorFocused] =
+    useState<boolean>(false);
+  const [toolbarState, setToolbarState] = useState({
+    bold: false,
+    italic: false,
+    underline: false,
+    strikethrough: false,
+    code: false,
+    code_block: false,
+    bullet_list: false,
+    ordered_list: false,
+  });
 
   const initialPostRef = useRef({
     title: post?.title || "",
@@ -60,6 +71,18 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     ],
     content: body,
     onUpdate: ({ editor }) => setBody(editor.getHTML()),
+    onSelectionUpdate: ({ editor }) => {
+      setToolbarState({
+        bold: editor.isActive("bold"),
+        italic: editor.isActive("italic"),
+        underline: editor.isActive("underline"),
+        strikethrough: editor.isActive("strikethrough"),
+        code: editor.isActive("code"),
+        code_block: editor.isActive("codeBlock"),
+        bullet_list: editor.isActive("bulletList"),
+        ordered_list: editor.isActive("orderedList"),
+      });
+    },
     editorProps: {
       attributes: {
         class:
@@ -92,50 +115,50 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     {
       icon: <Bold size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleBold().run(),
-      isActive: () => isBodyEditorFocused && bodyEditor.isActive("bold"),
+      isActive: isBodyEditorFocused && toolbarState.bold,
       tooltip: "Bold text",
     },
     {
       icon: <Italic size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleItalic().run(),
-      isActive: () => isBodyEditorFocused && bodyEditor.isActive("italic"),
+      isActive: isBodyEditorFocused && toolbarState.italic,
       tooltip: "Italicize text",
     },
     {
       icon: <Underline size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleUnderline().run(),
-      isActive: () => isBodyEditorFocused && bodyEditor.isActive("underline"),
+      isActive: isBodyEditorFocused && toolbarState.underline,
       tooltip: "Underline text",
     },
     {
       icon: <Strikethrough size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleStrike().run(),
-      isActive: () => isBodyEditorFocused && bodyEditor.isActive("strike"),
-      tootip: "Strikethrough text",
+      isActive: isBodyEditorFocused && toolbarState.strikethrough,
+      tooltip: "Strikethrough text",
     },
     {
       icon: <Code size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleCode().run(),
-      isActive: () => isBodyEditorFocused && bodyEditor.isActive("code"),
-      tooltop: "Create inline code",
+      isActive: isBodyEditorFocused && toolbarState.code,
+      tooltip: "Create inline code",
     },
     {
       icon: <SquareCode size={21} />,
       onClick: () => bodyEditor.chain().focus().setCodeBlock().run(),
-      isActive: () => isBodyEditorFocused && bodyEditor.isActive("codeBlock"),
-      tooltop: "Create a code block",
+      isActive: isBodyEditorFocused && toolbarState.code_block,
+      tooltip: "Create a code block",
     },
     {
       icon: <List size={21} />,
       onClick: () => bodyEditor.chain().focus().toggleBulletList().run(),
-      isActive: () => isBodyEditorFocused && bodyEditor.isActive("bulletList"),
-      tooltop: "Create a bullet list",
+      isActive: isBodyEditorFocused && toolbarState.bullet_list,
+      tooltip: "Create a bullet list",
     },
     {
       icon: <ListOrdered size={21} />,
       onClick: () => bodyEditor.chain().focus().toggleOrderedList().run(),
-      isActive: () => isBodyEditorFocused && bodyEditor.isActive("orderedList"),
-      tooltop: "Create an ordered list",
+      isActive: isBodyEditorFocused && toolbarState.ordered_list,
+      tooltip: "Create an ordered list",
     },
   ];
 
@@ -164,6 +187,22 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     }
 
     onClose(); // User wishes to discard their changes
+  };
+
+  /**
+   * Updates the toolbar buttons to accurately represent what styles are currently toggled.
+   */
+  const updateToolbarState = () => {
+    setToolbarState({
+      bold: bodyEditor.isActive("bold"),
+      italic: bodyEditor.isActive("italic"),
+      underline: bodyEditor.isActive("underline"),
+      strikethrough: bodyEditor.isActive("strikethrough"),
+      code: bodyEditor.isActive("code"),
+      code_block: bodyEditor.isActive("codeBlock"),
+      bullet_list: bodyEditor.isActive("bulletList"),
+      ordered_list: bodyEditor.isActive("orderedList"),
+    });
   };
 
   // Scroll blocking
@@ -240,7 +279,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             tabIndex={-1}
             onFocus={() => setIsBodyEditorFocused(true)}
             onBlur={() => setIsBodyEditorFocused(false)}
-            onClick={() => setRerenderToggle((prev) => !prev)}
+            onClick={updateToolbarState}
           >
             <div className="border-b border-gray-400 mb-2 pb-1 flex">
               {toolbarButtons.map((btn, index) => (
@@ -248,11 +287,16 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
                   key={index}
                   icon={btn.icon}
                   onClick={btn.onClick}
-                  isActive={btn.isActive()}
+                  isActive={btn.isActive}
                   tooltip={btn.tooltip}
                   className={"h-7 w-7 flex items-center justify-center"}
                 ></ToolbarButton>
               ))}
+              <Tooltip
+                id="toolbarbtn-tooltip"
+                className="!bg-gray-800 !p-1.5 !rounded-md !shadow-lg !text-sm"
+                opacity={100}
+              ></Tooltip>
             </div>
             <EditorContent editor={bodyEditor}></EditorContent>
           </div>
