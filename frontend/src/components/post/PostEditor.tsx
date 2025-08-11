@@ -16,7 +16,6 @@ import DOMPurify from "dompurify";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import Link from "@tiptap/extension-link";
 import { htmlToPlainText } from "../../utils/textUtils";
 import ToolbarButton from "../ui/ToolbarButton";
 import { Tooltip } from "react-tooltip";
@@ -56,17 +55,12 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const bodyEditor = useEditor({
     extensions: [
       StarterKit.configure({
-        link: false, // Disable default link implementation
+        link: {
+          openOnClick: "whenNotEditable",
+        },
       }),
       Placeholder.configure({
         placeholder: "Write about your day",
-      }),
-      Link.configure({
-        autolink: true,
-        openOnClick: "whenNotEditable",
-        // HTMLAttributes: {
-        //   target: "_blank",
-        // },
       }),
     ],
     content: body,
@@ -165,7 +159,9 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const sanitizedBody = DOMPurify.sanitize(body);
+    const sanitizedBody = DOMPurify.sanitize(body, {
+      ADD_ATTR: ["target", "rel"],
+    });
 
     onSave({
       title: title.trim(),
