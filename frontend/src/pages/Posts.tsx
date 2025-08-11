@@ -2,7 +2,7 @@ import usePosts from "../hooks/usePosts";
 import { useEffect, useCallback } from "react";
 import PostList from "../components/post/PostList";
 import PostEditor from "../components/post/PostEditor";
-import { CircleAlert, ListRestart, SquarePen } from "lucide-react";
+import { ListRestart, SquarePen } from "lucide-react";
 import usePostEditor from "../hooks/usePostEditor";
 import useDebounce from "../hooks/useDebounce";
 import Searchbar from "../components/ui/Searchbar";
@@ -15,7 +15,7 @@ export default function Posts() {
     posts,
     isLoading,
     hasMore,
-    errorMessage,
+    hasError,
     fetchPosts,
     createPost,
     updatePost,
@@ -113,19 +113,13 @@ export default function Posts() {
         <PostList
           posts={posts}
           loading={isLoading}
-          isError={!!errorMessage}
+          hasError={hasError}
           hasMore={hasMore}
           searchQuery={debouncedSearchInput}
           onPostEdit={openUpdateEditor}
           onPostDelete={deletePost}
           onLoadMore={handleLoadMore}
         />
-        {errorMessage && (
-          <div className="fixed flex gap-2 left-5 bottom-7 z-40 text-sm p-4 rounded-xl border border-red-600 bg-red-300/75 text-red-600 text-center">
-            <CircleAlert size={20} />
-            <span>{errorMessage}</span>
-          </div>
-        )}
       </main>
       <footer className="text-center py-1 text-sm bg-white border-t border-gray-300 text-gray-800">
         Alex Chisa &copy; 2025 &middot;{" "}

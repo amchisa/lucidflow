@@ -4,6 +4,14 @@ import type { PostRequest } from "../types/requests";
 import { postService } from "../api/services/postService";
 import { AxiosError } from "axios";
 import { delay } from "../utils/timeUtils";
+import { toast } from "react-hot-toast";
+
+interface HandleErrorParams {
+  context: string;
+  err: unknown;
+  userMessage?: string;
+  toastID?: string;
+}
 
 interface FetchPostsParams {
   refresh?: boolean;
@@ -21,7 +29,7 @@ export default function usePosts() {
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [hasError, setHasError] = useState<boolean>(false);
 
   const pageNumber = useRef<number>(0);
   const tempIDCounter = useRef(-1); // Generates temporary client-side IDs for optimistic updates
@@ -30,16 +38,18 @@ export default function usePosts() {
   /**
    * Handles errors by logging detailed technical context and updating the user error message.
    * Used across various API/service calls to centralize error handling and UI messaging.
-   * @param context - A brief string describing the operation that failed (e.g., "Failed to delete post").
-   * @param err - The error object caught from the failed operation.
-   * @param userMessage - (Optional) A user-facing message to display in the UI. Defaults to a generic fallback.
+   * @param context A brief string describing the operation that failed (e.g., "Failed to delete post").
+   * @param err The error object caught from the failed operation.
+   * @param userMessage (Optional) A user-facing message to display in the UI. Defaults to a generic fallback.
+   * @param toastID (Optional) The toast/notification ID to update with the user error message.
    */
   const handleError = useCallback(
-    (
-      context: string,
-      err: unknown,
-      userMessage = "Something went wrong. Please try again later."
-    ): void => {
+    ({
+      context,
+      err,
+      userMessage = "Something went wrong. Please try again later.",
+      toastID,
+    }: HandleErrorParams): void => {
       let logMessage = "An unknown error occurred.";
 
       if (err instanceof Error) {
@@ -51,7 +61,8 @@ export default function usePosts() {
       }
 
       console.error(`${context}:`, logMessage); // Log error for debugging
-      setErrorMessage(userMessage); // User-friendly error message
+      toast.error(userMessage, { id: toastID }); // User-friendly error message
+      setHasError(true);
     },
     []
   );
@@ -109,7 +120,7 @@ export default function usePosts() {
 
       if (refresh) {
         setIsLoading(true);
-        setErrorMessage(null);
+        setHasError(false);
         pageNumber.current = 0;
       }
 
@@ -159,7 +170,10 @@ export default function usePosts() {
         pageNumber.current++;
         setHasMore(pageNumber.current < paginatedPosts.totalPages); // Set the hasMore state
       } catch (err) {
-        handleError("Failed to load posts", err);
+        handleError({
+          context: "Failed to load posts",
+          err,
+        });
       } finally {
         if (refresh) {
           setIsLoading(false);
@@ -179,6 +193,7 @@ export default function usePosts() {
   const createPost = useCallback(
     async (postRequest: PostRequest): Promise<void> => {
       let rollbackState: Post[] = [];
+      const toastID = toast.loading("Creating post...");
       const newClientPost = createPostOptimistically(postRequest);
 
       // Perform optimistic UI update and create rollback state
@@ -188,7 +203,7 @@ export default function usePosts() {
         return [newClientPost, ...prevPosts];
       });
 
-      setErrorMessage(null);
+      setHasError(false);
 
       try {
         const newServerPost = await postService.createPost(postRequest);
@@ -199,9 +214,16 @@ export default function usePosts() {
             post.id === newClientPost.id ? newServerPost : post
           )
         );
+
+        toast.success("Post created successfully.", { id: toastID });
       } catch (err) {
         setPosts(rollbackState); // Roll back UI to original state
-        handleError("Failed to create post", err);
+        handleError({
+          context: "Failed to create post",
+          err,
+          userMessage: "Failed to create post.",
+          toastID,
+        });
       }
     },
     [handleError]
@@ -217,6 +239,7 @@ export default function usePosts() {
   const updatePost = useCallback(
     async (id: number, postRequest: PostRequest) => {
       let rollbackState: Post[] = [];
+      const toastID = toast.loading("Updating post...");
 
       // Perform optimistic UI update and create rollback state
       setPosts((prevPosts) => {
@@ -227,7 +250,7 @@ export default function usePosts() {
         );
       });
 
-      setErrorMessage(null);
+      setHasError(false);
 
       try {
         const updatedServerPost = await postService.updatePost(id, postRequest);
@@ -236,9 +259,16 @@ export default function usePosts() {
         setPosts((prevPosts) =>
           prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
         );
+
+        toast.success("Post updated successfully.", { id: toastID });
       } catch (err) {
         setPosts(rollbackState); // Roll back UI to original state
-        handleError("Failed to update post", err);
+        handleError({
+          context: "Failed to update post",
+          err,
+          userMessage: "Failed to update post.",
+          toastID,
+        });
       }
     },
     [handleError]
@@ -253,6 +283,7 @@ export default function usePosts() {
   const deletePost = useCallback(
     async (id: number) => {
       let rollbackState: Post[] = [];
+      const toastID = toast.loading("Deleting post...");
 
       // Perform optimistic UI update and create rollback state
       setPosts((prevPosts) => {
@@ -261,13 +292,19 @@ export default function usePosts() {
         return prevPosts.filter((post) => post.id !== id);
       });
 
-      setErrorMessage(null);
+      setHasError(false);
 
       try {
         await postService.deletePost(id);
+        toast.success("Post deleted successfully.", { id: toastID });
       } catch (err) {
         setPosts(rollbackState);
-        handleError("Failed to delete post", err);
+        handleError({
+          context: "Failed to delete post",
+          err,
+          userMessage: "Failed to delete post.",
+          toastID,
+        });
       }
     },
     [handleError]
@@ -277,8 +314,7 @@ export default function usePosts() {
     posts,
     isLoading,
     hasMore,
-    errorMessage,
-    setErrorMessage,
+    hasError,
     fetchPosts,
     createPost,
     updatePost,

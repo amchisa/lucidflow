@@ -8,7 +8,7 @@ import PostSkeleton from "./PostSkeleton";
 interface PostListProps {
   posts: Post[];
   loading: boolean;
-  isError: boolean;
+  hasError: boolean;
   hasMore: boolean;
   searchQuery: string | null;
   onPostEdit: (post: Post) => void;
@@ -20,7 +20,7 @@ interface PostListProps {
 export default function PostList({
   posts,
   loading,
-  isError,
+  hasError,
   hasMore,
   searchQuery,
   onPostEdit,
@@ -63,7 +63,7 @@ export default function PostList({
           );
         })
       )}
-      {((hasMore && !isError) || (loading && posts.length === 0)) && (
+      {((hasMore && !hasError) || (loading && posts.length === 0)) && (
         <div ref={loadMoreRef}>
           <PostSkeleton />
           <PostSkeleton />
