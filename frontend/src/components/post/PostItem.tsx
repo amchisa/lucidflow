@@ -2,6 +2,7 @@ import type { Post } from "../../types/models";
 import DropdownMenu from "../ui/DropdownMenu";
 import ImageGallery from "./ImageGallery";
 import { Ellipsis, Edit2, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface PostItemProps {
   post: Post;
@@ -10,6 +11,8 @@ interface PostItemProps {
   className?: string;
 }
 
+const MAX_UNTRUNCATED_LINES = 10;
+
 export default function PostItem({
   post,
   onEdit: handleEdit,
@@ -17,14 +20,22 @@ export default function PostItem({
 }: PostItemProps) {
   const { id, title, body, images, timeCreated } = post;
 
-  const formattedDateTimeCreated = timeCreated.toLocaleString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }); // e.g., Monday, July 28, 2025 at 2:26 p.m.
+  const [truncateBody, setTruncateBody] = useState<boolean>(true);
+  const [isBodyOverflowing, setIsBodyOverflowing] = useState<boolean>(false);
+
+  const postContainerRef = useRef<HTMLDivElement>(null!);
+  const bodyContainerRef = useRef<HTMLDivElement>(null!);
+
+  const formattedDateTimeCreated = timeCreated // e.g., Monday, July 28, 2025 at 2:26 pm
+    .toLocaleString(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    })
+    .replace(/\.m\./gi, "m"); // Remove dots from a.m. and p.m.
 
   const handleDeleteWithConfirmation = async () => {
     const confirmDelete = window.confirm(
@@ -38,8 +49,35 @@ export default function PostItem({
     await handleDelete(id); // User does wish to delete the post
   };
 
+  const handleToggleTruncate = () => {
+    if (!truncateBody) {
+      // Body is being collapsed, scroll post into view for a better UX
+      postContainerRef.current.scrollIntoView({
+        behavior: "instant",
+        block: "start",
+      });
+    }
+
+    setTruncateBody((prev) => !prev);
+  };
+
+  // Determine whether to show the see more/less button
+  useEffect(() => {
+    const element = bodyContainerRef.current;
+
+    const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+    const truncatedHeight = lineHeight * MAX_UNTRUNCATED_LINES;
+
+    element.style.setProperty("--truncated-height", `${truncatedHeight}px`);
+
+    setIsBodyOverflowing(element.scrollHeight > truncatedHeight);
+  }, []);
+
   return (
-    <div className="bg-white p-3 rounded-xl mb-5 shadow-lg border border-gray-300">
+    <div
+      ref={postContainerRef}
+      className="bg-white p-3 rounded-xl mb-5 shadow-lg border border-gray-300 scroll-mt-30"
+    >
       <div className="flex justify-between mb-1.5">
         <span className="text-sm text-gray-800">
           {formattedDateTimeCreated}
@@ -73,9 +111,18 @@ export default function PostItem({
       <div>
         <h2 className="text-lg font-bold mb-3 truncate">{title}</h2>
         <div
-          className="rich-text whitespace-pre-wrap"
+          ref={bodyContainerRef}
+          className={`rich-text whitespace-pre-wrap ${isBodyOverflowing && truncateBody ? `truncate-content line-clamp-10` : ""}`}
           dangerouslySetInnerHTML={{ __html: body }}
         ></div>
+        {isBodyOverflowing && (
+          <button
+            className="text-sm text-gray-800 hover:underline mt-2"
+            onClick={handleToggleTruncate}
+          >
+            {truncateBody ? "Show more" : "Show less"}
+          </button>
+        )}
       </div>
     </div>
   );

@@ -95,14 +95,16 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     .split(/\s+/)
     .filter((word) => word.length > 0).length; // Remove any empty strings
 
-  const formattedDateTimeModified = post?.timeModified
-    ? post.timeModified.toLocaleString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      }) // e.g., Jul 28, 2025, 2:27 p.m.
+  const formattedDateTimeModified = post?.timeModified // e.g., Jul 28, 2025, 2:27 pm
+    ? post.timeModified
+        .toLocaleString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+        })
+        .replace(/\.m\./gi, "m") // Remove dots from a.m. and p.m.
     : null;
 
   const toolbarButtons = [

@@ -5,31 +5,61 @@ a[href] {
   @apply text-blue-600 underline;
 }
 
+button {
+  cursor: pointer;
+}
+
 .font-inter {
   font-family: "Inter", sans-serif;
 }
 
-.rich-text :not(pre) > code {
-  @apply bg-gray-200 py-0.5 px-1 rounded-md;
-  white-space: pre-wrap;
-  word-break: break-all;
+.rich-text {
+  :not(pre) > code {
+    @apply bg-gray-100 py-0.5 px-1 rounded-md;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  pre {
+    @apply bg-gray-100 px-1 rounded-md;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  ul {
+    list-style-type: disc;
+    list-style-position: inside;
+  }
+
+  ol {
+    list-style-type: decimal;
+    list-style-position: inside;
+  }
+
+  li p {
+    display: inline;
+  }
 }
 
-.rich-text pre {
-  @apply bg-gray-200 px-1 rounded-md w-fit max-w-full overflow-x-auto;
+.truncate-content {
+  @apply rounded-b-md;
+  overflow: hidden;
+  max-height: var(--truncated-height);
+  position: relative;
 }
 
-.rich-text ul {
-  list-style-type: disc;
-  margin-left: 1.5rem;
+.truncate-content::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2rem;
+  pointer-events: none;
 }
 
-.rich-text ol {
-  list-style-type: decimal;
-  margin-left: 1.5rem;
-}
-
-.tiptap p.is-editor-empty:first-child::before {
+.rich-text .tiptap p.is-editor-empty:first-child::before {
   color: #7f7f7f;
   content: attr(data-placeholder);
   float: left;
