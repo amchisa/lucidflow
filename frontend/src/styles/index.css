@@ -59,6 +59,7 @@ button {
   pointer-events: none;
 }
 
+/* Tiptap placeholder configuration */
 .rich-text .tiptap p.is-editor-empty:first-child::before {
   color: #7f7f7f;
   content: attr(data-placeholder);

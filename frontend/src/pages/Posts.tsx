@@ -122,7 +122,7 @@ export default function Posts() {
         />
       </main>
       <footer className="text-center py-1 text-sm bg-white border-t border-gray-300 text-gray-800">
-        Alex Chisa &copy; 2025 &middot;{" "}
+        &copy; Alex Chisa 2025 &middot;{" "}
         <a href="https://github.com/amchisa" target="_blank">
           GitHub
         </a>{" "}

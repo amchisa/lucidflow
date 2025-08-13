@@ -4,7 +4,7 @@ interface ToolbarButtonProps {
   icon: ReactNode;
   onClick: () => void;
   isActive: boolean;
-  tooltip?: string;
+  tooltipText?: string;
   className?: string;
 }
 
@@ -12,7 +12,7 @@ export default function ToolbarButton({
   icon,
   onClick,
   isActive,
-  tooltip,
+  tooltipText,
   className,
 }: ToolbarButtonProps) {
   return (
@@ -20,8 +20,8 @@ export default function ToolbarButton({
       type="button"
       onClick={onClick}
       className={`p-1 rounded-md  ${isActive ? "bg-gray-200" : "hover:bg-gray-100 active:bg-gray-200"} ${className}`}
-      data-tooltip-id="toolbarbtn-tooltip"
-      data-tooltip-content={tooltip}
+      data-tooltip-id="editor-global-tooltip"
+      data-tooltip-content={tooltipText}
     >
       {icon}
     </button>

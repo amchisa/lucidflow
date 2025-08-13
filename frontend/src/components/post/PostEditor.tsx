@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import type { Image, Post } from "../../types/models";
 import type { PostRequest } from "../../types/requests";
 import {
@@ -30,7 +30,7 @@ interface PostEditorProps {
 export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const [title, setTitle] = useState<string>(() => post?.title || "");
   const [body, setBody] = useState<string>(() => post?.body || "");
-  const [images] = useState<Image[]>(() => post?.images || []);
+  const [images, setImages] = useState<Image[]>(() => post?.images || []);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [isBodyEditorFocused, setIsBodyEditorFocused] =
     useState<boolean>(false);
@@ -112,49 +112,49 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
       icon: <Bold size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleBold().run(),
       isActive: isBodyEditorFocused && toolbarState.bold,
-      tooltip: "Bold text",
+      tooltipText: "Bold text",
     },
     {
       icon: <Italic size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleItalic().run(),
       isActive: isBodyEditorFocused && toolbarState.italic,
-      tooltip: "Italicize text",
+      tooltipText: "Italicize text",
     },
     {
       icon: <Underline size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleUnderline().run(),
       isActive: isBodyEditorFocused && toolbarState.underline,
-      tooltip: "Underline text",
+      tooltipText: "Underline text",
     },
     {
       icon: <Strikethrough size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleStrike().run(),
       isActive: isBodyEditorFocused && toolbarState.strikethrough,
-      tooltip: "Strikethrough text",
+      tooltipText: "Strikethrough text",
     },
     {
       icon: <Code size={18} />,
       onClick: () => bodyEditor.chain().focus().toggleCode().run(),
       isActive: isBodyEditorFocused && toolbarState.code,
-      tooltip: "Create inline code",
+      tooltipText: "Create inline code",
     },
     {
       icon: <SquareCode size={21} />,
       onClick: () => bodyEditor.chain().focus().setCodeBlock().run(),
       isActive: isBodyEditorFocused && toolbarState.code_block,
-      tooltip: "Create a code block",
+      tooltipText: "Create a code block",
     },
     {
       icon: <List size={21} />,
       onClick: () => bodyEditor.chain().focus().toggleBulletList().run(),
       isActive: isBodyEditorFocused && toolbarState.bullet_list,
-      tooltip: "Create a bullet list",
+      tooltipText: "Create a bullet list",
     },
     {
       icon: <ListOrdered size={21} />,
       onClick: () => bodyEditor.chain().focus().toggleOrderedList().run(),
       isActive: isBodyEditorFocused && toolbarState.ordered_list,
-      tooltip: "Create an ordered list",
+      tooltipText: "Create an ordered list",
     },
   ];
 
@@ -203,6 +203,22 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     });
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const imageFiles = e.target?.files;
+
+    setImages(() => {
+      if (!imageFiles) {
+        return [];
+      }
+
+      return Array.from(imageFiles).map((imageFile, index) => ({
+        id: -1, // temp
+        url: URL.createObjectURL(imageFile),
+        displayIndex: index,
+      }));
+    });
+  };
+
   // Scroll blocking
   useEffect(() => {
     // Disable background scrolling
@@ -240,6 +256,8 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
           onClick={handleCloseWithConfirmation}
           type="button"
           className="p-1 absolute right-1.5 top-1.5 text-white font-bold text-sm bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md"
+          data-tooltip-id="editor-global-tooltip"
+          data-tooltip-content="Exit"
         >
           <X size={24}></X>
         </button>
@@ -256,6 +274,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             value={title}
             placeholder="Give your post a title"
             autoComplete="off"
+            type="text"
             maxLength={100}
             onChange={(e) => {
               setTitle(e.target.value);
@@ -273,7 +292,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
           </label>
           <div
             id="body-input"
-            className="rich-text border border-gray-400 resize-none py-1 px-2 rounded-lg focus:outline-2 focus:outline-blue-700 focus:outline-solid"
+            className="rich-text border border-gray-400 resize-none py-1 px-2 rounded-lg focus-within:outline-2 focus-within:outline-blue-700 focus-within:outline-solid"
             tabIndex={-1}
             onFocus={() => setIsBodyEditorFocused(true)}
             onBlur={() => setIsBodyEditorFocused(false)}
@@ -286,32 +305,53 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
                   icon={btn.icon}
                   onClick={btn.onClick}
                   isActive={btn.isActive}
-                  tooltip={btn.tooltip}
+                  tooltipText={btn.tooltipText}
                   className={"h-7 w-7 flex items-center justify-center"}
                 ></ToolbarButton>
               ))}
-              <Tooltip
-                id="toolbarbtn-tooltip"
-                className="!bg-gray-800 !p-1.5 !rounded-md !shadow-lg !text-sm"
-                opacity={100}
-              ></Tooltip>
             </div>
             <EditorContent editor={bodyEditor}></EditorContent>
           </div>
+          <span className="text-gray-800 text-sm">Words: {bodyWordCount}</span>
         </div>
-        <div className="mb-2"></div>
-        <div className="mb-2 flex justify-between text-sm text-gray-800">
-          <span>Words: {bodyWordCount}</span>
+        <div className="mb-2 flex gap-2 items-center">
+          {images &&
+            images.map((image) => (
+              <img src={image.url} className="h-20 w-20 rounded-lg"></img>
+            ))}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageUpload}
+          ></input>
+        </div>
+        <div className="text-sm flex justify-between items-center mt-3">
+          <span className="flex gap-2">
+            <button
+              className={`py-2 px-3 text-white font-bold rounded-md ${canSave ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500"}`}
+              type="submit"
+              disabled={!canSave}
+            >
+              {saveButtonText}
+            </button>
+            <button
+              type="button"
+              className="py-2 px-3 text-white font-bold rounded-md bg-gray-500 hover:bg-gray-600 active:bg-gray-700"
+              onClick={handleCloseWithConfirmation}
+            >
+              Close
+            </button>
+          </span>
           {post && <span>Last Modified: {formattedDateTimeModified}</span>}
         </div>
-        <button
-          className={`py-2 px-3 text-white font-bold text-sm ${canSave ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500"} rounded-md`}
-          type="submit"
-          disabled={!canSave}
-        >
-          {saveButtonText}
-        </button>
       </form>
+      <Tooltip
+        id="editor-global-tooltip"
+        className="!bg-gray-800 !p-1.5 !rounded-md !shadow-lg !text-sm"
+        opacity={100}
+        place="bottom"
+      ></Tooltip>
     </div>
   );
 }
