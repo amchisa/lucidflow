@@ -21,7 +21,7 @@ export default function Searchbar({
         className="resize-none w-full focus:outline-none"
         placeholder={placeholder}
         onChange={onChange}
-      ></input>
+      />
     </search>
   );
 }

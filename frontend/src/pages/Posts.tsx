@@ -2,7 +2,7 @@ import usePosts from "../hooks/usePosts";
 import { useEffect, useCallback } from "react";
 import PostList from "../components/post/PostList";
 import PostEditor from "../components/post/PostEditor";
-import { ListRestart, SquarePen } from "lucide-react";
+import { ListRestart, NotebookPen } from "lucide-react";
 import usePostEditor from "../hooks/usePostEditor";
 import useDebounce from "../hooks/useDebounce";
 import Searchbar from "../components/ui/Searchbar";
@@ -90,7 +90,7 @@ export default function Posts() {
             className="flex gap-2 py-2 px-3 text-white font-bold text-sm bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-md"
             onClick={openCreateEditor}
           >
-            <SquarePen size={20} />
+            <NotebookPen size={20} />
             <span>Create Post</span>
           </button>
           <button

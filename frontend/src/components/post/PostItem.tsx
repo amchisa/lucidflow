@@ -53,7 +53,7 @@ export default function PostItem({
     if (!truncateBody) {
       // Body is being collapsed, scroll post into view for a better UX
       postContainerRef.current.scrollIntoView({
-        behavior: "instant",
+        behavior: "smooth",
         block: "start",
       });
     }
@@ -74,7 +74,7 @@ export default function PostItem({
   }, []);
 
   return (
-    <div
+    <article
       ref={postContainerRef}
       className="bg-white p-3 rounded-xl mb-5 shadow-lg border border-gray-300 scroll-mt-30"
     >
@@ -124,6 +124,6 @@ export default function PostItem({
           </button>
         )}
       </div>
-    </div>
+    </article>
   );
 }

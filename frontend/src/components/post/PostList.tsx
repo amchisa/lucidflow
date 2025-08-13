@@ -30,7 +30,7 @@ export default function PostList({
   const loadMoreRef = useRef<HTMLDivElement>(null!);
 
   const noPostsMessage = searchQuery
-    ? `No posts found with title "${searchQuery}".`
+    ? `No posts found with title containing "${searchQuery}".`
     : "No posts available.";
 
   // Infinite scroll hook for lazy post loading

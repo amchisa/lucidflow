@@ -9,3 +9,13 @@ export interface PostRequest {
   body: string;
   images: Image[]; // Not ImageRequest as this type is not currently needed
 }
+
+/**
+ * Represents the structure of an Image object sent to the API.
+ * Allows for the `id` field to be optional.
+ */
+// export interface ImageRequest {
+//   id?: number;
+//   url: string;
+//   displayIndex: number;
+// }

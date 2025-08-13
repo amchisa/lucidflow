@@ -20,7 +20,7 @@ export default function ToolbarButton({
       type="button"
       onClick={onClick}
       className={`p-1 rounded-md  ${isActive ? "bg-gray-200" : "hover:bg-gray-100 active:bg-gray-200"} ${className}`}
-      data-tooltip-id="editor-global-tooltip"
+      data-tooltip-id="editor-tooltip"
       data-tooltip-content={tooltipText}
     >
       {icon}

@@ -1,24 +1,15 @@
 import React, { useEffect, useState, useRef } from "react";
 import type { Image, Post } from "../../types/models";
 import type { PostRequest } from "../../types/requests";
-import {
-  Bold,
-  Code,
-  Italic,
-  List,
-  ListOrdered,
-  SquareCode,
-  Strikethrough,
-  Underline,
-  X,
-} from "lucide-react";
+import { X } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { htmlToPlainText } from "../../utils/textUtils";
-import ToolbarButton from "../ui/ToolbarButton";
 import { Tooltip } from "react-tooltip";
+import EditorToolbar from "./EditorToolbar";
+import ImageUploader from "./ImageUploader";
 
 interface PostEditorProps {
   onClose: () => void;
@@ -34,16 +25,6 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [isBodyEditorFocused, setIsBodyEditorFocused] =
     useState<boolean>(false);
-  const [toolbarState, setToolbarState] = useState({
-    bold: false,
-    italic: false,
-    underline: false,
-    strikethrough: false,
-    code: false,
-    code_block: false,
-    bullet_list: false,
-    ordered_list: false,
-  });
 
   const initialPostRef = useRef({
     title: post?.title || "",
@@ -65,18 +46,6 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     ],
     content: body,
     onUpdate: ({ editor }) => setBody(editor.getHTML()),
-    onSelectionUpdate: ({ editor }) => {
-      setToolbarState({
-        bold: editor.isActive("bold"),
-        italic: editor.isActive("italic"),
-        underline: editor.isActive("underline"),
-        strikethrough: editor.isActive("strikethrough"),
-        code: editor.isActive("code"),
-        code_block: editor.isActive("codeBlock"),
-        bullet_list: editor.isActive("bulletList"),
-        ordered_list: editor.isActive("orderedList"),
-      });
-    },
     editorProps: {
       attributes: {
         class:
@@ -87,8 +56,8 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
 
   const saveButtonText = post ? "Save Changes" : "Create Post";
   const canSave = hasUnsavedChanges && title && htmlToPlainText(body);
-
   const titleCharCount = title.length;
+
   const bodyWordCount = bodyEditor
     .getText()
     .trim()
@@ -106,57 +75,6 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
         })
         .replace(/\.m\./gi, "m") // Remove dots from a.m. and p.m.
     : null;
-
-  const toolbarButtons = [
-    {
-      icon: <Bold size={18} />,
-      onClick: () => bodyEditor.chain().focus().toggleBold().run(),
-      isActive: isBodyEditorFocused && toolbarState.bold,
-      tooltipText: "Bold text",
-    },
-    {
-      icon: <Italic size={18} />,
-      onClick: () => bodyEditor.chain().focus().toggleItalic().run(),
-      isActive: isBodyEditorFocused && toolbarState.italic,
-      tooltipText: "Italicize text",
-    },
-    {
-      icon: <Underline size={18} />,
-      onClick: () => bodyEditor.chain().focus().toggleUnderline().run(),
-      isActive: isBodyEditorFocused && toolbarState.underline,
-      tooltipText: "Underline text",
-    },
-    {
-      icon: <Strikethrough size={18} />,
-      onClick: () => bodyEditor.chain().focus().toggleStrike().run(),
-      isActive: isBodyEditorFocused && toolbarState.strikethrough,
-      tooltipText: "Strikethrough text",
-    },
-    {
-      icon: <Code size={18} />,
-      onClick: () => bodyEditor.chain().focus().toggleCode().run(),
-      isActive: isBodyEditorFocused && toolbarState.code,
-      tooltipText: "Create inline code",
-    },
-    {
-      icon: <SquareCode size={21} />,
-      onClick: () => bodyEditor.chain().focus().setCodeBlock().run(),
-      isActive: isBodyEditorFocused && toolbarState.code_block,
-      tooltipText: "Create a code block",
-    },
-    {
-      icon: <List size={21} />,
-      onClick: () => bodyEditor.chain().focus().toggleBulletList().run(),
-      isActive: isBodyEditorFocused && toolbarState.bullet_list,
-      tooltipText: "Create a bullet list",
-    },
-    {
-      icon: <ListOrdered size={21} />,
-      onClick: () => bodyEditor.chain().focus().toggleOrderedList().run(),
-      isActive: isBodyEditorFocused && toolbarState.ordered_list,
-      tooltipText: "Create an ordered list",
-    },
-  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,50 +105,14 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     onClose(); // User wishes to discard their changes
   };
 
-  /**
-   * Updates the toolbar buttons to accurately represent what styles are currently toggled.
-   */
-  const updateToolbarState = () => {
-    setToolbarState({
-      bold: bodyEditor.isActive("bold"),
-      italic: bodyEditor.isActive("italic"),
-      underline: bodyEditor.isActive("underline"),
-      strikethrough: bodyEditor.isActive("strikethrough"),
-      code: bodyEditor.isActive("code"),
-      code_block: bodyEditor.isActive("codeBlock"),
-      bullet_list: bodyEditor.isActive("bulletList"),
-      ordered_list: bodyEditor.isActive("orderedList"),
-    });
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const imageFiles = e.target?.files;
-
-    setImages(() => {
-      if (!imageFiles) {
-        return [];
-      }
-
-      return Array.from(imageFiles).map((imageFile, index) => ({
-        id: -1, // temp
-        url: URL.createObjectURL(imageFile),
-        displayIndex: index,
-      }));
-    });
-  };
-
-  // Scroll blocking
   useEffect(() => {
-    // Disable background scrolling
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = "hidden"; // Disable background scrolling
 
-    // Cleanup after component unmount
     return () => {
       document.body.style.overflow = "";
     };
   }, []);
 
-  // Unsaved changes tracker
   useEffect(() => {
     const initialPost = initialPostRef.current;
 
@@ -256,10 +138,10 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
           onClick={handleCloseWithConfirmation}
           type="button"
           className="p-1 absolute right-1.5 top-1.5 text-white font-bold text-sm bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md"
-          data-tooltip-id="editor-global-tooltip"
+          data-tooltip-id="editor-tooltip"
           data-tooltip-content="Exit"
         >
-          <X size={24}></X>
+          <X size={24} strokeWidth={2.5} />
         </button>
         <div className="mb-2">
           <label
@@ -279,10 +161,10 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             onChange={(e) => {
               setTitle(e.target.value);
             }}
-          ></input>
+          />
           <span className="text-sm text-gray-800">{titleCharCount}/100</span>
         </div>
-        <div className="mb-2">
+        <div className="mb-3">
           <label
             htmlFor="body-input"
             className="block select-none mb-2 font-bold"
@@ -296,37 +178,17 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             tabIndex={-1}
             onFocus={() => setIsBodyEditorFocused(true)}
             onBlur={() => setIsBodyEditorFocused(false)}
-            onClick={updateToolbarState}
           >
-            <div className="border-b border-gray-400 mb-2 pb-1 flex">
-              {toolbarButtons.map((btn, index) => (
-                <ToolbarButton
-                  key={index}
-                  icon={btn.icon}
-                  onClick={btn.onClick}
-                  isActive={btn.isActive}
-                  tooltipText={btn.tooltipText}
-                  className={"h-7 w-7 flex items-center justify-center"}
-                ></ToolbarButton>
-              ))}
-            </div>
-            <EditorContent editor={bodyEditor}></EditorContent>
+            <EditorToolbar
+              editor={bodyEditor}
+              isEditorFocused={isBodyEditorFocused}
+            />
+            <EditorContent editor={bodyEditor} />
           </div>
           <span className="text-gray-800 text-sm">Words: {bodyWordCount}</span>
         </div>
-        <div className="mb-2 flex gap-2 items-center">
-          {images &&
-            images.map((image) => (
-              <img src={image.url} className="h-20 w-20 rounded-lg"></img>
-            ))}
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageUpload}
-          ></input>
-        </div>
-        <div className="text-sm flex justify-between items-center mt-3">
+        <ImageUploader images={images} setImages={setImages} />
+        <div className="text-sm flex justify-between items-end mt-4">
           <span className="flex gap-2">
             <button
               className={`py-2 px-3 text-white font-bold rounded-md ${canSave ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500"}`}
@@ -343,15 +205,15 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
               Close
             </button>
           </span>
-          {post && <span>Last Modified: {formattedDateTimeModified}</span>}
+          {post && <span>Last Saved: {formattedDateTimeModified}</span>}
         </div>
       </form>
       <Tooltip
-        id="editor-global-tooltip"
+        id="editor-tooltip"
         className="!bg-gray-800 !p-1.5 !rounded-md !shadow-lg !text-sm"
         opacity={100}
         place="bottom"
-      ></Tooltip>
+      />
     </div>
   );
 }
