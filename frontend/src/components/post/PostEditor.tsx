@@ -152,7 +152,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
           </label>
           <input
             id="title-input"
-            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full focus:outline-2 focus:outline-blue-700 focus:outline-solid"
+            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full focus:outline-2 focus:outline-blue-600 focus:outline-solid"
             value={title}
             placeholder="Give your post a title"
             autoComplete="off"
@@ -174,7 +174,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
           </label>
           <div
             id="body-input"
-            className="rich-text border border-gray-400 resize-none py-1 px-2 rounded-lg focus-within:outline-2 focus-within:outline-blue-700 focus-within:outline-solid"
+            className="rich-text border border-gray-400 resize-none py-1 px-2 rounded-lg focus-within:outline-2 focus-within:outline-blue-600 focus-within:outline-solid"
             tabIndex={-1}
             onFocus={() => setIsBodyEditorFocused(true)}
             onBlur={() => setIsBodyEditorFocused(false)}

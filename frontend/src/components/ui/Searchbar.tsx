@@ -13,7 +13,7 @@ export default function Searchbar({
 }: SearchbarProps) {
   return (
     <search
-      className={`border border-gray-400 rounded-lg flex items-center pr-2 ${className}`}
+      className={`border border-gray-400 rounded-lg flex items-center pr-2 focus-within:outline-2 focus-within:outline-blue-600 focus-within:outline-solid ${className}`}
       onSubmit={(e) => e.preventDefault()}
     >
       <Search size={20} className="mx-2" />
