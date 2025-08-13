@@ -53,7 +53,7 @@ export default function PostItem({
     if (!truncateBody) {
       // Body is being collapsed, scroll post into view for a better UX
       postContainerRef.current.scrollIntoView({
-        behavior: "smooth",
+        behavior: "instant",
         block: "start",
       });
     }

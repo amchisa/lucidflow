@@ -2,12 +2,12 @@ import type { Post } from "../../types/models";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import PostItem from "./PostItem";
 import useInfiniteScroll from "../../hooks/useInfiniteScroll";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import PostSkeleton from "./PostSkeleton";
 
 interface PostListProps {
   posts: Post[];
-  loading: boolean;
+  isLoading: boolean;
   hasError: boolean;
   hasMore: boolean;
   searchQuery: string | null;
@@ -19,7 +19,7 @@ interface PostListProps {
 
 export default function PostList({
   posts,
-  loading,
+  isLoading,
   hasError,
   hasMore,
   searchQuery,
@@ -27,7 +27,11 @@ export default function PostList({
   onPostDelete,
   onLoadMore,
 }: PostListProps) {
+  const [showBackToTopButton, setShowBackToTopButton] =
+    useState<boolean>(false);
+
   const loadMoreRef = useRef<HTMLDivElement>(null!);
+  const postListContainerRef = useRef<HTMLDivElement>(null!);
 
   const noPostsMessage = searchQuery
     ? `No posts found with title containing "${searchQuery}".`
@@ -41,15 +45,28 @@ export default function PostList({
     observerOptions: { rootMargin: "100px" }, // Trigger loading 100px before the div appears
   });
 
+  // Determine whether to show the back to top button
+  useEffect(() => {
+    const element = postListContainerRef.current;
+    setShowBackToTopButton(
+      element.scrollHeight > window.innerHeight && (!hasMore || hasError)
+    );
+  }, [posts, hasMore, hasError]);
+
   return (
-    <div>
-      {loading && (
-        <div className="flex justify-center items-center mb-10 text-sm gap-2 text-gray-800">
+    <div ref={postListContainerRef}>
+      {isLoading && (
+        <div className="flex justify-center items-center mb-5 text-sm gap-2 text-gray-800">
           <LoadingSpinner size={20} />
           <span>Loading posts...</span>
         </div>
       )}
-      {!loading && posts.length === 0 ? (
+      {!isLoading && searchQuery && posts.length > 0 && (
+        <div className="text-center text-sm mb-5">
+          {posts.length} posts found with title containing "{searchQuery}".
+        </div>
+      )}
+      {!isLoading && posts.length === 0 ? (
         <div className="text-center text-sm">{noPostsMessage}</div>
       ) : (
         posts.map((post) => {
@@ -63,11 +80,21 @@ export default function PostList({
           );
         })
       )}
-      {((hasMore && !hasError) || (loading && posts.length === 0)) && (
+      {((hasMore && !hasError) || (isLoading && posts.length === 0)) && (
         <div ref={loadMoreRef}>
           <PostSkeleton />
           <PostSkeleton />
           <PostSkeleton />
+        </div>
+      )}
+      {showBackToTopButton && (
+        <div className="flex justify-center">
+          <button
+            className="py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          >
+            Back to top
+          </button>
         </div>
       )}
     </div>

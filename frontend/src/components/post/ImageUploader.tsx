@@ -1,6 +1,6 @@
 import type { Image } from "../../types/models";
 import { type Dispatch, type SetStateAction, useRef } from "react";
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 
 interface ImageUploaderProps {
   images: Image[];
@@ -65,13 +65,24 @@ export default function ImageUploader({
           </span>
         </div>
       ))}
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={handleUpload}
-        className="bg-gray-200 rounded-md p-1 text-sm"
-      />
+      <div className="h-35 w-35 flex justify-center items-center rounded-xl bg-gray-100">
+        <label
+          htmlFor="image-upload"
+          className="rounded-full hover:bg-gray-200 active:bg-gray-300 p-2"
+          data-tooltip-id="editor-tooltip"
+          data-tooltip-content="Attach images"
+        >
+          <Plus size={20} />
+        </label>
+        <input
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleUpload}
+          hidden
+        />
+      </div>
     </div>
   );
 }

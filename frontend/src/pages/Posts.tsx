@@ -102,7 +102,7 @@ export default function Posts() {
           </button>
         </span>
       </header>
-      <main className="mx-auto w-225 pt-30 pb-8 flex-grow text-md">
+      <main className="mx-auto w-225 pt-30 pb-4 flex-grow text-md">
         {isEditorOpen && (
           <PostEditor
             post={postToEdit}
@@ -112,7 +112,7 @@ export default function Posts() {
         )}
         <PostList
           posts={posts}
-          loading={isLoading}
+          isLoading={isLoading}
           hasError={hasError}
           hasMore={hasMore}
           searchQuery={debouncedSearchInput}
