@@ -94,7 +94,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const handleCloseWithConfirmation = () => {
     if (hasUnsavedChanges) {
       const confirmDiscard = window.confirm(
-        "You have unsaved changes. Are you sure you want to discard them?"
+        "You have unsaved changes. Are you sure you want to discard them?",
       );
 
       if (!confirmDiscard) {
@@ -126,18 +126,18 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 flex flex-col items-center justify-center z-30"
+      className="fixed inset-0 z-30 flex flex-col items-center justify-center bg-black/50"
       onClick={handleCloseWithConfirmation}
     >
       <form
-        className="bg-white opacity-100 p-4 rounded-xl w-250 relative"
+        className="relative w-250 rounded-xl bg-white p-4 opacity-100"
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()} // Prevent editor close when interacting with the form
       >
         <button
           onClick={handleCloseWithConfirmation}
           type="button"
-          className="p-1 absolute right-1.5 top-1.5 text-white font-bold text-sm bg-red-500 hover:bg-red-600 active:bg-red-700 rounded-md"
+          className="absolute top-1.5 right-1.5 rounded-md bg-red-500 p-1 text-sm font-bold text-white hover:bg-red-600 active:bg-red-700"
           data-tooltip-id="editor-tooltip"
           data-tooltip-content="Exit"
         >
@@ -146,13 +146,13 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
         <div className="mb-2">
           <label
             htmlFor="title-input"
-            className="block select-none mb-2 font-bold"
+            className="mb-2 block font-bold select-none"
           >
             Title{!title.trim() && <span className="text-red-600">*</span>}
           </label>
           <input
             id="title-input"
-            className="border border-gray-400 resize-none py-1 px-2 rounded-lg w-full focus:outline-2 focus:outline-blue-600 focus:outline-solid"
+            className="w-full resize-none rounded-lg border border-gray-400 px-2 py-1 focus:outline-2 focus:outline-blue-600 focus:outline-solid"
             value={title}
             placeholder="Give your post a title"
             autoComplete="off"
@@ -167,14 +167,14 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
         <div className="mb-3">
           <label
             htmlFor="body-input"
-            className="block select-none mb-2 font-bold"
+            className="mb-2 block font-bold select-none"
           >
             Description
             {!htmlToPlainText(body) && <span className="text-red-600">*</span>}
           </label>
           <div
             id="body-input"
-            className="rich-text border border-gray-400 resize-none py-1 px-2 rounded-lg focus-within:outline-2 focus-within:outline-blue-600 focus-within:outline-solid"
+            className="rich-text resize-none rounded-lg border border-gray-400 px-2 py-1 focus-within:outline-2 focus-within:outline-blue-600 focus-within:outline-solid"
             tabIndex={-1}
             onFocus={() => setIsBodyEditorFocused(true)}
             onBlur={() => setIsBodyEditorFocused(false)}
@@ -185,16 +185,16 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             />
             <EditorContent editor={bodyEditor} />
           </div>
-          <span className="text-gray-800 text-sm">Words: {bodyWordCount}</span>
+          <span className="text-sm text-gray-800">Words: {bodyWordCount}</span>
         </div>
         <div>
-          <h3 className="select-none mb-2 font-bold">Images</h3>
+          <h3 className="mb-2 font-bold select-none">Images</h3>
           <ImageUploader images={images} setImages={setImages} />
         </div>
-        <div className="text-sm flex justify-between items-end mt-4">
+        <div className="mt-4 flex items-end justify-between text-sm">
           <span className="flex gap-2">
             <button
-              className={`py-2 px-3 text-white font-bold rounded-md ${canSave ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500"}`}
+              className={`rounded-md px-3 py-2 font-bold text-white ${canSave ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500"}`}
               type="submit"
               disabled={!canSave}
             >
@@ -202,7 +202,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             </button>
             <button
               type="button"
-              className="py-2 px-3 text-white font-bold rounded-md bg-gray-500 hover:bg-gray-600 active:bg-gray-700"
+              className="rounded-md bg-gray-500 px-3 py-2 font-bold text-white hover:bg-gray-600 active:bg-gray-700"
               onClick={handleCloseWithConfirmation}
             >
               Close
@@ -213,7 +213,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
       </form>
       <Tooltip
         id="editor-tooltip"
-        className="!bg-gray-800 !p-1.5 !rounded-md !shadow-lg !text-sm"
+        className="!rounded-md !bg-gray-800 !p-1.5 !text-sm !shadow-lg"
         opacity={100}
         place="bottom"
       />

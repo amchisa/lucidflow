@@ -39,7 +39,7 @@ export default function Posts() {
 
   const [debouncedSearchInput, setSearchInput] = useDebounce<string>(
     "",
-    DEBOUNCE_DELAY
+    DEBOUNCE_DELAY,
   );
 
   /**
@@ -76,10 +76,10 @@ export default function Posts() {
   }, [refreshPosts]);
 
   return (
-    <div className="flex flex-col min-h-screen min-w-screen">
-      <header className="px-8 py-4 fixed z-20 w-full bg-white border-b border-gray-300 flex justify-between">
+    <div className="flex min-h-screen min-w-screen flex-col">
+      <header className="fixed z-20 flex w-full justify-between border-b border-gray-300 bg-white px-8 py-4">
         <span className="flex">
-          <h1 className="text-2xl font-medium mr-8">LucidFlow</h1>
+          <h1 className="mr-8 text-2xl font-medium">LucidFlow</h1>
           <Searchbar
             onChange={handleSearchChange}
             placeholder="Search by title"
@@ -87,14 +87,14 @@ export default function Posts() {
         </span>
         <span className="flex gap-2">
           <button
-            className="flex gap-2 py-2 px-3 text-white font-bold text-sm bg-blue-500 hover:bg-blue-600 active:bg-blue-700 rounded-md"
+            className="flex gap-2 rounded-md bg-blue-500 px-3 py-2 text-sm font-bold text-white hover:bg-blue-600 active:bg-blue-700"
             onClick={openCreateEditor}
           >
             <NotebookPen size={20} />
             <span>Create Post</span>
           </button>
           <button
-            className="flex gap-2 py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
+            className="flex gap-2 rounded-md bg-gray-500 px-3 py-2 text-sm font-bold text-white hover:bg-gray-600 active:bg-gray-700"
             onClick={refreshPosts}
           >
             <ListRestart size={20} />
@@ -102,7 +102,7 @@ export default function Posts() {
           </button>
         </span>
       </header>
-      <main className="mx-auto w-225 pt-30 pb-4 flex-grow text-md">
+      <main className="text-md mx-auto w-225 flex-grow pt-30 pb-4">
         {isEditorOpen && (
           <PostEditor
             post={postToEdit}
@@ -121,7 +121,7 @@ export default function Posts() {
           onLoadMore={handleLoadMore}
         />
       </main>
-      <footer className="text-center py-1 text-sm bg-white border-t border-gray-300 text-gray-800">
+      <footer className="border-t border-gray-300 bg-white py-1 text-center text-sm text-gray-800">
         &copy; Alex Chisa 2025 &middot;{" "}
         <a href="https://github.com/amchisa" target="_blank">
           GitHub

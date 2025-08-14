@@ -39,7 +39,7 @@ export default function PostItem({
 
   const handleDeleteWithConfirmation = async () => {
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${post.title}"? This action cannot be undone.`
+      `Are you sure you want to delete "${post.title}"? This action cannot be undone.`,
     );
 
     if (!confirmDelete) {
@@ -76,9 +76,9 @@ export default function PostItem({
   return (
     <article
       ref={postContainerRef}
-      className="bg-white p-3 rounded-xl mb-5 shadow-lg border border-gray-300 scroll-mt-30"
+      className="mb-5 scroll-mt-30 rounded-xl border border-gray-300 bg-white p-3 shadow-lg"
     >
-      <div className="flex justify-between mb-1.5">
+      <div className="mb-1.5 flex justify-between">
         <span className="text-sm text-gray-800">
           {formattedDateTimeCreated}
         </span>
@@ -88,7 +88,7 @@ export default function PostItem({
           <ul className="flex flex-col text-gray-800">
             <li>
               <button
-                className="w-full flex gap-2 py-2 px-3 text-sm font-bold hover:bg-green-600 hover:text-white active:bg-green-700 rounded-lg"
+                className="flex w-full gap-2 rounded-lg px-3 py-2 text-sm font-bold hover:bg-green-600 hover:text-white active:bg-green-700"
                 onClick={() => handleEdit(post)}
               >
                 <Edit2 size={20} />
@@ -97,7 +97,7 @@ export default function PostItem({
             </li>
             <li>
               <button
-                className="w-full flex gap-2 py-2 px-3 text-sm font-bold hover:bg-red-600 hover:text-white active:bg-red-700 rounded-lg"
+                className="flex w-full gap-2 rounded-lg px-3 py-2 text-sm font-bold hover:bg-red-600 hover:text-white active:bg-red-700"
                 onClick={handleDeleteWithConfirmation}
               >
                 <Trash2 size={20} />
@@ -109,7 +109,7 @@ export default function PostItem({
       </div>
       {images.length > 0 && <ImageGallery className="mb-2" images={images} />}
       <div>
-        <h2 className="text-lg font-bold mb-3 truncate">{title}</h2>
+        <h2 className="mb-3 truncate text-lg font-bold">{title}</h2>
         <div
           ref={bodyContainerRef}
           className={`rich-text whitespace-pre-wrap ${isBodyOverflowing && truncateBody ? `truncate-content line-clamp-10` : ""}`}
@@ -117,7 +117,7 @@ export default function PostItem({
         ></div>
         {isBodyOverflowing && (
           <button
-            className="text-sm text-gray-800 hover:underline mt-2"
+            className="mt-2 text-sm text-gray-800 hover:underline"
             onClick={handleToggleTruncate}
           >
             {truncateBody ? "Show more" : "Show less"}

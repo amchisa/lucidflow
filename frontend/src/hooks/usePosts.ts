@@ -64,7 +64,7 @@ export default function usePosts() {
       toast.error(userMessage, { id: toastID }); // User-friendly error message
       setHasError(true);
     },
-    []
+    [],
   );
 
   /**
@@ -95,7 +95,7 @@ export default function usePosts() {
    */
   const updatePostOptimistically = (
     post: Post,
-    postRequest: PostRequest
+    postRequest: PostRequest,
   ): Post => {
     return {
       ...post, // Keep existing ID, timeCreated, etc.
@@ -180,7 +180,7 @@ export default function usePosts() {
         }
       }
     },
-    [handleError]
+    [handleError],
   );
 
   /**
@@ -211,8 +211,8 @@ export default function usePosts() {
         // Reupdate UI with API response
         setPosts((prevPosts) =>
           prevPosts.map((post) =>
-            post.id === newClientPost.id ? newServerPost : post
-          )
+            post.id === newClientPost.id ? newServerPost : post,
+          ),
         );
 
         toast.success("Post created successfully.", { id: toastID });
@@ -226,7 +226,7 @@ export default function usePosts() {
         });
       }
     },
-    [handleError]
+    [handleError],
   );
 
   /**
@@ -246,7 +246,7 @@ export default function usePosts() {
         rollbackState = prevPosts; // Save rollback state
 
         return prevPosts.map((post) =>
-          post.id === id ? updatePostOptimistically(post, postRequest) : post
+          post.id === id ? updatePostOptimistically(post, postRequest) : post,
         );
       });
 
@@ -257,7 +257,7 @@ export default function usePosts() {
 
         // Reupdate UI with API response
         setPosts((prevPosts) =>
-          prevPosts.map((post) => (post.id === id ? updatedServerPost : post))
+          prevPosts.map((post) => (post.id === id ? updatedServerPost : post)),
         );
 
         toast.success("Post updated successfully.", { id: toastID });
@@ -271,7 +271,7 @@ export default function usePosts() {
         });
       }
     },
-    [handleError]
+    [handleError],
   );
 
   /**
@@ -307,7 +307,7 @@ export default function usePosts() {
         });
       }
     },
-    [handleError]
+    [handleError],
   );
 
   return {

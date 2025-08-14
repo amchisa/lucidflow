@@ -10,7 +10,7 @@ import { useState, useEffect } from "react";
  */
 export default function useDebounce<T>(
   initialValue: T,
-  delay: number
+  delay: number,
 ): [T, React.Dispatch<React.SetStateAction<T>>] {
   const [rawValue, setRawValue] = useState<T>(initialValue);
   const [debouncedValue, setDebouncedValue] = useState<T>(initialValue);

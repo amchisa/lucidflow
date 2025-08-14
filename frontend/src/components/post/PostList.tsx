@@ -49,20 +49,20 @@ export default function PostList({
   useEffect(() => {
     const element = postListContainerRef.current;
     setShowBackToTopButton(
-      element.scrollHeight > window.innerHeight && (!hasMore || hasError)
+      element.scrollHeight > window.innerHeight && (!hasMore || hasError),
     );
   }, [posts, hasMore, hasError]);
 
   return (
     <div ref={postListContainerRef}>
       {isLoading && (
-        <div className="flex justify-center items-center mb-5 text-sm gap-2 text-gray-800">
+        <div className="mb-5 flex items-center justify-center gap-2 text-sm text-gray-800">
           <LoadingSpinner size={20} />
           <span>Loading posts...</span>
         </div>
       )}
       {!isLoading && searchQuery && posts.length > 0 && (
-        <div className="text-center text-sm mb-5">
+        <div className="mb-5 text-center text-sm">
           {posts.length} posts found with title containing "{searchQuery}".
         </div>
       )}
@@ -90,7 +90,7 @@ export default function PostList({
       {showBackToTopButton && (
         <div className="flex justify-center">
           <button
-            className="py-2 px-3 text-white font-bold text-sm bg-gray-500 hover:bg-gray-600 active:bg-gray-700 rounded-md"
+            className="rounded-md bg-gray-500 px-3 py-2 text-sm font-bold text-white hover:bg-gray-600 active:bg-gray-700"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           >
             Back to top

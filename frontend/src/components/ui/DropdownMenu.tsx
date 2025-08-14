@@ -29,7 +29,7 @@ export default function DropdownMenu({
         {triggerIcon}
       </button>
       {isOpen && (
-        <div className="bg-white p-1 rounded-xl border border-gray-300 drop-shadow-lg z-10 min-w-max absolute right-0 top-full">
+        <div className="absolute top-full right-0 z-10 min-w-max rounded-xl border border-gray-300 bg-white p-1 drop-shadow-lg">
           {children}
         </div>
       )}

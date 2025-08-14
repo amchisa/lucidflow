@@ -62,7 +62,7 @@ export const postService = {
   async updatePost(id: number, postRequest: PostRequest): Promise<Post> {
     const apiResponse = await api.put<PostResponse>(
       `/posts/${id}`,
-      postRequest
+      postRequest,
     );
     return postMapper.responseToModel(apiResponse.data);
   },

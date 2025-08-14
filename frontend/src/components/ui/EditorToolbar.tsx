@@ -108,7 +108,7 @@ export default function EditorToolbar({
 
   return (
     <div
-      className="border-b border-gray-400 mb-2 pb-1 flex"
+      className="mb-2 flex border-b border-gray-400 pb-1"
       onClick={updateToolbar}
     >
       {toolbarButtons.map((btn, index) => (
@@ -118,7 +118,7 @@ export default function EditorToolbar({
           onClick={btn.onClick}
           isActive={btn.isActive}
           tooltipText={btn.tooltipText}
-          className={"h-7 w-7 flex items-center justify-center"}
+          className={"flex h-7 w-7 items-center justify-center"}
         ></ToolbarButton>
       ))}
     </div>

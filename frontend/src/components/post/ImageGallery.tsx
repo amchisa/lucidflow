@@ -8,12 +8,12 @@ interface ImageGalleryProps {
 export default function ImageGallery({ images, className }: ImageGalleryProps) {
   return (
     <div
-      className={`h-55 w-fit max-w-full flex flex-nowrap space-x-2 overflow-x-auto rounded-lg snap-x ${className}`}
+      className={`flex h-55 w-fit max-w-full snap-x flex-nowrap space-x-2 overflow-x-auto rounded-lg ${className}`}
     >
       {images.map((image) => (
         <img
           key={image.id}
-          className=" overflow-hidden rounded-lg text-sm flex-shrink-0 object-contain h-full w-auto snap-start"
+          className="h-full w-auto flex-shrink-0 snap-start overflow-hidden rounded-lg object-contain text-sm"
           src={image.url}
           alt="No alt text for this image."
           loading="lazy"
