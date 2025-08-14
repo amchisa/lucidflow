@@ -8,8 +8,8 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import { htmlToPlainText } from "../../utils/textUtils";
 import { Tooltip } from "react-tooltip";
-import EditorToolbar from "./EditorToolbar";
-import ImageUploader from "./ImageUploader";
+import EditorToolbar from "../ui/EditorToolbar";
+import ImageUploader from "../ui/ImageUploader";
 
 interface PostEditorProps {
   onClose: () => void;
@@ -187,7 +187,10 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
           </div>
           <span className="text-gray-800 text-sm">Words: {bodyWordCount}</span>
         </div>
-        <ImageUploader images={images} setImages={setImages} />
+        <div>
+          <h3 className="select-none mb-2 font-bold">Images</h3>
+          <ImageUploader images={images} setImages={setImages} />
+        </div>
         <div className="text-sm flex justify-between items-end mt-4">
           <span className="flex gap-2">
             <button

@@ -1,4 +1,4 @@
-import ToolbarButton from "../ui/ToolbarButton";
+import ToolbarButton from "./ToolbarButton";
 import {
   Bold,
   Code,
