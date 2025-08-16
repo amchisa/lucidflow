@@ -1,5 +1,6 @@
 package com.amchisa.lucidflow.controllers;
 
+import com.amchisa.lucidflow.dtos.filters.PostFilter;
 import com.amchisa.lucidflow.dtos.requests.PostRequest;
 import com.amchisa.lucidflow.dtos.responses.PostResponse;
 import com.amchisa.lucidflow.services.PostService;
@@ -25,10 +26,10 @@ public class PostController {
 
     @GetMapping
     public Page<PostResponse> getPosts(
-        @RequestParam(required = false) String search,
+        @ModelAttribute PostFilter filters,
         @PageableDefault(sort = {"timeCreated", "id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return postService.getPosts(search, pageable);
+        return postService.getPosts(filters, pageable);
     }
 
     @GetMapping("/{id}")

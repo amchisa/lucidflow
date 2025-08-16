@@ -15,7 +15,7 @@ interface HandleErrorParams {
 
 interface FetchPostsParams {
   refresh?: boolean;
-  search?: string | null;
+  searchQuery?: string;
   loadDelay?: number;
 }
 
@@ -113,7 +113,7 @@ export default function usePosts() {
   const fetchPosts = useCallback(
     async ({
       refresh = false,
-      search,
+      searchQuery,
       loadDelay,
     }: FetchPostsParams): Promise<void> => {
       const currentFetchID = ++fetchIDCounter.current;
@@ -128,7 +128,7 @@ export default function usePosts() {
         const [result] = await Promise.allSettled([
           // Use allSettled to prevent errors from cancelling the loadDelay
           postService.getPosts({
-            ...(search && { search }), // Conditionally include the search string if specified
+            ...(searchQuery && { searchQuery }), // Conditionally include the search query if specified
             page: pageNumber.current,
           }),
           delay(loadDelay ?? 0), // Avoid UI flickering

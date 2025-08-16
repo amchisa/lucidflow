@@ -48,7 +48,7 @@ export default function Posts() {
   const refreshPosts = useCallback(() => {
     fetchPosts({
       refresh: true,
-      search: debouncedSearchInput,
+      searchQuery: debouncedSearchInput,
       loadDelay: MIN_REFRESH_DURATION,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -67,7 +67,7 @@ export default function Posts() {
    * maintains the search query.
    */
   const handleLoadMore = useCallback(() => {
-    fetchPosts({ search: debouncedSearchInput });
+    fetchPosts({ searchQuery: debouncedSearchInput });
   }, [debouncedSearchInput, fetchPosts]);
 
   // Trigger refresh on component mount and search query change
@@ -80,10 +80,7 @@ export default function Posts() {
       <header className="fixed z-20 flex w-full justify-between border-b border-gray-300 bg-white px-8 py-4">
         <span className="flex">
           <h1 className="mr-8 text-2xl font-medium">LucidFlow</h1>
-          <Searchbar
-            onChange={handleSearchChange}
-            placeholder="Search by title"
-          />
+          <Searchbar onChange={handleSearchChange} placeholder="Search posts" />
         </span>
         <span className="flex gap-2">
           <button

@@ -34,7 +34,7 @@ export default function PostList({
   const postListContainerRef = useRef<HTMLDivElement>(null!);
 
   const noPostsMessage = searchQuery
-    ? `No posts found with title containing "${searchQuery}".`
+    ? `No posts found containing "${searchQuery}".`
     : "No posts available.";
 
   // Infinite scroll hook for lazy post loading
@@ -63,7 +63,8 @@ export default function PostList({
       )}
       {!isLoading && searchQuery && posts.length > 0 && (
         <div className="mb-5 text-center text-sm">
-          {posts.length} posts found with title containing "{searchQuery}".
+          {posts.length} post{posts.length !== 1 ? "s" : ""} found containing "
+          {searchQuery}".
         </div>
       )}
       {!isLoading && posts.length === 0 ? (

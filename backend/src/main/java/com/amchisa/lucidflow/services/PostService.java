@@ -1,23 +1,24 @@
 package com.amchisa.lucidflow.services;
 
+import com.amchisa.lucidflow.dtos.filters.PostFilter;
 import com.amchisa.lucidflow.dtos.requests.PostRequest;
 import com.amchisa.lucidflow.dtos.responses.PostResponse;
 import com.amchisa.lucidflow.entities.Post;
 import com.amchisa.lucidflow.repositories.PostRepository;
 import com.amchisa.lucidflow.mappers.PostMapper;
+import com.amchisa.lucidflow.specifications.PostSpecification;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -26,14 +27,22 @@ public class PostService {
     private final PostRepository postRepository;
     private final ImageService imageService;
     private final PostMapper postMapper;
+    private final PostSpecification postSpecification;
 
     @PersistenceContext
     private final EntityManager entityManager;
 
-    public PostService(PostRepository postRepository, ImageService imageService, PostMapper postMapper, EntityManager entityManager) {
+    public PostService(
+        PostRepository postRepository,
+        ImageService imageService,
+        PostMapper postMapper,
+        PostSpecification postSpecification,
+        EntityManager entityManager)
+    {
         this.postRepository = postRepository;
         this.imageService = imageService;
         this.postMapper = postMapper;
+        this.postSpecification = postSpecification;
         this.entityManager = entityManager;
     }
 
@@ -42,17 +51,14 @@ public class PostService {
     }
 
     /**
-     * Retrieves all posts matching the criteria specified in the parameters.
-     * @param search The title search string to match posts against.
+     * Retrieves all posts matching the criteria specified in the filters.
+     * @param filters The filters to apply to the post query.
      * @param pageable The pageable containing pagination information.
      * @return A page of post responses corresponding to the queried posts.
      */
-    public Page<PostResponse> getPosts(String search, Pageable pageable) {
-        if (search == null || search.isBlank()) {
-            return postRepository.findAll(pageable).map(postMapper::entityToResponse);
-        }
-
-        return postRepository.findAllByTitleContainingIgnoreCase(search, pageable).map(postMapper::entityToResponse);
+    public Page<PostResponse> getPosts(PostFilter filters, Pageable pageable) {
+        Specification<Post> specification = postSpecification.withFilters(filters);
+        return postRepository.findAll(specification, pageable).map(postMapper::entityToResponse);
     }
 
     @Transactional
