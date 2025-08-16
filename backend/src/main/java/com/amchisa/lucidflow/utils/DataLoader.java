@@ -23,7 +23,7 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (postService.postCount() == 0) { // Avoid duplicating posts
-            String path = "/data/sample_data.json"; // Change if needed
+            String path = "/data/sample-data.json"; // Change if needed
 
             try (InputStream inputStream = TypeReference.class.getResourceAsStream(path)) {
                 if (inputStream == null) {
