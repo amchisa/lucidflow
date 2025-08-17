@@ -33,9 +33,11 @@ export default function PostList({
   const loadMoreRef = useRef<HTMLDivElement>(null!);
   const postListContainerRef = useRef<HTMLDivElement>(null!);
 
-  const noPostsMessage = searchQuery
-    ? `No posts found containing "${searchQuery}".`
-    : "No posts available.";
+  const noPostsMessage = hasError
+    ? "Failed to load posts."
+    : searchQuery
+      ? `No posts found containing "${searchQuery}".`
+      : "No posts found.";
 
   // Infinite scroll hook for lazy post loading
   useInfiniteScroll({

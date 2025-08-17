@@ -5,10 +5,13 @@ import { postMapper } from "../mappers/postMapper";
 import { pageMapper } from "../mappers/pageMapper";
 import { api } from "../client/axios";
 
-interface getPostsParams {
-  search?: string;
+interface GetPostsUrlQueryParams {
+  searchQuery?: string;
   page?: number;
+  sortOrder?: "asc" | "desc";
   size?: number;
+  hasImages?: boolean;
+  createdAfter?: Date;
 }
 
 /**
@@ -21,13 +24,24 @@ export const postService = {
    * @returns A promise that resolves to a page containing an array of Post objects.
    * @throws An error if the API call fails.
    */
-  async getPosts(params: getPostsParams = {}): Promise<Page<Post>> {
+  async getPosts(params: GetPostsUrlQueryParams = {}): Promise<Page<Post>> {
     const urlParams = new URLSearchParams();
 
     // Convert params into urlParams
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined) {
-        urlParams.append(key, String(value));
+        switch (key) {
+          case "createdAfter":
+            urlParams.append(key, value.toISOString());
+            break;
+          case "sortOrder":
+            urlParams.append("sort", `timeCreated,${value}`);
+            urlParams.append("sort", `id,${value}`);
+            break;
+          default:
+            urlParams.append(key, String(value));
+            break;
+        }
       }
     }
 

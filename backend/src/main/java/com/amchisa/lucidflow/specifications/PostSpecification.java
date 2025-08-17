@@ -35,8 +35,7 @@ public class PostSpecification {
             }
 
             if (filters.getCreatedAfter() != null) {
-                LocalDateTime createdAfterDateTime = filters.getCreatedAfter().atStartOfDay();
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("timeCreated"), createdAfterDateTime));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("timeCreated"), filters.getCreatedAfter()));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

@@ -17,6 +17,9 @@ interface FetchPostsParams {
   refresh?: boolean;
   searchQuery?: string;
   loadDelay?: number;
+  hasImages?: boolean | null;
+  createdAfter?: Date | null;
+  sortOrder?: "asc" | "desc";
 }
 
 /**
@@ -106,15 +109,21 @@ export default function usePosts() {
 
   /**
    * Fetches posts. Supports full refresh and infinite scroll functionality.
-   * @param refresh A boolean indicating whether or not a full refresh is to be performed.
-   * @param search An optional search query on post titles.
-   * @param delay A minimum delay (in ms).
+   * @param refresh (Optional) A boolean indicating whether or not a full refresh is to be performed.
+   * @param searchQuery (Optional) A search query on post contents.
+   * @param delay (Optional) A minimum delay (in ms).
+   * @param hasImages (Optional) Whether the post(s) fetched should have images or not.
+   * @param createdAfter (Optional) The date before which to not retrieve posts.
+   * @param sortOrder (Optional) The sort direction in which to retrieve posts.
    */
   const fetchPosts = useCallback(
     async ({
       refresh = false,
       searchQuery,
       loadDelay,
+      hasImages,
+      createdAfter,
+      sortOrder,
     }: FetchPostsParams): Promise<void> => {
       const currentFetchID = ++fetchIDCounter.current;
 
@@ -128,7 +137,11 @@ export default function usePosts() {
         const [result] = await Promise.allSettled([
           // Use allSettled to prevent errors from cancelling the loadDelay
           postService.getPosts({
-            ...(searchQuery && { searchQuery }), // Conditionally include the search query if specified
+            // Conditionally include optional parameters
+            ...(searchQuery && { searchQuery }),
+            ...(typeof hasImages === "boolean" && { hasImages }),
+            ...(createdAfter && { createdAfter }),
+            ...(sortOrder && { sortOrder }),
             page: pageNumber.current,
           }),
           delay(loadDelay ?? 0), // Avoid UI flickering
