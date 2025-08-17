@@ -5,11 +5,13 @@ import { ImagePlus, X } from "lucide-react";
 interface ImageUploaderProps {
   images: Image[];
   setImages: Dispatch<SetStateAction<Image[]>>;
+  onClickImage: (image: Image) => void;
 }
 
 export default function ImageUploader({
   images,
   setImages,
+  onClickImage,
 }: ImageUploaderProps) {
   const tempIDCounter = useRef(-1);
 
@@ -46,6 +48,7 @@ export default function ImageUploader({
             src={image.url}
             className="h-35 w-35 rounded-xl object-cover"
             loading="lazy"
+            onClick={() => onClickImage(image)}
           />
           <span className="absolute top-2 right-2 flex gap-1">
             {/* Image edit/modify button (temporarily disabled) */}

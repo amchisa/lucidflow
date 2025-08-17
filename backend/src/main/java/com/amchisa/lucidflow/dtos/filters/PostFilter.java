@@ -9,10 +9,6 @@ import java.time.LocalDate;
 @Setter
 public class PostFilter {
     private String searchQuery;
-
+    private Boolean hasImages;
     private LocalDate createdAfter;
-    private LocalDate createdBefore;
-
-    private LocalDate modifiedAfter;
-    private LocalDate modifiedBefore;
 }

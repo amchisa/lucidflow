@@ -10,6 +10,7 @@ import { htmlToPlainText } from "../../utils/textUtils";
 import { Tooltip } from "react-tooltip";
 import EditorToolbar from "../ui/EditorToolbar";
 import ImageUploader from "../ui/ImageUploader";
+import ImageModal from "../ui/ImageModal";
 
 interface PostEditorProps {
   onClose: () => void;
@@ -22,9 +23,13 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   const [title, setTitle] = useState<string>(() => post?.title || "");
   const [body, setBody] = useState<string>(() => post?.body || "");
   const [images, setImages] = useState<Image[]>(() => post?.images || []);
+
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [isBodyEditorFocused, setIsBodyEditorFocused] =
     useState<boolean>(false);
+
+  const [selectedImage, setSelectedImage] = useState<Image | null>(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState<boolean>(false);
 
   const initialPostRef = useRef({
     title: post?.title || "",
@@ -103,6 +108,16 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     }
 
     onClose(); // User wishes to discard their changes
+  };
+
+  const openImageModal = (image: Image) => {
+    setSelectedImage(image);
+    setIsImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setSelectedImage(null);
+    setIsImageModalOpen(false);
   };
 
   useEffect(() => {
@@ -189,7 +204,11 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
         </div>
         <div>
           <h3 className="mb-2 font-bold select-none">Images</h3>
-          <ImageUploader images={images} setImages={setImages} />
+          <ImageUploader
+            images={images}
+            setImages={setImages}
+            onClickImage={openImageModal}
+          />
         </div>
         <div className="mt-4 flex items-end justify-between text-sm">
           <span className="flex gap-2">
@@ -217,6 +236,9 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
         opacity={100}
         place="bottom"
       />
+      {isImageModalOpen && (
+        <ImageModal image={selectedImage} onClose={closeImageModal} />
+      )}
     </div>
   );
 }
