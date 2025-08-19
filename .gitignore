@@ -5,6 +5,7 @@ backend/.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 backend/src/main/resources/data/lucidflow-h2.mv.db
+backend/uploads
 
 # Frontend Exclusions
 frontend/logs

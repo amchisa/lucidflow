@@ -3,10 +3,12 @@ package com.amchisa.lucidflow.services;
 import com.amchisa.lucidflow.dtos.requests.ImageRequest;
 import com.amchisa.lucidflow.entities.Image;
 import com.amchisa.lucidflow.entities.Post;
+import com.amchisa.lucidflow.exceptions.InvalidFiletypeException;
 import com.amchisa.lucidflow.mappers.ImageMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
@@ -17,9 +19,11 @@ import java.util.stream.Collectors;
 @Service
 public class ImageService {
     private final ImageMapper imageMapper;
+    private final FileService fileService;
 
-    public ImageService(ImageMapper imageMapper)  {
+    public ImageService(ImageMapper imageMapper, FileService fileService)  {
         this.imageMapper = imageMapper;
+        this.fileService = fileService;
     }
 
     /**
@@ -74,6 +78,14 @@ public class ImageService {
         }
 
         return imagesModified.get();
+    }
+
+    public String uploadImage(MultipartFile file) {
+        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+            throw new InvalidFiletypeException("File uploaded does not have type image.");
+        }
+
+        return fileService.uploadFile(file, "images");
     }
 
     /**
