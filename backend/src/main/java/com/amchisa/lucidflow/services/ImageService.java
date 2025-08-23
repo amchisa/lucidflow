@@ -50,6 +50,7 @@ public class ImageService {
         images.removeIf(image -> {
             if (!incomingImageIDs.contains(image.getId())) {
                 imagesModified.set(true);
+
                 return true;
             }
             return false;

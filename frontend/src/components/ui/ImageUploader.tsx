@@ -1,6 +1,8 @@
 import type { Image } from "../../types/models";
 import { type Dispatch, type SetStateAction, useRef } from "react";
 import { ImagePlus, X } from "lucide-react";
+import { imageService } from "../../api/services/imageService";
+import { toast } from "react-hot-toast";
 
 interface ImageUploaderProps {
   images: Image[];
@@ -15,20 +17,41 @@ export default function ImageUploader({
 }: ImageUploaderProps) {
   const tempIDCounter = useRef(-1);
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const imageFiles = e.target?.files;
 
     if (!imageFiles) {
       return;
     }
 
-    const newImages = Array.from(imageFiles).map((imageFile, index) => ({
-      id: tempIDCounter.current--, // TEMP: This is broken. Please fix!
+    // Display preview images immediately
+    const previewImages = Array.from(imageFiles).map((imageFile, index) => ({
+      id: tempIDCounter.current--,
       url: URL.createObjectURL(imageFile),
       displayIndex: images.length + index,
     }));
 
-    setImages((prevImages) => [...prevImages, ...newImages]);
+    setImages((prevImages) => [...prevImages, ...previewImages]);
+
+    // Upload image files and replace previews with uploaded API images
+    try {
+      await Promise.all(
+        Array.from(imageFiles).map(async (imageFile, index) => {
+          const url = await imageService.upload(imageFile);
+          setImages((prevImages) =>
+            prevImages.map((image) =>
+              image.id === previewImages[index].id ? { ...image, url } : image,
+            ),
+          );
+
+          // Garbage collect preview URL
+          URL.revokeObjectURL(previewImages[index].url);
+        }),
+      );
+    } catch (err) {
+      console.error("Error uploading image(s): ", err);
+      toast.error("Error uploading image(s)");
+    }
   };
 
   const handleDelete = (idToRemove: number) => {
@@ -51,7 +74,7 @@ export default function ImageUploader({
             onClick={() => onClickImage(image)}
           />
           <span className="absolute top-2 right-2 flex gap-1">
-            {/* Image edit/modify button (temporarily disabled) */}
+            {/* Image edit/modify button */}
             {/* <button onClick={() => toast("You edited an image!")} type="button">
               <Edit2
                 size={20}
