@@ -134,7 +134,8 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     const changesDetected =
       title.trim() !== initialPost.title.trim() ||
       body !== initialPost.body ||
-      JSON.stringify(images) !== JSON.stringify(initialPost.images);
+      (JSON.stringify(images) !== JSON.stringify(initialPost.images) &&
+        !images.some((image) => image?.uploading)); // No images are currently uploading
 
     setHasUnsavedChanges(changesDetected);
   }, [title, body, images, post]);

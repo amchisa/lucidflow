@@ -1,6 +1,5 @@
 package com.amchisa.lucidflow.controllers;
 
-import com.amchisa.lucidflow.services.FileService;
 import com.amchisa.lucidflow.services.ImageService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -25,7 +24,7 @@ public class ImageController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "File selected is empty or has no content.");
         }
 
-        String generatedFilename = imageService.uploadImage(file);
+        String generatedFilename = imageService.uploadImageFile(file);
 
         // Build full URL for accessing the uploaded image
         String imageUrl = String.format(

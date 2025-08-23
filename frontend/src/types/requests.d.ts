@@ -14,8 +14,8 @@ export interface PostRequest {
  * Represents the structure of an Image object sent to the API.
  * Allows for the `id` field to be optional.
  */
-// export interface ImageRequest {
-//   id?: number;
-//   url: string;
-//   displayIndex: number;
-// }
+export interface ImageRequest {
+  id?: number;
+  url: string;
+  displayIndex: number;
+}

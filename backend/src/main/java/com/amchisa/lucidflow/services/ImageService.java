@@ -49,8 +49,8 @@ public class ImageService {
 
         images.removeIf(image -> {
             if (!incomingImageIDs.contains(image.getId())) {
+                deleteImageFile(image.getUrl());
                 imagesModified.set(true);
-
                 return true;
             }
             return false;
@@ -81,12 +81,16 @@ public class ImageService {
         return imagesModified.get();
     }
 
-    public String uploadImage(MultipartFile file) {
+    public String uploadImageFile(MultipartFile file) {
         if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
             throw new InvalidFiletypeException("File uploaded does not have type image.");
         }
 
         return fileService.uploadFile(file, "images");
+    }
+
+    private void deleteImageFile(String url) {
+        fileService.deleteFile(fileService.parseFilename(url), "images");
     }
 
     /**
@@ -117,7 +121,13 @@ public class ImageService {
     }
 
     private boolean updateImageEntity(Image image, ImageRequest imageRequest) {
-        boolean imagesModified = !imageRequest.getUrl().equals(image.getUrl())
+        boolean urlModified = !imageRequest.getUrl().equals(image.getUrl());
+
+        if (urlModified) {
+            deleteImageFile(image.getUrl());
+        }
+
+        boolean imagesModified = urlModified
             || !imageRequest.getDisplayIndex().equals(image.getDisplayIndex());
 
         image.setUrl(imageRequest.getUrl());

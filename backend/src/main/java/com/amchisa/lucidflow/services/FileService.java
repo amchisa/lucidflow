@@ -54,6 +54,10 @@ public class FileService {
         }
     }
 
+    public String parseFilename(String url) {
+        return url.substring(url.lastIndexOf("/") + 1);
+    }
+
     private static String sanitizeFilename(String filename) {
         if (filename == null || filename.isBlank()) {
             throw new InvalidFilenameException("Filename cannot be blank or null.");

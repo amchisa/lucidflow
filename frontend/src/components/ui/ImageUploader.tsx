@@ -3,6 +3,8 @@ import { type Dispatch, type SetStateAction, useRef } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { imageService } from "../../api/services/imageService";
 import { toast } from "react-hot-toast";
+import { clsx } from "clsx";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface ImageUploaderProps {
   images: Image[];
@@ -29,6 +31,7 @@ export default function ImageUploader({
       id: tempIDCounter.current--,
       url: URL.createObjectURL(imageFile),
       displayIndex: images.length + index,
+      uploading: true,
     }));
 
     setImages((prevImages) => [...prevImages, ...previewImages]);
@@ -40,7 +43,9 @@ export default function ImageUploader({
           const url = await imageService.upload(imageFile);
           setImages((prevImages) =>
             prevImages.map((image) =>
-              image.id === previewImages[index].id ? { ...image, url } : image,
+              image.id === previewImages[index].id
+                ? { ...image, url, uploading: false }
+                : image,
             ),
           );
 
@@ -65,30 +70,37 @@ export default function ImageUploader({
   return (
     <div className="mb-2 flex items-center gap-2 overflow-x-scroll rounded-xl">
       {images?.map((image) => (
-        <div className="relative flex-shrink-0">
+        <div
+          className="relative h-35 w-35 flex-shrink-0 overflow-hidden rounded-xl"
+          key={image.id}
+        >
           <img
-            key={image.id}
             src={image.url}
-            className="h-35 w-35 rounded-xl object-cover"
+            className="h-full w-full object-cover"
             loading="lazy"
             onClick={() => onClickImage(image)}
           />
-          <span className="absolute top-2 right-2 flex gap-1">
-            {/* Image edit/modify button */}
-            {/* <button onClick={() => toast("You edited an image!")} type="button">
+          {image?.uploading ? (
+            <div className="absolute inset-0 z-35 flex items-center justify-center bg-black/50">
+              <LoadingSpinner size={20} className="text-white" />
+            </div>
+          ) : (
+            <span className="absolute top-2 right-2 flex gap-1">
+              {/* <button onClick={() => toast("You edited an image!")} type="button">
               <Edit2
                 size={20}
                 className="text-gray-800 rounded-full p-1 bg-white"
               />
             </button> */}
-            <button
-              onClick={() => handleDelete(image.id)}
-              type="button"
-              className="flex justify-center rounded-full bg-white p-1 text-gray-800"
-            >
-              <X size={15} strokeWidth={2.5} />
-            </button>
-          </span>
+              <button
+                onClick={() => handleDelete(image.id)}
+                type="button"
+                className="flex justify-center rounded-full bg-white p-1 text-gray-800"
+              >
+                <X size={15} strokeWidth={2.5} />
+              </button>
+            </span>
+          )}
         </div>
       ))}
       <div className="flex h-35 w-35 flex-shrink-0 items-center justify-center rounded-xl border-2 border-dashed border-gray-400">
