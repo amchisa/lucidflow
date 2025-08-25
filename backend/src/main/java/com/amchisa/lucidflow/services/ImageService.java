@@ -1,9 +1,9 @@
 package com.amchisa.lucidflow.services;
 
-import com.amchisa.lucidflow.dtos.requests.ImageRequest;
-import com.amchisa.lucidflow.entities.Image;
-import com.amchisa.lucidflow.entities.Post;
-import com.amchisa.lucidflow.exceptions.InvalidFiletypeException;
+import com.amchisa.lucidflow.dtos.image.ImageRequest;
+import com.amchisa.lucidflow.model.Image;
+import com.amchisa.lucidflow.model.Post;
+import com.amchisa.lucidflow.exception.exceptions.InvalidFiletypeException;
 import com.amchisa.lucidflow.mappers.ImageMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

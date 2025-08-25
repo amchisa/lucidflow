@@ -1,12 +1,11 @@
 package com.amchisa.lucidflow.specifications;
 
-import com.amchisa.lucidflow.dtos.filters.PostFilter;
-import com.amchisa.lucidflow.entities.Post;
+import com.amchisa.lucidflow.dtos.post.PostFilter;
+import com.amchisa.lucidflow.model.Post;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

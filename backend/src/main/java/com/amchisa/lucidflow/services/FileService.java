@@ -1,7 +1,7 @@
 package com.amchisa.lucidflow.services;
 
-import com.amchisa.lucidflow.exceptions.FileOperationException;
-import com.amchisa.lucidflow.exceptions.InvalidFilenameException;
+import com.amchisa.lucidflow.exception.exceptions.FileOperationException;
+import com.amchisa.lucidflow.exception.exceptions.InvalidFilenameException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;

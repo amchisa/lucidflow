@@ -3,7 +3,6 @@ import { type Dispatch, type SetStateAction, useRef } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { imageService } from "../../api/services/imageService";
 import { toast } from "react-hot-toast";
-import { clsx } from "clsx";
 import LoadingSpinner from "./LoadingSpinner";
 
 interface ImageUploaderProps {

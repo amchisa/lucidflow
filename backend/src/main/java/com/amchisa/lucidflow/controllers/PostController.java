@@ -1,15 +1,18 @@
 package com.amchisa.lucidflow.controllers;
 
-import com.amchisa.lucidflow.dtos.filters.PostFilter;
-import com.amchisa.lucidflow.dtos.requests.PostRequest;
-import com.amchisa.lucidflow.dtos.responses.PostResponse;
+import com.amchisa.lucidflow.dtos.post.PostFilter;
+import com.amchisa.lucidflow.dtos.post.PostRequest;
+import com.amchisa.lucidflow.dtos.post.PostResponse;
 import com.amchisa.lucidflow.services.PostService;
-import jakarta.validation.Valid;
+import com.amchisa.lucidflow.validation.groups.Create;
+import com.amchisa.lucidflow.validation.groups.Update;
+import jakarta.validation.groups.Default;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,13 +42,13 @@ public class PostController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PostResponse createPost(@Valid @RequestBody PostRequest postRequest) {
+    public PostResponse createPost(@Validated({Create.class, Default.class}) @RequestBody PostRequest postRequest) {
         return postService.createPost(postRequest);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public PostResponse updatePost(@PathVariable Long id, @Valid @RequestBody PostRequest postRequest) {
+    public PostResponse updatePost(@PathVariable Long id, @Validated({Update.class, Default.class}) @RequestBody PostRequest postRequest) {
         return postService.updatePost(id, postRequest);
     }
 

@@ -1,15 +1,15 @@
 package com.amchisa.lucidflow.services;
 
-import com.amchisa.lucidflow.dtos.filters.PostFilter;
-import com.amchisa.lucidflow.dtos.requests.PostRequest;
-import com.amchisa.lucidflow.dtos.responses.PostResponse;
-import com.amchisa.lucidflow.entities.Post;
-import com.amchisa.lucidflow.repositories.PostRepository;
+import com.amchisa.lucidflow.dtos.post.PostFilter;
+import com.amchisa.lucidflow.dtos.post.PostRequest;
+import com.amchisa.lucidflow.dtos.post.PostResponse;
+import com.amchisa.lucidflow.model.Post;
+import com.amchisa.lucidflow.repository.PostRepository;
 import com.amchisa.lucidflow.mappers.PostMapper;
 import com.amchisa.lucidflow.specifications.PostSpecification;
+import com.amchisa.lucidflow.validation.groups.Create;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -67,7 +67,7 @@ public class PostService {
     }
 
     @Transactional
-    public void createPosts(@Valid List<PostRequest> postRequests) {
+    public void createPosts(@Validated(Create.class) List<PostRequest> postRequests) {
         List<Post> posts = postRequests.stream()
             .map(this::createPostEntity)
             .toList();
@@ -117,13 +117,20 @@ public class PostService {
     }
 
     private Post updatePostEntity(Post post, PostRequest postRequest) {
-        post.setTitle(postRequest.getTitle());
-        post.setBody(postRequest.getBody());
+        if (postRequest.getTitle() != null) {
+            post.setTitle(postRequest.getTitle());
+        }
 
-        boolean imagesModified = imageService.syncImages(post, postRequest.getImages());
+        if (postRequest.getBody() != null) {
+            post.setBody(postRequest.getBody());
+        }
 
-        if (imagesModified) { // Trigger modification timestamp update
-           post.touch();
+        if (postRequest.getImages() != null) {
+            boolean imagesModified = imageService.syncImages(post, postRequest.getImages());
+
+            if (imagesModified) {
+                post.touch();
+            }
         }
 
         return post;

@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.exceptions;
+package com.amchisa.lucidflow.exception.exceptions;
 
 public class InvalidFilenameException extends RuntimeException {
     public InvalidFilenameException(String message) {

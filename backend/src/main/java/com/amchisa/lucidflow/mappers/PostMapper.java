@@ -1,11 +1,10 @@
 package com.amchisa.lucidflow.mappers;
 
-import com.amchisa.lucidflow.dtos.requests.PostRequest;
-import com.amchisa.lucidflow.dtos.responses.PostResponse;
-import com.amchisa.lucidflow.entities.Post;
+import com.amchisa.lucidflow.dtos.post.PostRequest;
+import com.amchisa.lucidflow.dtos.post.PostResponse;
+import com.amchisa.lucidflow.model.Post;
 import org.springframework.stereotype.Component;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 @Component

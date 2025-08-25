@@ -1,6 +1,6 @@
 package com.amchisa.lucidflow.utils;
 
-import com.amchisa.lucidflow.dtos.requests.PostRequest;
+import com.amchisa.lucidflow.dtos.post.PostRequest;
 import com.amchisa.lucidflow.services.PostService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +31,7 @@ public class DataLoader implements CommandLineRunner {
                     return;
                 }
 
-                postService.createPosts(objectMapper.readValue(inputStream, new TypeReference<List<PostRequest>>(){}));
+                postService.createPosts(objectMapper.readValue(inputStream, new TypeReference<>(){}));
                 System.out.println("Data load completed successfully.");
             }
             catch (Exception e){

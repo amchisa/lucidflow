@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.configs;
+package com.amchisa.lucidflow.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -12,10 +12,10 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 
 @Configuration
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO) // Stabilize page response JSON to avoid warnings
-public class ApplicationConfig implements WebMvcConfigurer {
+public class WebMvcConfig implements WebMvcConfigurer {
     private final Path uploadPath;
 
-    public ApplicationConfig(@Value("${file.upload.base-dir}") String uploadDirectory) {
+    public WebMvcConfig(@Value("${file.upload.base-dir}") String uploadDirectory) {
         this.uploadPath = Path.of(uploadDirectory).toAbsolutePath().normalize();
     }
 

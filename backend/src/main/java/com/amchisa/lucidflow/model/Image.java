@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.entities;
+package com.amchisa.lucidflow.model;
 
 import jakarta.persistence.*;
 import lombok.*;

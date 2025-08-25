@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.dtos.filters;
+package com.amchisa.lucidflow.dtos.post;
 
 import lombok.Getter;
 import lombok.Setter;
