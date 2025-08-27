@@ -4,6 +4,7 @@ import com.amchisa.lucidflow.dto.image.ImageResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -13,6 +14,6 @@ public class PostResponse {
     private String title;
     private String body;
     private List<ImageResponse> images;
-    private String timeCreated;
-    private String timeModified;
+    private Instant createdAt;
+    private Instant lastModifiedAt;
 }

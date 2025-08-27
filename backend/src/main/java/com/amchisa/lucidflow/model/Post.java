@@ -35,24 +35,27 @@ public class Post {
         orphanRemoval = true,
         fetch = FetchType.LAZY
     )
-    @OrderBy("displayIndex ASC")
     private List<Image> images = new ArrayList<>();
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, precision = 3)
     private Instant createdAt;
 
     @LastModifiedDate
-    @Column(name = "last_modified_at", nullable = false)
+    @Column(name = "last_modified_at", nullable = false, precision = 3)
     private Instant lastModifiedAt;
 
     public void addImage(Image image) {
-        images.add(image);
+        this.images.add(image);
         image.setPost(this);
     }
 
     public void removeImage(Image image) {
-        images.remove(image);
+        this.images.remove(image);
         image.setPost(null);
+    }
+
+    public void touch() {
+        this.lastModifiedAt = Instant.now();
     }
 }

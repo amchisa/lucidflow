@@ -1,17 +1,15 @@
 package com.amchisa.lucidflow.dto.image;
 
-import com.amchisa.lucidflow.validation.constraint.NullOrNotBlank;
 import com.amchisa.lucidflow.validation.group.Create;
-import com.amchisa.lucidflow.validation.group.Update;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
 public class ImageRequest {
+    @NotNull(message = "Image id cannot be null")
     private Long id;
 
     @NotBlank(groups = Create.class, message = "Image url cannot be null or blank")
-    @NullOrNotBlank(groups = Update.class, message = "Image url cannot be blank")
     @Size(max = 2048, message = "Image url must be 2048 characters or less")
     private String url;
 

@@ -48,18 +48,18 @@ public class ImageService {
         validateRequestDisplayIndices(imageRequests);
 
         // Stage 1: Process existing images (delete and keep)
-        Set<Long> incomingImageIDs = imageRequests.stream()
+        Set<Long> incomingImageIds = imageRequests.stream()
             .map(ImageRequest::getId) // Ids may be non-valid (safely ignored)
             .filter(Objects::nonNull) // Some image requests may not include ids
             .collect(Collectors.toSet());
 
         images.removeIf(image -> {
-            if (!incomingImageIDs.contains(image.getId())) {
-                try {
-                    deleteImageFile(image.getUrl());
-                } catch (IOException e) {
-                    throw new FileOperationException("Failed to delete previously associated image file.", e);
-                }
+            if (!incomingImageIds.contains(image.getId())) {
+//                try {
+//                    deleteImageFile(image.getUrl());
+//                } catch (IOException e) {
+//                    throw new FileOperationException("Failed to delete previously associated image file.", e);
+//                }
 
                 imagesModified.set(true);
                 return true;
@@ -75,15 +75,16 @@ public class ImageService {
             ));
 
         for (ImageRequest imageRequest : imageRequests) {
-            Long imageID = imageRequest.getId();
+            Long imageId = imageRequest.getId();
 
-            if (imageID != null && existingImages.containsKey(imageID)) { // Update image
-                boolean changesMade = updateImageEntity(existingImages.get(imageID), imageRequest);
+            if (imageId != null && existingImages.containsKey(imageId)) { // Update image
+                boolean changesMade = imageMapper.updateEntityFromRequest(existingImages.get(imageId), imageRequest);
+
                 imagesModified.set(changesMade || imagesModified.get());
             }
             else { // Add new image
-                Image newImage = createImageEntity(imageRequest, post);
-                post.getImages().add(newImage);
+                Image image = imageMapper.requestToEntity(imageRequest);
+                post.addImage(image);
 
                 imagesModified.set(true);
             }
@@ -100,7 +101,7 @@ public class ImageService {
         return fileService.uploadFile(file, "images");
     }
 
-    @Scheduled()
+    @Scheduled(fixedRate = 60000)
     public void cleanupOrphanedImages() {
         List<Image> orphanedImages = imageRepository.findByPostIdIsNull();
 
@@ -140,32 +141,5 @@ public class ImageService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image display indices must be sequential and contiguous starting from 0");
             }
         }
-    }
-
-    private Image createImageEntity(ImageRequest imageRequest, Post post) {
-        Image image = imageMapper.requestToEntity(imageRequest);
-        image.setPost(post);
-
-        return image;
-    }
-
-    private boolean updateImageEntity(Image image, ImageRequest imageRequest) {
-        boolean urlModified = !imageRequest.getUrl().equals(image.getUrl());
-
-        if (urlModified) {
-            try {
-                deleteImageFile(image.getUrl());
-            } catch (IOException e) {
-                throw new FileOperationException("Failed to delete previously associated image file.", e);
-            }
-        }
-
-        boolean imagesModified = urlModified
-            || !imageRequest.getDisplayIndex().equals(image.getDisplayIndex());
-
-        image.setUrl(imageRequest.getUrl());
-        image.setDisplayIndex(imageRequest.getDisplayIndex());
-
-        return imagesModified;
     }
 }

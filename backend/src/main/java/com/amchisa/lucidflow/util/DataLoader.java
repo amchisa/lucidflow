@@ -1,15 +1,23 @@
 package com.amchisa.lucidflow.util;
 
+import com.amchisa.lucidflow.dto.post.PostRequest;
 import com.amchisa.lucidflow.service.PostService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @Component
 public class DataLoader implements CommandLineRunner {
+    private static final String DATA_FILE_PATH = "/sample-data.json"; // Change if needed
+    private static final Logger logger = LoggerFactory.getLogger(DataLoader.class);
+
     private final PostService postService;
     private final ObjectMapper objectMapper;
 
@@ -20,21 +28,27 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (postService.postCount() == 0) { // Avoid duplicating posts
-            String path = "/data/sample-data.json"; // Change if needed
+        if (postService.postCount() > 0) { // Avoid duplicating db entries
+            logger.info("Database already populated. Skipping data load.");
+            return;
+        }
 
-            try (InputStream inputStream = TypeReference.class.getResourceAsStream(path)) {
-                if (inputStream == null) {
-                    System.err.printf(String.format("Data file not found at %s. Skipping data load.", path));
-                    return;
-                }
+        try {
+            postService.createPosts(loadDataFromFile(DATA_FILE_PATH));
+            logger.info("Data load completed successfully.");
+        }
+        catch (IOException e) {
+            logger.error("Failed to complete data load.", e);
+        }
+    }
 
-                postService.createPosts(objectMapper.readValue(inputStream, new TypeReference<>(){}));
-                System.out.println("Data load completed successfully.");
+    private List<PostRequest> loadDataFromFile(String path) throws IOException {
+        try (InputStream inputStream = TypeReference.class.getResourceAsStream(path)) {
+            if (inputStream == null) {
+                throw new IOException("Data file not found at " + path + ".");
             }
-            catch (Exception e){
-                System.err.printf("Data load failed: %s", e.getMessage());
-            }
+
+            return objectMapper.readValue(inputStream, new TypeReference<>() {});
         }
     }
 }

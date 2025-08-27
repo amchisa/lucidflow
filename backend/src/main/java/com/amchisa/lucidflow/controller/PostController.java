@@ -30,7 +30,7 @@ public class PostController {
     @GetMapping
     public Page<PostResponse> getPosts(
         @ModelAttribute PostFilterCriteria filters,
-        @PageableDefault(sort = {"timeCreated", "id"}, direction = Sort.Direction.DESC) Pageable pageable
+        @PageableDefault(sort = {"createdAt", "id"}, direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return postService.getPosts(filters, pageable);
     }

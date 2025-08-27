@@ -15,6 +15,17 @@ public class ImageMapper {
     }
 
     public ImageResponse entityToResponse(Image image) {
-        return new ImageResponse(image.getId(), image.getUrl(), image.getDisplayIndex());
+        return new ImageResponse(
+            image.getId(),
+            image.getUrl(),
+            image.getDisplayIndex()
+        );
+    }
+
+    public boolean updateEntityFromRequest(Image image, ImageRequest imageRequest) {
+        boolean imageModified = !imageRequest.getDisplayIndex().equals(image.getDisplayIndex());
+        image.setDisplayIndex(imageRequest.getDisplayIndex());
+
+        return imageModified;
     }
 }

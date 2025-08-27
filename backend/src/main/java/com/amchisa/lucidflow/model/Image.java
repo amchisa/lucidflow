@@ -23,13 +23,13 @@ public class Image {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @Column(name = "url", nullable = false)
+    @Column(name = "url", nullable = false, updatable = false)
     private String url;
 
     @Column(name = "display_index", nullable = false)
     private Integer displayIndex;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, precision = 3)
     private Instant createdAt;
 }
