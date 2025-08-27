@@ -74,7 +74,7 @@ export const postService = {
    * @throws An error if the API call fails.
    */
   async updatePost(id: number, postRequest: PostRequest): Promise<Post> {
-    const apiResponse = await api.put<PostResponse>(
+    const apiResponse = await api.patch<PostResponse>(
       `/posts/${id}`,
       postRequest,
     );

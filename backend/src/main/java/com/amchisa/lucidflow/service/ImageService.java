@@ -1,16 +1,20 @@
 package com.amchisa.lucidflow.service;
 
 import com.amchisa.lucidflow.dto.image.ImageRequest;
+import com.amchisa.lucidflow.exception.FileOperationException;
 import com.amchisa.lucidflow.model.Image;
 import com.amchisa.lucidflow.model.Post;
 import com.amchisa.lucidflow.exception.InvalidFiletypeException;
 import com.amchisa.lucidflow.mapper.ImageMapper;
+import com.amchisa.lucidflow.repository.ImageRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -19,10 +23,12 @@ import java.util.stream.Collectors;
 @Service
 public class ImageService {
     private final ImageMapper imageMapper;
+    private final ImageRepository imageRepository;
     private final FileService fileService;
 
-    public ImageService(ImageMapper imageMapper, FileService fileService)  {
+    public ImageService(ImageMapper imageMapper, ImageRepository imageRepository, FileService fileService) {
         this.imageMapper = imageMapper;
+        this.imageRepository = imageRepository;
         this.fileService = fileService;
     }
 
@@ -49,7 +55,12 @@ public class ImageService {
 
         images.removeIf(image -> {
             if (!incomingImageIDs.contains(image.getId())) {
-                deleteImageFile(image.getUrl());
+                try {
+                    deleteImageFile(image.getUrl());
+                } catch (IOException e) {
+                    throw new FileOperationException("Failed to delete previously associated image file.", e);
+                }
+
                 imagesModified.set(true);
                 return true;
             }
@@ -89,7 +100,25 @@ public class ImageService {
         return fileService.uploadFile(file, "images");
     }
 
-    private void deleteImageFile(String url) {
+    @Scheduled()
+    public void cleanupOrphanedImages() {
+        List<Image> orphanedImages = imageRepository.findByPostIdIsNull();
+
+        orphanedImages.forEach(image -> {
+            try {
+                System.out.println(image.getId());
+                deleteImageFile(image.getUrl());
+            } catch (IOException e) {
+                throw new FileOperationException("Failed to clean up orphaned image file.", e);
+            }
+
+            imageRepository.deleteById(image.getId());
+        });
+
+        System.out.println("Cleaned up orphaned images!");
+    }
+
+    private void deleteImageFile(String url) throws IOException {
         fileService.deleteFile(fileService.parseFilename(url), "images");
     }
 
@@ -124,7 +153,11 @@ public class ImageService {
         boolean urlModified = !imageRequest.getUrl().equals(image.getUrl());
 
         if (urlModified) {
-            deleteImageFile(image.getUrl());
+            try {
+                deleteImageFile(image.getUrl());
+            } catch (IOException e) {
+                throw new FileOperationException("Failed to delete previously associated image file.", e);
+            }
         }
 
         boolean imagesModified = urlModified

@@ -1,3 +1,4 @@
+import type { Image } from "../../types/models";
 import { api } from "../client/axios";
 
 /**
@@ -7,9 +8,9 @@ export const imageService = {
   /**
    * Uploads an image file to the API.
    * @param imageFile The image file to upload.
-   * @returns A promise that resolves to the URL string of the uploaded image.
+   * @returns A promise that resolves to the uploaded Image object.
    */
-  async upload(imageFile: File): Promise<string> {
+  async upload(imageFile: File): Promise<Image> {
     const formData = new FormData();
     formData.append("file", imageFile);
 

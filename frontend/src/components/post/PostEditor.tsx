@@ -60,7 +60,9 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
   });
 
   const saveButtonText = post ? "Save Changes" : "Create Post";
-  const canSave = hasUnsavedChanges && title && htmlToPlainText(body);
+  const imagesUploading = images.some((image) => image?.uploading);
+  const canSave =
+    hasUnsavedChanges && title && htmlToPlainText(body) && !imagesUploading;
   const titleCharCount = title.length;
 
   const bodyWordCount = bodyEditor
@@ -134,8 +136,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     const changesDetected =
       title.trim() !== initialPost.title.trim() ||
       body !== initialPost.body ||
-      (JSON.stringify(images) !== JSON.stringify(initialPost.images) &&
-        !images.some((image) => image?.uploading)); // No images are currently uploading
+      JSON.stringify(images) !== JSON.stringify(initialPost.images);
 
     setHasUnsavedChanges(changesDetected);
   }, [title, body, images, post]);
@@ -211,8 +212,9 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             onClickImage={openImageModal}
           />
         </div>
-        <div className="mt-4 flex items-end justify-between text-sm">
-          <span className="flex gap-2">
+        <div className="mt-4 flex items-center justify-between text-sm">
+          <div>{post && <>Last Saved: {formattedDateTimeModified}</>}</div>
+          <div className="flex gap-2">
             <button
               className={`rounded-md px-3 py-2 font-bold text-white ${canSave ? "bg-blue-500 hover:bg-blue-600 active:bg-blue-700" : "bg-gray-500"}`}
               type="submit"
@@ -227,8 +229,7 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
             >
               Close
             </button>
-          </span>
-          {post && <span>Last Saved: {formattedDateTimeModified}</span>}
+          </div>
         </div>
       </form>
       <Tooltip

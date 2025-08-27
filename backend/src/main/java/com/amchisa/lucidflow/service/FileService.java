@@ -45,13 +45,9 @@ public class FileService {
         return uniqueFilename;
     }
 
-    public void deleteFile(String filename, String subdirectory) {
-        try {
-            Path filePath = uploadPath.resolve(subdirectory).resolve(filename).normalize();
-            Files.deleteIfExists(filePath);
-        } catch (IOException e) {
-            throw new FileOperationException("File failed to delete.", e);
-        }
+    public void deleteFile(String filename, String subdirectory) throws IOException {
+        Path filePath = uploadPath.resolve(subdirectory).resolve(filename).normalize();
+        Files.deleteIfExists(filePath);
     }
 
     public String parseFilename(String url) {

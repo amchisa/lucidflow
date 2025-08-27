@@ -129,7 +129,7 @@ public class PostService {
             boolean imagesModified = imageService.syncImages(post, postRequest.getImages());
 
             if (imagesModified) {
-                post.touch();
+                System.out.println("Post.touch() is a deprecated method");
             }
         }
 

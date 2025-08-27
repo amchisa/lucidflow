@@ -2,10 +2,12 @@ package com.amchisa.lucidflow.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,31 +36,23 @@ public class Post {
         fetch = FetchType.LAZY
     )
     @OrderBy("displayIndex ASC")
-    private List<Image> images;
+    private List<Image> images = new ArrayList<>();
 
-    @Column(
-        name = "time_created",
-        nullable = false, // Redundant (since insert and update are disabled) but kept for readability
-        insertable = false,
-        updatable = false
-    )
-    @CreationTimestamp
-    private LocalDateTime timeCreated;
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @Column(
-        name = "time_modified",
-        nullable = false,
-        insertable = false
-    )
-    @UpdateTimestamp
-    private LocalDateTime timeModified;
+    @LastModifiedDate
+    @Column(name = "last_modified_at", nullable = false)
+    private Instant lastModifiedAt;
 
-    /**
-     * Triggers an update to the timeModified timestamp in order to mark the post entity it is called on
-     * as dirty. Allows changes that are not tracked properly by JPA/Hibernate to cause an DB update to
-     * the modification timestamp.
-     */
-    public void touch() {
-        this.setTimeModified(LocalDateTime.now());
+    public void addImage(Image image) {
+        images.add(image);
+        image.setPost(this);
+    }
+
+    public void removeImage(Image image) {
+        images.remove(image);
+        image.setPost(null);
     }
 }
