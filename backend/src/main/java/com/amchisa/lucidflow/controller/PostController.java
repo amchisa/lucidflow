@@ -4,8 +4,8 @@ import com.amchisa.lucidflow.dto.post.PostFilterCriteria;
 import com.amchisa.lucidflow.dto.post.PostRequest;
 import com.amchisa.lucidflow.dto.post.PostResponse;
 import com.amchisa.lucidflow.service.PostService;
-import com.amchisa.lucidflow.validation.group.Create;
-import com.amchisa.lucidflow.validation.group.Update;
+import com.amchisa.lucidflow.validation.groups.Create;
+import com.amchisa.lucidflow.validation.groups.Update;
 import jakarta.validation.groups.Default;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")
 @CrossOrigin
 public class PostController {
     private final PostService postService;

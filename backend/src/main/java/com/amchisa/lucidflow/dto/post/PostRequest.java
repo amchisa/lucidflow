@@ -1,9 +1,9 @@
 package com.amchisa.lucidflow.dto.post;
 
 import com.amchisa.lucidflow.dto.image.ImageRequest;
-import com.amchisa.lucidflow.validation.constraint.NullOrNotBlank;
-import com.amchisa.lucidflow.validation.group.Create;
-import com.amchisa.lucidflow.validation.group.Update;
+import com.amchisa.lucidflow.validation.constraints.NullOrNotBlank;
+import com.amchisa.lucidflow.validation.groups.Create;
+import com.amchisa.lucidflow.validation.groups.Update;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

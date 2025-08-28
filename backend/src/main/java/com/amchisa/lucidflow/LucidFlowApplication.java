@@ -7,7 +7,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableJpaAuditing
+@EnableJpaAuditing // Enable auto timestamp creation
 public class LucidFlowApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(LucidFlowApplication.class, args);

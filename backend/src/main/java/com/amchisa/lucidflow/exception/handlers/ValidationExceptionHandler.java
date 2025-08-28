@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.exception.handler;
+package com.amchisa.lucidflow.exception.handlers;
 
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;

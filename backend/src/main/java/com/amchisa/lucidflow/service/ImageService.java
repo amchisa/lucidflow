@@ -1,12 +1,11 @@
 package com.amchisa.lucidflow.service;
 
 import com.amchisa.lucidflow.dto.image.ImageRequest;
-import com.amchisa.lucidflow.exception.FileOperationException;
 import com.amchisa.lucidflow.model.Image;
 import com.amchisa.lucidflow.model.Post;
-import com.amchisa.lucidflow.exception.InvalidFiletypeException;
+import com.amchisa.lucidflow.exception.types.InvalidFiletypeException;
 import com.amchisa.lucidflow.mapper.ImageMapper;
-import com.amchisa.lucidflow.repository.ImageRepository;
+import com.amchisa.lucidflow.repository.image.ImageRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -14,7 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -24,12 +24,24 @@ import java.util.stream.Collectors;
 public class ImageService {
     private final ImageMapper imageMapper;
     private final ImageRepository imageRepository;
-    private final FileService fileService;
+    private final LocalUploadService uploadService;
 
-    public ImageService(ImageMapper imageMapper, ImageRepository imageRepository, FileService fileService) {
+    public ImageService(
+        ImageMapper imageMapper,
+        ImageRepository imageRepository,
+        LocalUploadService fileService
+    ) {
         this.imageMapper = imageMapper;
         this.imageRepository = imageRepository;
-        this.fileService = fileService;
+        this.uploadService = fileService;
+    }
+
+    public String uploadImage(MultipartFile file) {
+        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+            throw new InvalidFiletypeException("File uploaded is not an image.");
+        }
+
+        return uploadService.uploadFile(file, Path.of("images/temp"));
     }
 
     /**
@@ -44,23 +56,15 @@ public class ImageService {
         List<Image> images = post.getImages();
         AtomicBoolean imagesModified = new AtomicBoolean(false);
 
-        // Ensure that images are indexed properly and contiguously
         validateRequestDisplayIndices(imageRequests);
 
-        // Stage 1: Process existing images (delete and keep)
-        Set<Long> incomingImageIds = imageRequests.stream()
-            .map(ImageRequest::getId) // Ids may be non-valid (safely ignored)
-            .filter(Objects::nonNull) // Some image requests may not include ids
+        Set<Long> requestIds = imageRequests.stream()
+            .map(ImageRequest::getId)
+            .filter(Objects::nonNull)
             .collect(Collectors.toSet());
 
         images.removeIf(image -> {
-            if (!incomingImageIds.contains(image.getId())) {
-//                try {
-//                    deleteImageFile(image.getUrl());
-//                } catch (IOException e) {
-//                    throw new FileOperationException("Failed to delete previously associated image file.", e);
-//                }
-
+            if (!requestIds.contains(image.getId())) {
                 imagesModified.set(true);
                 return true;
             }
@@ -72,7 +76,8 @@ public class ImageService {
             .collect(Collectors.toMap(
                 Image::getId,
                 Function.identity()
-            ));
+            )
+        );
 
         for (ImageRequest imageRequest : imageRequests) {
             Long imageId = imageRequest.getId();
@@ -93,34 +98,14 @@ public class ImageService {
         return imagesModified.get();
     }
 
-    public String uploadImageFile(MultipartFile file) {
-        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
-            throw new InvalidFiletypeException("File uploaded does not have type image.");
-        }
-
-        return fileService.uploadFile(file, "images");
-    }
-
     @Scheduled(fixedRate = 60000)
     public void cleanupOrphanedImages() {
         List<Image> orphanedImages = imageRepository.findByPostIdIsNull();
 
         orphanedImages.forEach(image -> {
-            try {
-                System.out.println(image.getId());
-                deleteImageFile(image.getUrl());
-            } catch (IOException e) {
-                throw new FileOperationException("Failed to clean up orphaned image file.", e);
-            }
-
+            uploadService.deleteFile(Paths.get(image.getUrl()));
             imageRepository.deleteById(image.getId());
         });
-
-        System.out.println("Cleaned up orphaned images!");
-    }
-
-    private void deleteImageFile(String url) throws IOException {
-        fileService.deleteFile(fileService.parseFilename(url), "images");
     }
 
     /**

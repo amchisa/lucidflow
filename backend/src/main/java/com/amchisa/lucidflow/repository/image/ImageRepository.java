@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.repository;
+package com.amchisa.lucidflow.repository.image;
 
 import com.amchisa.lucidflow.model.Image;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.repository.specification;
+package com.amchisa.lucidflow.repository.post;
 
 import com.amchisa.lucidflow.dto.post.PostFilterCriteria;
 import com.amchisa.lucidflow.model.Post;

@@ -1,6 +1,6 @@
-package com.amchisa.lucidflow.validation.validator;
+package com.amchisa.lucidflow.validation.validators;
 
-import com.amchisa.lucidflow.validation.constraint.NullOrNotBlank;
+import com.amchisa.lucidflow.validation.constraints.NullOrNotBlank;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
