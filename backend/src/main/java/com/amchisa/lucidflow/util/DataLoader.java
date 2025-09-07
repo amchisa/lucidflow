@@ -1,7 +1,7 @@
 package com.amchisa.lucidflow.util;
 
 import com.amchisa.lucidflow.dto.post.PostRequest;
-import com.amchisa.lucidflow.service.PostService;
+import com.amchisa.lucidflow.service.post.PostService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;

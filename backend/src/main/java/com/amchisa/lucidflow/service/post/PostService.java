@@ -1,13 +1,14 @@
-package com.amchisa.lucidflow.service;
+package com.amchisa.lucidflow.service.post;
 
 import com.amchisa.lucidflow.dto.post.PostFilterCriteria;
 import com.amchisa.lucidflow.dto.post.PostRequest;
 import com.amchisa.lucidflow.dto.post.PostResponse;
 import com.amchisa.lucidflow.exception.types.ResourceNotFoundException;
 import com.amchisa.lucidflow.model.Post;
-import com.amchisa.lucidflow.repository.post.PostRepository;
+import com.amchisa.lucidflow.repository.PostRepository;
 import com.amchisa.lucidflow.mapper.PostMapper;
-import com.amchisa.lucidflow.repository.post.PostSpecification;
+import com.amchisa.lucidflow.repository.specifications.PostSpecification;
+import com.amchisa.lucidflow.service.image.ImageService;
 import com.amchisa.lucidflow.validation.groups.Create;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

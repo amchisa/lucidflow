@@ -13,16 +13,16 @@ import static org.springframework.data.web.config.EnableSpringDataWebSupport.Pag
 @Configuration
 @EnableSpringDataWebSupport(pageSerializationMode = VIA_DTO) // Stabilize page response JSON to avoid warnings
 public class WebConfig implements WebMvcConfigurer {
-    private final Path absoluteBaseUploadPath;
+    private final Path baseUploadPath;
 
     public WebConfig(@Value("${file.base-upload-path}") String baseUploadPath) {
-        this.absoluteBaseUploadPath = Path.of(baseUploadPath).toAbsolutePath().normalize();
+        this.baseUploadPath = Path.of(baseUploadPath).toAbsolutePath().normalize();
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // Serve files from the upload directory to the web
         registry.addResourceHandler("/uploads/**")
-            .addResourceLocations("file:" + this.absoluteBaseUploadPath + "/");
+            .addResourceLocations("file:" + this.baseUploadPath + "/");
     }
 }

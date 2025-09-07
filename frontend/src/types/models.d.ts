@@ -20,8 +20,8 @@ export interface Post {
   title: string;
   body: string;
   images: Image[];
-  timeCreated: Date;
-  timeModified: Date;
+  createdAt: Date;
+  lastModifiedAt: Date;
 }
 
 /**

@@ -1,6 +1,6 @@
 package com.amchisa.lucidflow.controller;
 
-import com.amchisa.lucidflow.service.ImageService;
+import com.amchisa.lucidflow.service.image.ImageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,8 +20,8 @@ public class ImageController {
     @ResponseStatus(HttpStatus.CREATED)
     public String uploadImage(@RequestParam("file") MultipartFile file) {
         String generatedFilename = imageService.uploadImage(file);
-        String apiUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
 
-        return apiUrl + "/uploads/images/temp/" + generatedFilename;
+        return baseUrl + "/uploads/images/temp/" + generatedFilename;
     }
 }

@@ -2,6 +2,9 @@ package com.amchisa.lucidflow.util;
 
 import com.amchisa.lucidflow.exception.types.InvalidFilenameException;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class FileUtils {
     private FileUtils() {} // Prevent instantiation
 
@@ -26,5 +29,28 @@ public class FileUtils {
         }
 
         return normalizedFilename;
+    }
+
+    /**
+     * Extracts the filename from a given URL string.
+     * Works whether the input is a relative path, absolute path, or a URL.
+     *
+     * @param url The URL to extract the filename from.
+     * @return The filename as a string.
+     */
+    public static String extractFilename(String url) {
+        if (url == null || url.isBlank()) {
+            throw new IllegalArgumentException("URL cannot be null or empty");
+        }
+
+        // Remove any query parameters or fragments
+        String cleanedUrl = url.split("[?#]")[0];
+
+        if (cleanedUrl.matches("^(https?|blob):.*")) { // Handle URLs with protocols separately
+            String[] urlParts = cleanedUrl.split("/");
+            return urlParts[urlParts.length - 1];
+        }
+
+        return Paths.get(cleanedUrl).getFileName().toString();
     }
 }

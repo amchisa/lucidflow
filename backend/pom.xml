@@ -11,7 +11,7 @@
 	<groupId>com.amchisa</groupId>
 	<artifactId>lucidflow</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>LucidFlow</name>
+	<name>Lucidflow</name>
 	<description>A simple web-based personal journaling app for capturing and organizing your thoughts.</description>
 	<url/>
 	<licenses>

@@ -39,14 +39,14 @@ export default function ImageUploader({
     try {
       await Promise.all(
         Array.from(imageFiles).map(async (imageFile, index) => {
-          const uploadedImage = await imageService.upload(imageFile);
+          const uploadUrl = await imageService.upload(imageFile);
 
           setImages((prevImages) =>
             prevImages.map((image) =>
               image.id === previewImages[index].id
                 ? {
-                    ...uploadedImage,
                     ...image,
+                    url: uploadUrl,
                     uploading: false,
                   }
                 : image,

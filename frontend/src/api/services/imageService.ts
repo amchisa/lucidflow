@@ -1,4 +1,3 @@
-import type { Image } from "../../types/models";
 import { api } from "../client/axios";
 
 /**
@@ -8,9 +7,9 @@ export const imageService = {
   /**
    * Uploads an image file to the API.
    * @param imageFile The image file to upload.
-   * @returns A promise that resolves to the uploaded Image object.
+   * @returns A promise that resolves to the uploaded image's url.
    */
-  async upload(imageFile: File): Promise<Image> {
+  async upload(imageFile: File): Promise<string> {
     const formData = new FormData();
     formData.append("file", imageFile);
 
@@ -19,6 +18,7 @@ export const imageService = {
         "Content-Type": "multipart/form-data", // Override default content type
       },
     });
+
     return response.data;
   },
 };

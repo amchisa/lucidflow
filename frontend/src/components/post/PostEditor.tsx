@@ -71,8 +71,8 @@ export default function PostEditor({ onClose, post, onSave }: PostEditorProps) {
     .split(/\s+/)
     .filter((word) => word.length > 0).length; // Remove any empty strings
 
-  const formattedDateTimeModified = post?.timeModified // e.g., Jul 28, 2025, 2:27 pm
-    ? post.timeModified
+  const formattedDateTimeModified = post?.lastModifiedAt // e.g., Jul 28, 2025, 2:27 pm
+    ? post.lastModifiedAt
         .toLocaleString(undefined, {
           month: "short",
           day: "numeric",

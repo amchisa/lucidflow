@@ -35,7 +35,7 @@ export const postService = {
             urlParams.append(key, value.toISOString());
             break;
           case "sortOrder":
-            urlParams.append("sort", `timeCreated,${value}`);
+            urlParams.append("sort", `createdAt,${value}`);
             urlParams.append("sort", `id,${value}`);
             break;
           default:

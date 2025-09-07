@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.repository.post;
+package com.amchisa.lucidflow.repository.specifications;
 
 import com.amchisa.lucidflow.dto.post.PostFilterCriteria;
 import com.amchisa.lucidflow.model.Post;
@@ -34,7 +34,7 @@ public class PostSpecification {
             }
 
             if (filters.getCreatedAfter() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("timeCreated"), filters.getCreatedAfter()));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), filters.getCreatedAfter()));
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

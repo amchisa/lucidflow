@@ -12,7 +12,7 @@ export const postMapper = {
    */
   responseToModel: (postResponse: PostResponse): Post => ({
     ...postResponse,
-    timeCreated: new Date(postResponse.timeCreated),
-    timeModified: new Date(postResponse.timeModified),
+    createdAt: new Date(postResponse.createdAt),
+    lastModifiedAt: new Date(postResponse.lastModifiedAt),
   }),
 };

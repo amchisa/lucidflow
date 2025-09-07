@@ -18,7 +18,7 @@ export default function PostItem({
   onEdit: handleEdit,
   onDelete: handleDelete,
 }: PostItemProps) {
-  const { id, title, body, images, timeCreated } = post;
+  const { id, title, body, images, createdAt } = post;
 
   const [truncateBody, setTruncateBody] = useState<boolean>(true);
   const [isBodyOverflowing, setIsBodyOverflowing] = useState<boolean>(false);
@@ -26,7 +26,7 @@ export default function PostItem({
   const postContainerRef = useRef<HTMLDivElement>(null!);
   const bodyContainerRef = useRef<HTMLDivElement>(null!);
 
-  const formattedDateTimeCreated = timeCreated // e.g., Monday, July 28, 2025 at 2:26 pm
+  const formattedDateTimeCreated = createdAt // e.g., Monday, July 28, 2025 at 2:26 pm
     .toLocaleString(undefined, {
       weekday: "long",
       month: "long",

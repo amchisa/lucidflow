@@ -28,8 +28,4 @@ public class Image {
 
     @Column(name = "display_index", nullable = false)
     private Integer displayIndex;
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false, precision = 3)
-    private Instant createdAt;
 }

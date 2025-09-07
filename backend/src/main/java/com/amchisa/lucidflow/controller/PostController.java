@@ -3,7 +3,7 @@ package com.amchisa.lucidflow.controller;
 import com.amchisa.lucidflow.dto.post.PostFilterCriteria;
 import com.amchisa.lucidflow.dto.post.PostRequest;
 import com.amchisa.lucidflow.dto.post.PostResponse;
-import com.amchisa.lucidflow.service.PostService;
+import com.amchisa.lucidflow.service.post.PostService;
 import com.amchisa.lucidflow.validation.groups.Create;
 import com.amchisa.lucidflow.validation.groups.Update;
 import jakarta.validation.groups.Default;

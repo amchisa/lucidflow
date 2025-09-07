@@ -22,6 +22,6 @@ export interface PostResponse {
   title: string;
   body: string;
   images: Image[]; // Not ImageResponse since this type is not currently needed
-  timeCreated: string;
-  timeModified: string;
+  createdAt: string;
+  lastModifiedAt: string;
 }

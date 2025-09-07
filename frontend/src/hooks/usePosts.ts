@@ -72,7 +72,7 @@ export default function usePosts() {
 
   /**
    * Creates a new temporary local-only Post from an outgoing PostRequest.
-   * Generates temporary values for `ID`, `timeCreated`, and `timeModified`.
+   * Generates temporary values for `ID`, `createdAt`, and `lastModifiedAt`.
    * Used for optimistic client-side post creation before an API response.
    * @param request The PostRequest data provided by the client.
    * @returns A new Post object (for local/optimistic display only)
@@ -83,14 +83,14 @@ export default function usePosts() {
     return {
       id: tempIDCounter.current--, // Use a new temporary negative ID
       ...postRequest,
-      timeCreated: now,
-      timeModified: now,
+      createdAt: now,
+      lastModifiedAt: now,
     };
   };
 
   /**
    * Returns a new temporary local-only Post object respresenting updates to an existing Post from a PostRequest.
-   * Generates temporary values for `title`, `body`, `images`, and `timeModified`.
+   * Generates temporary values for `title`, `body`, `images`, and `lastModifiedAt`.
    * Used for optimistic client-side updates of existing posts before an API response.
    * @param post The Post object to update.
    * @param postRequest The PostRequest containing the updated data.
@@ -101,9 +101,9 @@ export default function usePosts() {
     postRequest: PostRequest,
   ): Post => {
     return {
-      ...post, // Keep existing ID, timeCreated, etc.
+      ...post, // Keep existing ID, createdAt, etc.
       ...postRequest, // Update overlapping Post fields with PostRequest fields
-      timeModified: new Date(), // Update the modification timestamp
+      lastModifiedAt: new Date(), // Update the modification timestamp
     };
   };
 
