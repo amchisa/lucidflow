@@ -1,6 +1,5 @@
-package com.amchisa.lucidflow.dto.post;
+package com.amchisa.lucidflow.dto.request;
 
-import com.amchisa.lucidflow.dto.image.ImageRequest;
 import com.amchisa.lucidflow.validation.constraints.NullOrNotBlank;
 import com.amchisa.lucidflow.validation.groups.Create;
 import com.amchisa.lucidflow.validation.groups.Update;

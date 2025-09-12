@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.dto.post;
+package com.amchisa.lucidflow.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

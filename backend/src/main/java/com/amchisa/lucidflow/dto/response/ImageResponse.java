@@ -1,4 +1,4 @@
-package com.amchisa.lucidflow.dto.image;
+package com.amchisa.lucidflow.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

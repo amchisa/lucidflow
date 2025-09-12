@@ -1,6 +1,6 @@
 package com.amchisa.lucidflow.service.image;
 
-import com.amchisa.lucidflow.dto.image.ImageRequest;
+import com.amchisa.lucidflow.dto.request.ImageRequest;
 import com.amchisa.lucidflow.model.Image;
 import com.amchisa.lucidflow.model.Post;
 import com.amchisa.lucidflow.exception.types.InvalidFiletypeException;

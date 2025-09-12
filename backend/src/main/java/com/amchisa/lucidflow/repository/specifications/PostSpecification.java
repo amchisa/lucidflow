@@ -1,6 +1,6 @@
 package com.amchisa.lucidflow.repository.specifications;
 
-import com.amchisa.lucidflow.dto.post.PostFilterCriteria;
+import com.amchisa.lucidflow.dto.request.PostFilterCriteria;
 import com.amchisa.lucidflow.model.Post;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;

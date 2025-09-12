@@ -1,8 +1,8 @@
 package com.amchisa.lucidflow.service.post;
 
-import com.amchisa.lucidflow.dto.post.PostFilterCriteria;
-import com.amchisa.lucidflow.dto.post.PostRequest;
-import com.amchisa.lucidflow.dto.post.PostResponse;
+import com.amchisa.lucidflow.dto.request.PostFilterCriteria;
+import com.amchisa.lucidflow.dto.request.PostRequest;
+import com.amchisa.lucidflow.dto.response.PostResponse;
 import com.amchisa.lucidflow.exception.types.ResourceNotFoundException;
 import com.amchisa.lucidflow.model.Post;
 import com.amchisa.lucidflow.repository.PostRepository;

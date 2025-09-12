@@ -1,7 +1,7 @@
 package com.amchisa.lucidflow.mapper;
 
-import com.amchisa.lucidflow.dto.post.PostRequest;
-import com.amchisa.lucidflow.dto.post.PostResponse;
+import com.amchisa.lucidflow.dto.request.PostRequest;
+import com.amchisa.lucidflow.dto.response.PostResponse;
 import com.amchisa.lucidflow.model.Image;
 import com.amchisa.lucidflow.model.Post;
 import org.springframework.stereotype.Component;
