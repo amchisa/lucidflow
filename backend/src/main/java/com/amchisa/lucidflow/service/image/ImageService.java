@@ -1,6 +1,7 @@
 package com.amchisa.lucidflow.service.image;
 
 import com.amchisa.lucidflow.dto.request.ImageRequest;
+import com.amchisa.lucidflow.exception.types.FileOperationException;
 import com.amchisa.lucidflow.model.Image;
 import com.amchisa.lucidflow.model.Post;
 import com.amchisa.lucidflow.exception.types.InvalidFiletypeException;
@@ -102,24 +103,26 @@ public class ImageService {
                 Path tempPath = TEMP_IMAGE_UPLOAD_DIRECTORY.resolve(imageFilename);
                 Path targetPath = IMAGE_UPLOAD_DIRECTORY.resolve(imageFilename);
 
-                // Move temp image file to permanent storage
-                fileService.moveFile(tempPath, targetPath);
 
-                // Update image url
-                System.out.println(image.getUrl());
-                System.out.println(TEMP_IMAGE_UPLOAD_DIRECTORY);
-                System.out.println(IMAGE_UPLOAD_DIRECTORY);
-                image.setUrl(image.getUrl()
-                    .replace(
-                        // Replace backward slashes with forward slashes for cross-platform compatibility
-                        TEMP_IMAGE_UPLOAD_DIRECTORY.toString().replace("\\", "/"),
-                        IMAGE_UPLOAD_DIRECTORY.toString().replace("\\", "/")
-                    )
-                );
-                System.out.println(image.getUrl());
+                try {
+                    // Try to move temp image file to permanent storage
+                    fileService.moveFile(tempPath, targetPath);
 
-                post.addImage(image);
-                imagesModified.set(true);
+                    // Update image url
+                    image.setUrl(image.getUrl()
+                        .replace(
+                            // Replace backward slashes with forward slashes for cross-platform compatibility
+                            TEMP_IMAGE_UPLOAD_DIRECTORY.toString().replace("\\", "/"),
+                            IMAGE_UPLOAD_DIRECTORY.toString().replace("\\", "/")
+                        )
+                    );
+
+                    post.addImage(image);
+                    imagesModified.set(true);
+                }
+                catch (FileOperationException e) {
+                    logger.warn("Invalid temp image url. Skipping image file persistence for: {}", imageFilename);
+                }
             }
         }
 

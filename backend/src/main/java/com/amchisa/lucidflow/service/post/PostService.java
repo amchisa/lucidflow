@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -85,7 +86,10 @@ public class PostService {
     }
 
     public void deletePost(Long id) {
-        postRepository.delete(findPostById(id));
+        Post post = findPostById(id);
+        imageService.syncImages(post, new ArrayList<>()); // TEMP FIX: Manually trigger image cleanup
+
+        postRepository.delete(post);
     }
 
     @Transactional
@@ -96,6 +100,7 @@ public class PostService {
 
         List<Post> postsToDelete = ids.stream()
             .map(this::findPostById)
+            .peek(post -> imageService.syncImages(post, new ArrayList<>())) // TEMP FIX: Manually trigger image cleanup
             .toList();
 
         postRepository.deleteAll(postsToDelete);
