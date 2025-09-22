@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import type { Image, Post } from "../../types/models";
-import type { PostRequest } from "../../types/requests";
+import type { Image, Post } from "../../types/models.types";
+import type { PostRequest } from "../../types/requests.types";
 import { X } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useEditor, EditorContent } from "@tiptap/react";

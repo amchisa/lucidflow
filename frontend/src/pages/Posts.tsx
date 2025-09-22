@@ -1,10 +1,10 @@
-import usePosts from "../hooks/usePosts";
+import usePosts from "../hooks/post/usePosts";
 import { useEffect, useCallback, useState } from "react";
 import PostList from "../components/post/PostList";
 import PostEditor from "../components/post/PostEditor";
 import { ListRestart, NotebookPen } from "lucide-react";
-import usePostEditor from "../hooks/usePostEditor";
-import useDebounce from "../hooks/useDebounce";
+import usePostEditor from "../hooks/post/usePostEditor";
+import useDebounce from "../hooks/shared/useDebounce";
 import Searchbar from "../components/ui/Searchbar";
 import Footer from "../components/layout/Footer";
 import { subHours, subDays, subYears } from "date-fns";

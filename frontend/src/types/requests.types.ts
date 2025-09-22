@@ -1,4 +1,4 @@
-import type { Image } from "./models";
+import type { Image } from "./models.types";
 
 /**
  * Represents the structure of a Post object sent to the API (e.g., for creating or updating a post).

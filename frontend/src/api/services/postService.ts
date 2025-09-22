@@ -1,6 +1,6 @@
-import type { Post, Page } from "../../types/models";
-import type { PostRequest } from "../../types/requests";
-import type { PageResponse, PostResponse } from "../../types/responses";
+import type { Post, Page } from "../../types/models.types";
+import type { PostRequest } from "../../types/requests.types";
+import type { PageResponse, PostResponse } from "../../types/responses.types";
 import { postMapper } from "../mappers/postMapper";
 import { pageMapper } from "../mappers/pageMapper";
 import { api } from "../client/axios";

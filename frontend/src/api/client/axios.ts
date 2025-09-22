@@ -1,9 +1,21 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "/api", // Gets redirected through the proxy configured in vite.config (change later)
+  baseURL: "/api", // Trigger a redirect through the proxy configured in vite.config
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 5000, // 5 seconds
+  timeout: 10000, // 10 seconds
 });
+
+// Request Interceptor
+api.interceptors.request.use(
+  (config) => {
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"]; // Let browser set Content-Type for FormData
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error),
+);

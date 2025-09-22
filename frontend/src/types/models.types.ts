@@ -1,6 +1,6 @@
 /**
  * Generic interface for the internal application model for a page.
- * Fields are not nested for a flat data structure.
+ * Fields are not nested to ensure a flat data structure.
  * @template T represents the type of the items in the embedded content array.
  */
 export interface Page<T> {

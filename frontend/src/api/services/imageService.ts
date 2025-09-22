@@ -13,11 +13,7 @@ export const imageService = {
     const formData = new FormData();
     formData.append("file", imageFile);
 
-    const response = await api.post("/images/upload", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data", // Override default content type
-      },
-    });
+    const response = await api.post("/images/upload", formData);
 
     return response.data;
   },

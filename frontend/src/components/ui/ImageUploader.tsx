@@ -1,4 +1,4 @@
-import type { Image } from "../../types/models";
+import type { Image } from "../../types/models.types";
 import { type Dispatch, type SetStateAction, useRef } from "react";
 import { ImagePlus, X } from "lucide-react";
 import { imageService } from "../../api/services/imageService";

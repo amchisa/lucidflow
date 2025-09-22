@@ -1,4 +1,4 @@
-import type { Image } from "../../types/models";
+import type { Image } from "../../types/models.types";
 
 interface ImageGalleryProps {
   images: Image[];

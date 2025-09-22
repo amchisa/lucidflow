@@ -1,9 +1,9 @@
 import { useState, useCallback, useRef } from "react";
-import type { Post } from "../types/models";
-import type { PostRequest } from "../types/requests";
-import { postService } from "../api/services/postService";
+import type { Post } from "../../types/models.types";
+import type { PostRequest } from "../../types/requests.types";
+import { postService } from "../../api/services/postService";
 import { AxiosError } from "axios";
-import { delay } from "../utils/timeUtils";
+import { delay } from "../../utils/timeUtils";
 import { toast } from "react-hot-toast";
 
 interface HandleErrorParams {

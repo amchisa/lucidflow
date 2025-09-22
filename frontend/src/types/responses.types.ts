@@ -1,4 +1,4 @@
-import type { Image } from "./models";
+import type { Image } from "./models.types";
 
 /**
  * Generic interface for paginated API responses with a nested page object.
@@ -21,7 +21,7 @@ export interface PostResponse {
   id: number;
   title: string;
   body: string;
-  images: Image[]; // Not ImageResponse since this type is not currently needed
+  images: Image[]; // Not ImageResponse as it is not currently needed
   createdAt: string;
   lastModifiedAt: string;
 }

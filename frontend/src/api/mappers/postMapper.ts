@@ -1,5 +1,5 @@
-import type { PostResponse } from "../../types/responses";
-import type { Post } from "../../types/models";
+import type { PostResponse } from "../../types/responses.types";
+import type { Post } from "../../types/models.types";
 
 /**
  * Type mapper for conversion between post data types.

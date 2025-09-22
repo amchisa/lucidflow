@@ -1,5 +1,5 @@
-import type { Page } from "../../types/models";
-import type { PageResponse } from "../../types/responses";
+import type { Page } from "../../types/models.types";
+import type { PageResponse } from "../../types/responses.types";
 
 /**
  * Type mapper for conversion between page data types.
