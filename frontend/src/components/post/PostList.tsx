@@ -1,7 +1,7 @@
 import type { Post } from "../../types/models.types";
 import LoadingSpinner from "../ui/LoadingSpinner";
 import PostItem from "./PostItem";
-import useInfiniteScroll from "../../hooks/shared/useInfiniteScroll";
+import useInfiniteScroll from "../../hooks/useInfiniteScroll";
 import { useEffect, useRef, useState } from "react";
 import PostSkeleton from "./PostSkeleton";
 

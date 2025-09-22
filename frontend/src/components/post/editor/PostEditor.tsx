@@ -1,16 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
-import type { Image, Post } from "../../types/models.types";
-import type { PostRequest } from "../../types/requests.types";
+import type { Image, Post } from "../../../types/models.types";
+import type { PostRequest } from "../../../types/requests.types";
 import { X } from "lucide-react";
 import DOMPurify from "dompurify";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
-import { htmlToPlainText } from "../../utils/textUtils";
+import { htmlToPlainText } from "../../../utils/textUtils";
 import { Tooltip } from "react-tooltip";
-import EditorToolbar from "../ui/EditorToolbar";
-import ImageUploader from "../ui/ImageUploader";
-import ImageModal from "../ui/ImageModal";
+import EditorToolbar from "./EditorToolbar";
+import ImageUploader from "../../ui/ImageUploader";
+import ImageModal from "../../ui/ImageModal";
 
 interface PostEditorProps {
   onClose: () => void;

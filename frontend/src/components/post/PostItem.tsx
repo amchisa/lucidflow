@@ -1,6 +1,6 @@
 import type { Post } from "../../types/models.types";
 import DropdownMenu from "../ui/DropdownMenu";
-import ImageGallery from "./ImageGallery";
+import ImageGallery from "./gallery/ImageGallery";
 import { Ellipsis, Edit2, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
